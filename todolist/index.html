@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>오늘의 할일</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <main class="app">
+    <p class="storage-warning" id="storage-warning" hidden>
+      이 브라우저에서는 저장되지 않습니다. 페이지를 닫으면 할일이 사라져요.
+    </p>
+
+    <header class="header">
+      <h1>오늘의 할일</h1>
+      <p class="date" id="today-date"></p>
+      <div class="progress">
+        <div class="progress-bar" id="progress-bar" role="progressbar"
+             aria-label="오늘 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="progress-fill" id="progress-fill"></span>
+        </div>
+        <span class="progress-text" id="progress-text"></span>
+      </div>
+    </header>
+
+    <section class="banner" id="carry-banner" aria-live="polite" hidden>
+      <p class="banner-text" id="carry-text"></p>
+      <div class="banner-actions">
+        <button type="button" class="btn btn-primary" data-action="accept-all">가져오기</button>
+        <button type="button" class="btn" data-action="pick-toggle" id="pick-toggle" aria-expanded="false">골라서 가져오기</button>
+        <button type="button" class="btn btn-ghost" data-action="discard">버리기</button>
+      </div>
+      <div class="pick" id="pick" hidden>
+        <ul class="pick-list" id="pick-list"></ul>
+        <button type="button" class="btn btn-primary" data-action="accept-picked">선택한 항목 가져오기</button>
+      </div>
+    </section>
+
+    <form class="add-form" id="add-form" autocomplete="off">
+      <label for="new-todo" class="visually-hidden">새 할일</label>
+      <input id="new-todo" type="text" maxlength="200" placeholder="할 일을 입력하세요..." enterkeyhint="done">
+      <button type="submit" class="btn btn-primary">추가</button>
+    </form>
+
+    <nav class="filters" id="filters" aria-label="할일 필터">
+      <button type="button" data-filter="all">전체</button>
+      <button type="button" data-filter="active">진행 중</button>
+      <button type="button" data-filter="done">완료</button>
+    </nav>
+
+    <ul class="todo-list" id="todo-list" aria-label="할일 목록"></ul>
+    <p class="empty" id="empty" hidden></p>
+
+    <footer class="footer">
+      <span id="remaining"></span>
+      <div class="footer-actions">
+        <button type="button" class="btn btn-ghost" id="clear-done">완료 항목 지우기</button>
+        <button type="button" class="btn btn-ghost" id="open-history">지난 기록 ▸</button>
+      </div>
+    </footer>
+  </main>
+
+  <dialog class="history" id="history" aria-labelledby="history-title">
+    <header class="history-header">
+      <button type="button" class="icon-btn" id="close-history" aria-label="지난 기록 닫기">←</button>
+      <h2 id="history-title">지난 기록 <small>(최근 7일)</small></h2>
+    </header>
+    <div class="history-body" id="history-body"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <span id="toast-text"></span>
+    <button type="button" class="toast-action" id="toast-undo">실행 취소</button>
+  </div>
+</body>
+</html>
