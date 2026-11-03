@@ -1,0 +1,31 @@
+{
+  "elder_hael": {"name": "촌장 하엘",       "map": "r1_town", "x": 900,  "look": "elder",    "color": [160, 120, 200], "greet": "별잎이 다시 빛나는 날이 올 줄은 몰랐네."},
+  "lumi":       {"name": "교관 루미",       "map": "r1_town", "x": 1300, "look": "fighter",  "color": [230, 120, 90],  "greet": "몸은 좀 괜찮아? 모험가라면 단련부터야!"},
+  "bobo":       {"name": "잡화상 보보",     "map": "r1_town", "x": 520,  "look": "merchant", "color": [240, 190, 90],  "greet": "어서 와~ 물약은 항상 넉넉히!", "shop": ["hp_s", "mp_s", "scroll_town"]},
+  "tan":        {"name": "어부 탄",         "map": "r1_town", "x": 1650, "look": "villager", "color": [90, 140, 200],  "greet": "요즘 게들이 그물을 다 찢어놔서 원..."},
+  "mira":       {"name": "소녀 미라",       "map": "r1_town", "x": 300,  "look": "child",    "color": [255, 150, 180], "greet": "앗, 깨어났구나! 다행이다!"},
+  "board_r1":   {"name": "현상금 게시판",   "map": "r1_town", "x": 1500, "look": "board",    "color": [150, 110, 70],  "greet": "마을을 위협하는 몬스터 현상금 목록이 붙어 있다."},
+
+  "seren":      {"name": "숲의 파수꾼 세렌", "map": "r2_town", "x": 1000, "look": "fighter", "color": [90, 190, 120],  "greet": "숲이 아파하고 있어. 느껴지지 않아?"},
+  "ordin":      {"name": "직업 길드장 오르딘", "map": "r2_town", "x": 1450, "look": "elder",  "color": [200, 170, 90],  "greet": "강해지고 싶은 눈빛이로군."},
+  "pip":        {"name": "약초꾼 핍",       "map": "r2_town", "x": 700,  "look": "villager", "color": [150, 210, 110], "greet": "음음, 이 약초는 저 약초랑 섞으면..."},
+  "dana":       {"name": "숲 상인 다나",    "map": "r2_town", "x": 400,  "look": "merchant", "color": [210, 150, 90],  "greet": "숲에서 필요한 건 다 있어!", "shop": ["hp_s", "hp_m", "mp_s", "mp_m", "scroll_town", "cube_m"]},
+  "board_r2":   {"name": "현상금 게시판",   "map": "r2_town", "x": 1850, "look": "board",    "color": [120, 90, 60],   "greet": "숲의 몬스터 현상금 목록이 붙어 있다."},
+
+  "marco":      {"name": "선장 마르코",     "map": "r3_town", "x": 1100, "look": "fighter",  "color": [70, 110, 170],  "greet": "항구에 온 걸 환영하네, 별잎의 모험가!"},
+  "ines":       {"name": "고고학자 이네스", "map": "r3_town", "x": 1600, "look": "scholar",  "color": [190, 120, 80],  "greet": "이 문양... 정말 흥미로워!"},
+  "toby":       {"name": "견습 선원 토비",  "map": "r3_town", "x": 800,  "look": "child",    "color": [100, 170, 230], "greet": "나도 언젠가 선장이 될 거야!"},
+  "jahil":      {"name": "항구 상인 자힐",  "map": "r3_town", "x": 450,  "look": "merchant", "color": [220, 170, 70],  "greet": "바다 건너 온 귀한 물건들이라오.", "shop": ["hp_m", "hp_l", "mp_m", "mp_l", "scroll_town", "cube_m", "cube_s"]},
+  "board_r3":   {"name": "현상금 게시판",   "map": "r3_town", "x": 2100, "look": "board",    "color": [170, 130, 80],  "greet": "사막과 바다의 현상금 목록이 붙어 있다."},
+
+  "elos":       {"name": "현자 엘로스",     "map": "r4_town", "x": 1100, "look": "elder",    "color": [150, 190, 240], "greet": "별의 흐름이 너를 이곳으로 이끌었구나."},
+  "bron":       {"name": "대장장이 브론",   "map": "r4_town", "x": 1600, "look": "fighter",  "color": [180, 100, 70],  "greet": "좋은 재료만 있으면 뭐든 만들어 주지!"},
+  "hana":       {"name": "등불지기 하나",   "map": "r4_town", "x": 800,  "look": "villager", "color": [255, 200, 120], "greet": "등불이 꺼지면 이 마을은 얼어붙어요."},
+  "yuki":       {"name": "상인 유키",       "map": "r4_town", "x": 450,  "look": "merchant", "color": [200, 220, 255], "greet": "추위엔 따뜻한 엘릭서가 최고죠!", "shop": ["hp_l", "hp_x", "mp_m", "mp_l", "scroll_town", "cube_m", "cube_s"]},
+  "board_r4":   {"name": "현상금 게시판",   "map": "r4_town", "x": 2100, "look": "board",    "color": [140, 160, 190], "greet": "설원의 현상금 목록이 붙어 있다."},
+
+  "varen":      {"name": "기사단장 바렌",   "map": "r5_town", "x": 1100, "look": "fighter",  "color": [220, 200, 120], "greet": "여기까지 왔다면, 각오는 되어 있겠지."},
+  "astera":     {"name": "별의 정령 아스테라", "map": "r5_town", "x": 1550, "look": "spirit", "color": [255, 240, 160], "greet": "드디어 만났네요, 별잎의 계승자."},
+  "quartermaster": {"name": "보급관 니아",  "map": "r5_town", "x": 450,  "look": "merchant", "color": [180, 160, 220], "greet": "마지막 전투에 필요한 건 여기 다 있어요.", "shop": ["hp_l", "hp_x", "mp_l", "scroll_town", "cube_m", "cube_s"]},
+  "board_r5":   {"name": "현상금 게시판",   "map": "r5_town", "x": 2100, "look": "board",    "color": [100, 70, 130],  "greet": "공허의 몬스터 현상금 목록이 붙어 있다."}
+}

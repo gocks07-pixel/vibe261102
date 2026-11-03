@@ -1,0 +1,102 @@
+{
+  "_note": "장비 기본 수치는 레벨 단위 u = 1 + 레벨/10 에 아래 배율을 곱해 계산. 무기 공격력 = 12 + 레벨 + 0.02 x 레벨^2. HP/MP = 배율 x (1 + 레벨/4).",
+  "slots": {
+    "hat":     {"name": "모자",   "kind": "armor", "def": 1.0, "stats": {"ALL": 1.5, "HP": 12}},
+    "top":     {"name": "상의",   "kind": "armor", "def": 1.6, "stats": {"ALL": 1.5, "HP": 20}},
+    "bottom":  {"name": "하의",   "kind": "armor", "def": 1.3, "stats": {"ALL": 1.2, "HP": 15}},
+    "shoes":   {"name": "신발",   "kind": "armor", "def": 0.7, "stats": {"ALL": 1.0, "SPEED": 0.4}},
+    "gloves":  {"name": "장갑",   "kind": "armor", "def": 0.6, "stats": {"ALL": 0.8, "ATT": 0.5}},
+    "cape":    {"name": "망토",   "kind": "armor", "def": 0.8, "stats": {"ALL": 1.0, "MP": 10}},
+    "weapon":  {"name": "무기",   "kind": "weapon", "def": 0, "stats": {}},
+    "earring": {"name": "귀고리", "kind": "acc", "def": 0.3, "stats": {"ALL": 1.5, "ATT": 0.4}},
+    "ring":    {"name": "반지",   "kind": "acc", "def": 0.2, "stats": {"ALL": 1.8, "ATT": 0.3}},
+    "pendant": {"name": "목걸이", "kind": "acc", "def": 0.3, "stats": {"ALL": 1.5, "HP": 15}}
+  },
+  "slot_order": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon", "earring", "ring", "pendant"],
+  "weapon_names": {"beginner": "막대", "warrior": "검", "archer": "활", "mage": "지팡이", "thief": "단검"},
+  "tiers": [
+    {"level": 0,   "prefix": "낡은",      "set": null,      "slots": ["hat", "top", "bottom", "shoes", "weapon"]},
+    {"level": 10,  "prefix": "새벽 견습", "set": "dawn",    "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 20,  "prefix": "강철",      "set": null,      "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 30,  "prefix": "초록바람",  "set": "verdant", "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 35,  "prefix": "은빛",      "set": null,      "slots": ["earring", "ring", "pendant"]},
+    {"level": 40,  "prefix": "기사단",    "set": null,      "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 50,  "prefix": "사막의 별", "set": "desert",  "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 60,  "prefix": "미스릴",    "set": null,      "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 65,  "prefix": "황금",      "set": null,      "slots": ["earring", "ring", "pendant"]},
+    {"level": 70,  "prefix": "서리왕관",  "set": "frost",   "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 80,  "prefix": "용린",      "set": null,      "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 90,  "prefix": "성휘",      "set": "sigil",   "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon"]},
+    {"level": 100, "prefix": "공허 결정", "set": "void",    "slots": ["hat", "top", "bottom", "shoes", "gloves", "cape", "weapon", "earring", "ring", "pendant"]}
+  ],
+  "sets": {
+    "dawn":    {"name": "새벽 견습 세트", "bonus": {"2": {"ALL": 5}, "3": {"HP": 100, "MP": 100}, "4": {"ATT": 5}, "5": {"ALL": 5, "DEF": 30}, "6": {"ATT": 5, "DMG%": 5}, "7": {"BOSS%": 10}}},
+    "verdant": {"name": "초록바람 세트", "bonus": {"2": {"ALL": 10}, "3": {"HP": 300, "MP": 200}, "4": {"ATT": 10}, "5": {"ALL": 10, "DEF": 60}, "6": {"ATT": 10, "BOSS%": 10}, "7": {"IED%": 10}}},
+    "desert":  {"name": "사막의 별 세트", "bonus": {"2": {"ALL": 15, "HP": 500}, "3": {"ATT": 15}, "4": {"BOSS%": 10}, "5": {"ALL": 15, "DEF": 100}, "6": {"ATT": 15}, "7": {"IED%": 10, "DMG%": 5}}},
+    "frost":   {"name": "서리왕관 세트", "bonus": {"2": {"ALL": 20, "HP": 800}, "3": {"ATT": 20}, "4": {"BOSS%": 15}, "5": {"ALL": 20, "ATT": 10}, "6": {"IED%": 10}, "7": {"ATT": 25, "DMG%": 10}}},
+    "sigil":   {"name": "성휘 세트", "bonus": {"2": {"ALL": 30, "HP": 1500}, "3": {"ATT": 30}, "4": {"BOSS%": 20}, "5": {"ALL": 30}, "6": {"ATT": 30, "IED%": 10}, "7": {"BOSS%": 20, "DMG%": 10}}},
+    "void":    {"name": "공허 결정 세트", "bonus": {"2": {"ALL": 30}, "3": {"ATT": 30}, "4": {"HP%": 10}, "5": {"BOSS%": 20}, "6": {"ATT": 30}, "7": {"IED%": 15}, "8": {"ALL": 40}, "9": {"ATT": 40}, "10": {"DMG%": 20, "BOSS%": 20}}}
+  },
+  "additional": {
+    "_note": "추가 옵션: 장비 생성 시 1~4줄 랜덤. 수치 = 랜덤(min, max) x 티어(레벨/20+1)",
+    "lines_weight": [40, 35, 20, 5],
+    "pool": [
+      {"stat": "STR", "min": 2, "max": 6, "w": 10},
+      {"stat": "DEX", "min": 2, "max": 6, "w": 10},
+      {"stat": "INT", "min": 2, "max": 6, "w": 10},
+      {"stat": "LUK", "min": 2, "max": 6, "w": 10},
+      {"stat": "ALL", "min": 1, "max": 3, "w": 5},
+      {"stat": "ATT", "min": 1, "max": 3, "w": 6},
+      {"stat": "HP",  "min": 30, "max": 90, "w": 8},
+      {"stat": "MP",  "min": 30, "max": 90, "w": 6},
+      {"stat": "DEF", "min": 5, "max": 15, "w": 8},
+      {"stat": "BOSS%", "min": 2, "max": 4, "w": 2, "slots": ["weapon"], "flat": true},
+      {"stat": "DMG%", "min": 1, "max": 3, "w": 2, "slots": ["weapon"], "flat": true}
+    ]
+  },
+  "potential": {
+    "_note": "등급업/옵션 등급 확률은 넥슨 공식 큐브 확률 안내(블랙/명장 큐브) 수치를 참고.",
+    "drop_grade_rates": {"normal": [70, 23, 6, 0.9, 0.1], "elite": [40, 40, 15, 4, 1], "boss": [10, 45, 30, 12, 3]},
+    "line2_same_grade": 0.2,
+    "line3_same_grade": 0.05,
+    "high_level_bonus": {"level": 70, "pct_bonus": 1},
+    "options": {
+      "1": [
+        {"stat": "STR%", "val": 3, "w": 10}, {"stat": "DEX%", "val": 3, "w": 10}, {"stat": "INT%", "val": 3, "w": 10}, {"stat": "LUK%", "val": 3, "w": 10},
+        {"stat": "HP%", "val": 3, "w": 8}, {"stat": "MP%", "val": 3, "w": 6}, {"stat": "DEF", "val": 20, "w": 6},
+        {"stat": "ATT", "val": 6, "w": 6}, {"stat": "CRIT", "val": 4, "w": 4, "slots": ["weapon", "acc"]},
+        {"stat": "ATT%", "val": 3, "w": 5, "slots": ["weapon"]}, {"stat": "DMG%", "val": 3, "w": 5, "slots": ["weapon"]}
+      ],
+      "2": [
+        {"stat": "STR%", "val": 6, "w": 10}, {"stat": "DEX%", "val": 6, "w": 10}, {"stat": "INT%", "val": 6, "w": 10}, {"stat": "LUK%", "val": 6, "w": 10},
+        {"stat": "ALL%", "val": 3, "w": 6}, {"stat": "HP%", "val": 6, "w": 8}, {"stat": "DEF", "val": 40, "w": 5},
+        {"stat": "ATT", "val": 10, "w": 5}, {"stat": "CRIT", "val": 6, "w": 4, "slots": ["weapon", "acc"]},
+        {"stat": "ATT%", "val": 6, "w": 6, "slots": ["weapon"]}, {"stat": "IED%", "val": 15, "w": 4, "slots": ["weapon"]}
+      ],
+      "3": [
+        {"stat": "STR%", "val": 9, "w": 10}, {"stat": "DEX%", "val": 9, "w": 10}, {"stat": "INT%", "val": 9, "w": 10}, {"stat": "LUK%", "val": 9, "w": 10},
+        {"stat": "ALL%", "val": 6, "w": 6}, {"stat": "HP%", "val": 9, "w": 6}, {"stat": "CRIT", "val": 8, "w": 4, "slots": ["weapon", "acc", "gloves"]},
+        {"stat": "CRITD", "val": 5, "w": 3, "slots": ["gloves"]},
+        {"stat": "ATT%", "val": 9, "w": 6, "slots": ["weapon"]}, {"stat": "BOSS%", "val": 30, "w": 5, "slots": ["weapon"]}, {"stat": "IED%", "val": 30, "w": 4, "slots": ["weapon"]}
+      ],
+      "4": [
+        {"stat": "STR%", "val": 12, "w": 10}, {"stat": "DEX%", "val": 12, "w": 10}, {"stat": "INT%", "val": 12, "w": 10}, {"stat": "LUK%", "val": 12, "w": 10},
+        {"stat": "ALL%", "val": 9, "w": 6}, {"stat": "HP%", "val": 12, "w": 6}, {"stat": "CRIT", "val": 12, "w": 3, "slots": ["weapon", "acc", "gloves"]},
+        {"stat": "CRITD", "val": 8, "w": 3, "slots": ["gloves"]},
+        {"stat": "ATT%", "val": 12, "w": 6, "slots": ["weapon"]}, {"stat": "BOSS%", "val": 40, "w": 5, "slots": ["weapon"]}, {"stat": "IED%", "val": 40, "w": 4, "slots": ["weapon"]}
+      ]
+    }
+  },
+  "consumables": {
+    "hp_s":  {"name": "빨간 물약",       "hp": 150,  "price": 25,   "desc": "HP를 150 회복한다."},
+    "hp_m":  {"name": "주황 물약",       "hp": 600,  "price": 90,   "desc": "HP를 600 회복한다."},
+    "hp_l":  {"name": "하얀 물약",       "hp": 1600, "price": 260,  "desc": "HP를 1600 회복한다."},
+    "hp_x":  {"name": "별빛 엘릭서",     "hp": 5000, "price": 900,  "desc": "HP를 5000 회복한다."},
+    "mp_s":  {"name": "파란 물약",       "mp": 100,  "price": 30,   "desc": "MP를 100 회복한다."},
+    "mp_m":  {"name": "마나 엘릭서",     "mp": 450,  "price": 120,  "desc": "MP를 450 회복한다."},
+    "mp_l":  {"name": "상급 마나 엘릭서", "mp": 1500, "price": 400,  "desc": "MP를 1500 회복한다."},
+    "cube_m": {"name": "수수께끼 큐브", "cube": [7.9994, 1.6959, 0.1996], "price": 2500,  "desc": "장비의 잠재능력을 재설정한다. 등급업 확률 낮음."},
+    "cube_s": {"name": "별빛 큐브",     "cube": [15.0, 3.5, 1.4],         "price": 12000, "desc": "장비의 잠재능력을 재설정한다. 등급업 확률 높음."},
+    "scroll_town": {"name": "마을 귀환 주문서", "town": true, "price": 300, "desc": "현재 지역의 마을로 돌아간다."}
+  }
+}

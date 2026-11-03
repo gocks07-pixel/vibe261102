@@ -1,0 +1,230 @@
+{
+  "jobs": {
+    "beginner": {
+      "names": [
+        "초보 모험가"
+      ],
+      "main": "STR",
+      "sub": "DEX",
+      "hp_lv": 12,
+      "mp_lv": 6,
+      "range": 70,
+      "color": [
+        200,
+        200,
+        200
+      ],
+      "weapon": "막대"
+    },
+    "warrior": {
+      "names": [
+        "초보 모험가",
+        "검사",
+        "기사",
+        "성기사",
+        "별의 수호기사"
+      ],
+      "main": "STR",
+      "sub": "DEX",
+      "hp_lv": 24,
+      "mp_lv": 6,
+      "range": 95,
+      "color": [
+        225,
+        85,
+        65
+      ],
+      "weapon": "검"
+    },
+    "archer": {
+      "names": [
+        "초보 모험가",
+        "궁수",
+        "사냥꾼",
+        "명사수",
+        "별빛 궁사"
+      ],
+      "main": "DEX",
+      "sub": "STR",
+      "hp_lv": 15,
+      "mp_lv": 10,
+      "range": 380,
+      "color": [
+        90,
+        200,
+        110
+      ],
+      "weapon": "활"
+    },
+    "mage": {
+      "names": [
+        "초보 모험가",
+        "마법사",
+        "마도사",
+        "대마도사",
+        "현자"
+      ],
+      "main": "INT",
+      "sub": "LUK",
+      "hp_lv": 11,
+      "mp_lv": 22,
+      "range": 320,
+      "color": [
+        110,
+        140,
+        255
+      ],
+      "weapon": "지팡이",
+      "branches": {
+        "fire": {
+          "name": "화염·독",
+          "desc": "화상·중독 지속 피해로 적을 녹이는 계열",
+          "color": [
+            255,
+            120,
+            60
+          ],
+          "names": {
+            "2": "화염술사",
+            "3": "독염술사",
+            "4": "업화의 대마도사"
+          }
+        },
+        "ice": {
+          "name": "얼음·번개",
+          "desc": "둔화·빙결·감전으로 적을 묶고 광역으로 쓸어내는 계열",
+          "color": [
+            120,
+            200,
+            255
+          ],
+          "names": {
+            "2": "빙뢰술사",
+            "3": "폭풍술사",
+            "4": "천뢰의 대마도사"
+          }
+        },
+        "holy": {
+          "name": "신성",
+          "desc": "회복·피해 감소·부활로 오래 버티며 영혼형 적에게 강한 계열",
+          "color": [
+            255,
+            230,
+            140
+          ],
+          "names": {
+            "2": "성직자",
+            "3": "사제",
+            "4": "별의 대사제"
+          }
+        }
+      }
+    },
+    "thief": {
+      "names": [
+        "초보 모험가",
+        "도적",
+        "암살자",
+        "그림자 추적자",
+        "공허 사냥꾼"
+      ],
+      "main": "LUK",
+      "sub": "DEX",
+      "hp_lv": 16,
+      "mp_lv": 10,
+      "range": 85,
+      "color": [
+        170,
+        95,
+        220
+      ],
+      "weapon": "단검"
+    }
+  },
+  "skills": [
+    {"id": "w_slash", "job": "warrior", "tier": 1, "name": "파워 슬래시", "type": "attack", "max": 10, "desc": "전방의 적을 강하게 벤다.", "mp": [6, 0.5], "dmg": [150, 10], "hits": 1, "targets": 3, "range": [130, 90], "cd": 0, "fx": "slash", "color": [255, 120, 80]},
+    {"id": "w_charge", "job": "warrior", "tier": 1, "name": "돌진 베기", "type": "attack", "max": 10, "desc": "앞으로 돌진하며 적을 밀쳐낸다.", "mp": [10, 0.5], "dmg": [120, 8], "hits": 2, "targets": 5, "range": [220, 80], "cd": 3, "fx": "dash", "color": [255, 170, 90], "dash": 160},
+    {"id": "w_iron", "job": "warrior", "tier": 1, "name": "강철 육체", "type": "passive", "max": 10, "desc": "최대 HP와 방어력이 증가한다.", "stats": {"HP%": [2, 1], "DEF": [10, 5]}},
+    {"id": "w_whirl", "job": "warrior", "tier": 2, "name": "회오리 베기", "type": "attack", "max": 15, "desc": "몸을 회전하며 주변 적을 모두 벤다.", "mp": [14, 0.6], "dmg": [200, 10], "hits": 2, "targets": 6, "range": [260, 110], "cd": 0, "fx": "whirl", "color": [255, 90, 60], "around": true},
+    {"id": "w_rage", "job": "warrior", "tier": 2, "name": "분노", "type": "buff", "max": 15, "desc": "일정 시간 공격력이 증가한다.", "mp": [20, 1], "dur": 120, "cd": 1, "stats": {"ATT": [5, 1.2]}},
+    {"id": "w_mastery", "job": "warrior", "tier": 2, "name": "검술 숙련", "type": "passive", "max": 15, "desc": "크리티컬 확률과 데미지가 증가한다.", "stats": {"CRIT": [2, 1], "DMG%": [2, 0.6]}},
+    {"id": "w_quake", "job": "warrior", "tier": 3, "name": "대지 가르기", "type": "attack", "max": 20, "desc": "검을 내리찍어 지면을 가른다.", "mp": [24, 0.8], "dmg": [250, 10], "hits": 3, "targets": 8, "range": [340, 100], "cd": 0, "fx": "quake", "color": [230, 160, 70]},
+    {"id": "w_holy", "job": "warrior", "tier": 3, "name": "성스러운 일격", "type": "attack", "max": 20, "desc": "빛을 실은 일격으로 보스에게 큰 피해를 준다.", "mp": [30, 1], "dmg": [380, 14], "hits": 3, "targets": 2, "range": [160, 120], "cd": 4, "fx": "burst", "color": [255, 240, 140], "boss_bonus": 30},
+    {"id": "w_guard", "job": "warrior", "tier": 3, "name": "수호의 맹세", "type": "buff", "max": 20, "desc": "방어력과 최대 HP가 대폭 증가한다.", "mp": [30, 1], "dur": 180, "cd": 1, "stats": {"DEF": [50, 10], "HP%": [10, 1]}},
+    {"id": "w_star", "job": "warrior", "tier": 4, "name": "별의 심판", "type": "attack", "max": 20, "desc": "하늘에서 별빛 검을 떨어뜨린다.", "mp": [40, 1.2], "dmg": [300, 12], "hits": 4, "targets": 10, "range": [420, 160], "cd": 0, "fx": "rain", "color": [255, 230, 120]},
+    {"id": "w_aegis", "job": "warrior", "tier": 4, "name": "성휘 각성", "type": "buff", "max": 20, "desc": "공격력과 보스 데미지가 증가한다.", "mp": [50, 1], "dur": 120, "cd": 30, "stats": {"ATT%": [5, 0.5], "BOSS%": [10, 1]}},
+    {"id": "w_final", "job": "warrior", "tier": 4, "name": "불굴", "type": "passive", "max": 20, "desc": "방어율 무시와 데미지가 증가한다.", "stats": {"IED%": [10, 1], "DMG%": [5, 0.5]}},
+
+    {"id": "a_double", "job": "archer", "tier": 1, "name": "더블 샷", "type": "attack", "max": 10, "desc": "화살 두 발을 빠르게 쏜다.", "mp": [5, 0.5], "dmg": [110, 8], "hits": 2, "targets": 1, "range": [420, 60], "cd": 0, "fx": "arrow", "color": [140, 240, 140]},
+    {"id": "a_spread", "job": "archer", "tier": 1, "name": "부채 화살", "type": "attack", "max": 10, "desc": "부채꼴로 화살을 퍼뜨린다.", "mp": [9, 0.5], "dmg": [110, 8], "hits": 1, "targets": 5, "range": [360, 140], "cd": 0, "fx": "arrow", "color": [180, 255, 160]},
+    {"id": "a_eye", "job": "archer", "tier": 1, "name": "매의 눈", "type": "passive", "max": 10, "desc": "크리티컬 확률이 증가한다.", "stats": {"CRIT": [3, 1], "DEX": [2, 1]}},
+    {"id": "a_arrowrain", "job": "archer", "tier": 2, "name": "화살비", "type": "attack", "max": 15, "desc": "넓은 범위에 화살을 쏟아붓는다.", "mp": [14, 0.6], "dmg": [180, 9], "hits": 2, "targets": 7, "range": [460, 160], "cd": 0, "fx": "rain", "color": [120, 230, 120]},
+    {"id": "a_focus", "job": "archer", "tier": 2, "name": "집중", "type": "buff", "max": 15, "desc": "공격력과 크리티컬 확률이 증가한다.", "mp": [20, 1], "dur": 120, "cd": 1, "stats": {"ATT": [4, 1], "CRIT": [5, 0.5]}},
+    {"id": "a_mastery", "job": "archer", "tier": 2, "name": "활 숙련", "type": "passive", "max": 15, "desc": "데미지가 증가한다.", "stats": {"DMG%": [3, 0.6], "CRITD": [2, 0.5]}},
+    {"id": "a_pierce", "job": "archer", "tier": 3, "name": "관통 사격", "type": "attack", "max": 20, "desc": "일직선상의 모든 적을 꿰뚫는다.", "mp": [22, 0.8], "dmg": [260, 10], "hits": 3, "targets": 10, "range": [560, 50], "cd": 0, "fx": "beam", "color": [200, 255, 170]},
+    {"id": "a_snipe", "job": "archer", "tier": 3, "name": "급소 저격", "type": "attack", "max": 20, "desc": "한 대상에게 강력한 저격을 가한다.", "mp": [30, 1], "dmg": [600, 20], "hits": 2, "targets": 1, "range": [600, 60], "cd": 3, "fx": "beam", "color": [255, 255, 200], "boss_bonus": 30},
+    {"id": "a_wind", "job": "archer", "tier": 3, "name": "바람의 가호", "type": "buff", "max": 20, "desc": "이동속도와 데미지가 증가한다.", "mp": [30, 1], "dur": 180, "cd": 1, "stats": {"SPEED": [10, 1], "DMG%": [5, 0.5]}},
+    {"id": "a_star", "job": "archer", "tier": 4, "name": "유성 화살", "type": "attack", "max": 20, "desc": "별빛 화살을 연속으로 쏜다.", "mp": [38, 1.2], "dmg": [290, 12], "hits": 5, "targets": 6, "range": [620, 120], "cd": 0, "fx": "arrow", "color": [255, 240, 140]},
+    {"id": "a_storm", "job": "archer", "tier": 4, "name": "폭풍의 시위", "type": "buff", "max": 20, "desc": "공격력과 보스 데미지가 증가한다.", "mp": [50, 1], "dur": 120, "cd": 30, "stats": {"ATT%": [5, 0.5], "BOSS%": [10, 1]}},
+    {"id": "a_final", "job": "archer", "tier": 4, "name": "명궁의 혼", "type": "passive", "max": 20, "desc": "방어율 무시와 크리티컬 데미지가 증가한다.", "stats": {"IED%": [10, 1], "CRITD": [5, 0.5]}},
+
+    {"id": "m_bolt", "job": "mage", "tier": 1, "name": "매직 볼트", "type": "attack", "max": 10, "desc": "마력 구체를 날린다.", "mp": [8, 0.6], "dmg": [170, 12], "hits": 1, "targets": 1, "range": [380, 60], "cd": 0, "fx": "bolt", "color": [130, 170, 255]},
+    {"id": "m_flame", "job": "mage", "tier": 1, "name": "화염 폭발", "type": "attack", "max": 10, "desc": "전방에 작은 폭발을 일으킨다.", "mp": [12, 0.6], "dmg": [130, 9], "hits": 1, "targets": 5, "range": [240, 120], "cd": 0, "fx": "burst", "color": [255, 130, 60]},
+    {"id": "m_wisdom", "job": "mage", "tier": 1, "name": "마나 지혜", "type": "passive", "max": 10, "desc": "최대 MP와 지능이 증가한다.", "stats": {"MP%": [5, 2], "INT": [2, 1]}},
+
+    {"id": "t_double", "job": "thief", "tier": 1, "name": "더블 스탭", "type": "attack", "max": 10, "desc": "단검으로 두 번 찌른다.", "mp": [6, 0.5], "dmg": [90, 8], "hits": 2, "targets": 1, "range": [120, 70], "cd": 0, "fx": "slash", "color": [210, 130, 255]},
+    {"id": "t_star", "job": "thief", "tier": 1, "name": "표창 투척", "type": "attack", "max": 10, "desc": "표창을 던져 원거리 적을 공격한다.", "mp": [8, 0.5], "dmg": [70, 6], "hits": 2, "targets": 2, "range": [360, 60], "cd": 0, "fx": "arrow", "color": [230, 200, 255]},
+    {"id": "t_haste", "job": "thief", "tier": 1, "name": "신속", "type": "passive", "max": 10, "desc": "이동속도와 행운이 증가한다.", "stats": {"SPEED": [3, 1.5], "LUK": [2, 1]}},
+    {"id": "t_flurry", "job": "thief", "tier": 2, "name": "칼날 폭풍", "type": "attack", "max": 15, "desc": "주변을 빠르게 베어낸다.", "mp": [14, 0.6], "dmg": [110, 7], "hits": 4, "targets": 6, "range": [240, 100], "cd": 0, "fx": "whirl", "color": [200, 110, 255], "around": true},
+    {"id": "t_poison", "job": "thief", "tier": 2, "name": "독 바르기", "type": "buff", "max": 15, "desc": "공격력과 크리티컬 데미지가 증가한다.", "mp": [20, 1], "dur": 120, "cd": 1, "stats": {"ATT": [5, 1.2], "CRITD": [3, 0.5]}},
+    {"id": "t_mastery", "job": "thief", "tier": 2, "name": "급소 파악", "type": "passive", "max": 15, "desc": "크리티컬 확률이 증가한다.", "stats": {"CRIT": [4, 1], "DMG%": [2, 0.5]}},
+    {"id": "t_shadow", "job": "thief", "tier": 3, "name": "그림자 분신", "type": "attack", "max": 20, "desc": "분신과 함께 적을 난도질한다.", "mp": [24, 0.8], "dmg": [180, 8], "hits": 5, "targets": 6, "range": [300, 110], "cd": 0, "fx": "slash", "color": [140, 80, 200]},
+    {"id": "t_assassin", "job": "thief", "tier": 3, "name": "암살", "type": "attack", "max": 20, "desc": "단일 대상에게 치명적인 일격을 가한다.", "mp": [32, 1], "dmg": [320, 12], "hits": 4, "targets": 1, "range": [180, 80], "cd": 3, "fx": "dash", "color": [255, 80, 160], "dash": 140, "boss_bonus": 30},
+    {"id": "t_veil", "job": "thief", "tier": 3, "name": "어둠의 장막", "type": "buff", "max": 20, "desc": "회피에 가까운 방어력과 데미지가 증가한다.", "mp": [30, 1], "dur": 180, "cd": 1, "stats": {"DEF": [40, 8], "DMG%": [5, 0.5]}},
+    {"id": "t_void", "job": "thief", "tier": 4, "name": "공허 난무", "type": "attack", "max": 20, "desc": "공허의 칼날이 넓은 범위를 휩쓴다.", "mp": [40, 1.2], "dmg": [240, 10], "hits": 6, "targets": 8, "range": [440, 140], "cd": 0, "fx": "whirl", "color": [160, 60, 230], "around": true},
+    {"id": "t_hunt", "job": "thief", "tier": 4, "name": "사냥 본능", "type": "buff", "max": 20, "desc": "공격력%와 보스 데미지가 증가한다.", "mp": [50, 1], "dur": 120, "cd": 30, "stats": {"ATT%": [5, 0.5], "BOSS%": [10, 1]}},
+    {"id": "t_final", "job": "thief", "tier": 4, "name": "그림자 군주", "type": "passive", "max": 20, "desc": "방어율 무시와 크리티컬 데미지가 증가한다.", "stats": {"IED%": [10, 1], "CRITD": [5, 0.5]}},
+
+    {"job": "mage", "id": "m_blink", "tier": 2, "name": "순간 이동", "type": "move", "max": 10, "desc": "바라보는 방향으로 순간 이동한다.", "mp": [16, -0.8], "dash": [130, 8], "cd": 0.4},
+    {"job": "mage", "id": "m_mpeater", "tier": 2, "name": "마나 흡수", "type": "passive", "max": 15, "desc": "공격 적중 시 일정 확률로 최대 MP의 3%를 흡수한다.", "stats": {"MPEAT": [10, 2.5]}},
+
+    {"job": "mage", "id": "mf_firearrow", "tier": 2, "branch": "fire", "name": "불꽃 화살", "type": "attack", "max": 20, "desc": "불꽃 화살을 쏘아 대상에게 화상을 입힌다.", "mp": [14, 0.7], "dmg": [160, 8], "hits": 1, "targets": 1, "range": [420, 60], "cd": 0, "fx": "bolt", "color": [255, 120, 50], "dot": {"chance": [100, 0], "pct": [20, 1.5], "dur": 3}},
+    {"job": "mage", "id": "mf_toxic", "tier": 2, "branch": "fire", "name": "독안개 방울", "type": "attack", "max": 20, "desc": "독 방울을 터뜨려 주변 적을 중독시킨다.", "mp": [20, 1], "dmg": [70, 3], "hits": 1, "targets": 6, "range": [300, 140], "cd": 0, "fx": "burst", "color": [150, 230, 90], "dot": {"chance": [45, 1.5], "pct": [12, 1.4], "dur": 5}},
+
+    {"job": "mage", "id": "m_focus", "tier": 2, "branch": ["fire", "ice"], "name": "마력 집중", "type": "buff", "max": 20, "desc": "정신을 집중해 공격력이 증가한다.", "mp": [15, 0.5], "dur": 300, "cd": 1, "stats": {"ATT": [5, 1.0]}},
+
+    {"job": "mage", "id": "mf_blaze", "tier": 3, "branch": "fire", "name": "화염 폭풍", "type": "attack", "max": 20, "desc": "화염 회오리로 다수의 적을 태운다.", "mp": [28, 0.9], "dmg": [230, 10], "hits": 2, "targets": 6, "range": [420, 160], "cd": 0, "fx": "burst", "color": [255, 100, 40], "dot": {"chance": [100, 0], "pct": [30, 2], "dur": 4}},
+    {"job": "mage", "id": "mf_venom", "tier": 3, "branch": "fire", "name": "맹독 늪", "type": "attack", "max": 20, "desc": "발밑에 독늪을 만들어 주변 적을 확실히 중독시킨다.", "mp": [30, 1], "dmg": [120, 6], "hits": 1, "targets": 8, "range": [380, 120], "cd": 0, "fx": "whirl", "color": [120, 210, 80], "around": true, "dot": {"chance": [100, 0], "pct": [40, 3], "dur": 6}},
+    {"job": "mage", "id": "mf_seal", "tier": 3, "branch": "fire", "name": "봉인의 사슬", "type": "attack", "max": 20, "desc": "마력 사슬로 적을 묶어 기절시킨다.", "mp": [26, 0.8], "dmg": [150, 6], "hits": 2, "targets": 6, "range": [360, 120], "cd": 2, "fx": "lightning", "color": [230, 160, 90], "stun": {"chance": [40, 2], "dur": 2}},
+
+    {"job": "mage", "id": "m_amp", "tier": 3, "branch": ["fire", "ice"], "name": "원소 증폭", "type": "passive", "max": 20, "desc": "원소 마법의 데미지와 크리티컬 확률이 증가한다.", "stats": {"DMG%": [5, 0.7], "CRIT": [3, 0.4]}},
+
+    {"job": "mage", "id": "mf_inferno", "tier": 4, "branch": "fire", "name": "업화의 운석", "type": "attack", "max": 20, "desc": "불타는 운석을 떨어뜨려 광역을 불바다로 만든다.", "mp": [45, 1.3], "dmg": [330, 12], "hits": 3, "targets": 10, "range": [540, 220], "cd": 0, "fx": "rain", "color": [255, 90, 30], "dot": {"chance": [100, 0], "pct": [50, 3], "dur": 5}},
+    {"job": "mage", "id": "mf_plague", "tier": 4, "branch": "fire", "name": "역병의 숨결", "type": "attack", "max": 20, "desc": "치명적인 역병을 퍼뜨려 강력한 중독 피해를 준다.", "mp": [42, 1.2], "dmg": [200, 8], "hits": 2, "targets": 12, "range": [520, 200], "cd": 0, "fx": "whirl", "color": [140, 220, 60], "around": true, "dot": {"chance": [100, 0], "pct": [80, 5], "dur": 6}},
+    {"job": "mage", "id": "mf_wrath", "tier": 4, "branch": "fire", "name": "업화 각성", "type": "buff", "max": 20, "desc": "업화의 힘으로 공격력%와 보스 데미지가 증가한다.", "mp": [50, 1], "dur": 120, "cd": 30, "stats": {"ATT%": [6, 0.5], "BOSS%": [10, 1]}},
+    {"job": "mage", "id": "mf_master", "tier": 4, "branch": "fire", "name": "독염의 이치", "type": "passive", "max": 20, "desc": "지속 피해와 방어율 무시가 증가한다.", "stats": {"DOT%": [20, 2], "IED%": [10, 1]}},
+
+    {"job": "mage", "id": "mi_coldray", "tier": 2, "branch": "ice", "name": "서리 광선", "type": "attack", "max": 20, "desc": "냉기 광선으로 대상을 공격하고 이동속도를 늦춘다.", "mp": [11, 0.6], "dmg": [150, 8], "hits": 1, "targets": 1, "range": [440, 60], "cd": 0, "fx": "beam", "color": [150, 220, 255], "slow": 3},
+    {"job": "mage", "id": "mi_spark", "tier": 2, "branch": "ice", "name": "번개 파동", "type": "attack", "max": 20, "desc": "주변에 번개를 방출해 적을 감전(기절)시킨다.", "mp": [20, 1], "dmg": [75, 3], "hits": 1, "targets": 6, "range": [300, 130], "cd": 0, "fx": "lightning", "color": [220, 230, 120], "around": true, "stun": {"chance": [10, 0.8], "dur": 1.5}},
+    {"job": "mage", "id": "mi_icespear", "tier": 3, "branch": "ice", "name": "빙창 낙하", "type": "attack", "max": 20, "desc": "얼음 창을 떨어뜨려 적을 얼린다.", "mp": [28, 0.9], "dmg": [240, 10], "hits": 2, "targets": 6, "range": [440, 180], "cd": 0, "fx": "rain", "color": [170, 230, 255], "stun": {"chance": [30, 1.5], "dur": 2}, "slow": 3},
+    {"job": "mage", "id": "mi_chain", "tier": 3, "branch": "ice", "name": "연쇄 뇌격", "type": "attack", "max": 20, "desc": "번개가 여러 적에게 연쇄적으로 튄다.", "mp": [30, 1], "dmg": [180, 8], "hits": 3, "targets": 8, "range": [480, 160], "cd": 0, "fx": "lightning", "color": [240, 240, 140], "stun": {"chance": [20, 1], "dur": 1.5}},
+    {"job": "mage", "id": "mi_ward", "tier": 3, "branch": "ice", "name": "얼음 장벽", "type": "buff", "max": 20, "desc": "얼음 갑옷으로 방어력과 최대 HP가 증가한다.", "mp": [25, 1], "dur": 180, "cd": 1, "stats": {"DEF": [40, 8], "HP%": [5, 0.5]}},
+    {"job": "mage", "id": "mi_blizzard", "tier": 4, "branch": "ice", "name": "절대 영도", "type": "attack", "max": 20, "desc": "모든 것을 얼리는 눈보라를 일으킨다.", "mp": [45, 1.3], "dmg": [300, 12], "hits": 3, "targets": 12, "range": [560, 220], "cd": 0, "fx": "rain", "color": [200, 240, 255], "stun": {"chance": [40, 1], "dur": 2.5}, "slow": 4},
+    {"job": "mage", "id": "mi_thunder", "tier": 4, "branch": "ice", "name": "천뢰 강림", "type": "attack", "max": 20, "desc": "하늘의 벼락을 연속으로 내리꽂는다.", "mp": [48, 1.4], "dmg": [340, 13], "hits": 4, "targets": 10, "range": [520, 200], "cd": 0, "fx": "lightning", "color": [255, 250, 150], "stun": {"chance": [25, 1], "dur": 1.5}},
+    {"job": "mage", "id": "mi_wrath", "tier": 4, "branch": "ice", "name": "천뢰 각성", "type": "buff", "max": 20, "desc": "폭풍의 힘으로 공격력%와 보스 데미지가 증가한다.", "mp": [50, 1], "dur": 120, "cd": 30, "stats": {"ATT%": [6, 0.5], "BOSS%": [10, 1]}},
+    {"job": "mage", "id": "mi_master", "tier": 4, "branch": "ice", "name": "빙뢰의 이치", "type": "passive", "max": 20, "desc": "크리티컬 데미지와 방어율 무시가 증가한다.", "stats": {"CRITD": [5, 0.6], "IED%": [10, 1]}},
+
+    {"job": "mage", "id": "mh_heal", "tier": 2, "branch": "holy", "name": "치유의 빛", "type": "heal", "max": 20, "desc": "빛으로 HP를 회복하고 주변 적에게 피해를 준다. 영혼형 적에게 2배.", "mp": [12, 0.8], "heal": [20, 1.5], "dmg": [80, 5], "hits": 1, "targets": 6, "range": [320, 160], "cd": 0.8, "fx": "whirl", "color": [255, 240, 160], "around": true, "spirit_bonus": 2},
+    {"job": "mage", "id": "mh_holyarrow", "tier": 2, "branch": "holy", "name": "성광 화살", "type": "attack", "max": 20, "desc": "성스러운 빛의 화살을 쏜다. 영혼형 적에게 2배.", "mp": [14, 0.7], "dmg": [160, 8], "hits": 1, "targets": 1, "range": [420, 60], "cd": 0, "fx": "arrow", "color": [255, 235, 150], "spirit_bonus": 2},
+    {"job": "mage", "id": "mh_guard", "tier": 2, "branch": "holy", "name": "수호의 결계", "type": "buff", "max": 20, "desc": "받는 피해가 감소한다.", "mp": [16, 1], "dur": 300, "cd": 1, "stats": {"DMGRED%": [2, 0.9]}},
+    {"job": "mage", "id": "mh_bless", "tier": 2, "branch": "holy", "name": "축복", "type": "buff", "max": 20, "desc": "방어력과 회복량이 증가한다.", "mp": [20, 0.5], "dur": 300, "cd": 1, "stats": {"DEF": [20, 5], "HEAL%": [2, 0.5]}},
+    {"job": "mage", "id": "mh_holybomb", "tier": 3, "branch": "holy", "name": "성스러운 폭발", "type": "attack", "max": 20, "desc": "주변에 빛의 폭발을 일으킨다. 영혼형 적에게 2배.", "mp": [28, 0.9], "dmg": [220, 10], "hits": 2, "targets": 6, "range": [360, 160], "cd": 0, "fx": "burst", "color": [255, 245, 180], "around": true, "spirit_bonus": 2},
+    {"job": "mage", "id": "mh_chain", "tier": 3, "branch": "holy", "name": "빛의 사슬", "type": "attack", "max": 20, "desc": "빛의 사슬로 적을 묶어 기절시킨다.", "mp": [30, 1], "dmg": [260, 10], "hits": 2, "targets": 3, "range": [420, 100], "cd": 2, "fx": "lightning", "color": [255, 225, 120], "stun": {"chance": [40, 2], "dur": 2}},
+    {"job": "mage", "id": "mh_cleanse", "tier": 3, "branch": "holy", "name": "정화의 문장", "type": "buff", "max": 20, "desc": "일정 시간 매초 HP가 회복된다.", "mp": [30, 1], "dur": 120, "cd": 1, "stats": {"REGEN": [0.5, 0.05]}},
+    {"job": "mage", "id": "mh_faith", "tier": 3, "branch": "holy", "name": "신앙심", "type": "passive", "max": 20, "desc": "최대 HP·MP와 데미지가 증가한다.", "stats": {"HP%": [5, 0.5], "MP%": [5, 0.5], "DMG%": [3, 0.5]}},
+    {"job": "mage", "id": "mh_judgment", "tier": 4, "branch": "holy", "name": "별의 심판광", "type": "attack", "max": 20, "desc": "하늘에서 심판의 빛이 쏟아진다. 영혼형 적에게 2배.", "mp": [45, 1.3], "dmg": [320, 12], "hits": 4, "targets": 12, "range": [560, 220], "cd": 0, "fx": "rain", "color": [255, 240, 170], "spirit_bonus": 2},
+    {"job": "mage", "id": "mh_revive", "tier": 4, "branch": "holy", "name": "부활의 가호", "type": "buff", "max": 10, "desc": "지속시간 동안 쓰러지면 HP 50%로 즉시 부활한다(경험치 손실 없음).", "mp": [60, 2], "dur": 600, "cd": 300, "stats": {"REVIVE": [1, 0]}},
+    {"job": "mage", "id": "mh_grace", "tier": 4, "branch": "holy", "name": "여신의 은총", "type": "buff", "max": 20, "desc": "공격력%와 보스 데미지가 증가한다.", "mp": [50, 1], "dur": 120, "cd": 30, "stats": {"ATT%": [6, 0.5], "BOSS%": [10, 1]}},
+    {"job": "mage", "id": "mh_master", "tier": 4, "branch": "holy", "name": "대사제의 깨달음", "type": "passive", "max": 20, "desc": "받는 피해 감소와 방어율 무시가 증가한다.", "stats": {"DMGRED%": [5, 0.5], "IED%": [10, 1]}}
+  ]
+}

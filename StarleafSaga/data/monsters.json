@@ -1,0 +1,48 @@
+{
+  "_note": "HP/경험치/공격/방어는 레벨과 kind(normal/tank/elite/boss)로 formulas.monster_stats 에서 계산. shape는 그리기 방식.",
+  "etc_items": {
+    "e_jelly": "슬라임 젤리", "e_claw": "게 집게", "e_fur": "솜털 뭉치", "e_mudcore": "진흙 핵",
+    "e_moss": "이끼 뭉치", "e_tusk": "멧돼지 엄니", "e_wisp": "요정불 가루", "e_bark": "단단한 나무껍질", "e_fang": "그림자 송곳니",
+    "e_stinger": "전갈 독침", "e_scale": "문양 새겨진 비늘", "e_coin": "녹슨 금화", "e_sandgem": "모래 정수", "e_ruinshard": "유적 파편",
+    "e_frostfur": "서리 늑대 가죽", "e_icecore": "얼음 정령 핵", "e_yetihorn": "설인 뿔", "e_plume": "구름 깃털", "e_skycore": "천공 핵",
+    "e_voidash": "공허의 재", "e_riftclaw": "균열 발톱", "e_voidsigil": "공허의 인장"
+  },
+  "monsters": {
+    "m_sprout":     {"name": "새싹 슬라임",   "level": 1,   "kind": "normal", "shape": "slime",  "color": [130, 215, 95],  "etc": "e_jelly"},
+    "m_blueslime":  {"name": "파랑 슬라임",   "level": 3,   "kind": "normal", "shape": "slime",  "color": [90, 150, 240],  "etc": "e_jelly"},
+    "m_crab":       {"name": "해안 게",       "level": 5,   "kind": "normal", "shape": "crab",   "color": [235, 110, 80],  "etc": "e_claw"},
+    "m_bat":        {"name": "솜털 박쥐",     "level": 7,   "kind": "normal", "shape": "flyer",  "color": [160, 130, 210], "etc": "e_fur"},
+    "m_mudgolem":   {"name": "진흙 골렘",     "level": 9,   "kind": "tank",   "shape": "golem",  "color": [145, 112, 80],  "etc": "e_mudcore"},
+    "b_mudking":    {"name": "거대 진흙왕",   "level": 12,  "kind": "boss",   "shape": "slime",  "color": [125, 92, 62],   "etc": null, "set_drop": "dawn"},
+
+    "m_mossbunny":  {"name": "이끼 토끼",     "level": 12,  "kind": "normal", "shape": "beast",  "color": [140, 195, 120], "etc": "e_moss"},
+    "m_boar":       {"name": "가시 멧돼지",   "level": 16,  "kind": "normal", "shape": "beast",  "color": [165, 105, 72],  "etc": "e_tusk"},
+    "m_wisp":       {"name": "숲 요정불",     "level": 20,  "kind": "normal", "shape": "spirit", "color": [185, 255, 160], "etc": "e_wisp"},
+    "m_treant":     {"name": "나무 골렘",     "level": 24,  "kind": "tank",   "shape": "golem",  "color": [110, 140, 80],  "etc": "e_bark"},
+    "m_shadowwolf": {"name": "그림자 늑대",   "level": 28,  "kind": "normal", "shape": "beast",  "color": [85, 85, 120],   "etc": "e_fang"},
+    "e_rotguard":   {"name": "뿌리 파수꾼",   "level": 28,  "kind": "elite",  "shape": "golem",  "color": [90, 115, 60],   "etc": null, "set_drop": "verdant"},
+    "b_rootking":   {"name": "썩은 뿌리왕",   "level": 32,  "kind": "boss",   "shape": "golem",  "color": [100, 78, 58],   "etc": null, "set_drop": "verdant"},
+
+    "m_scorpion":   {"name": "모래 전갈",     "level": 33,  "kind": "normal", "shape": "crab",   "color": [215, 170, 90],  "etc": "e_stinger"},
+    "m_lizard":     {"name": "사막 도마뱀",   "level": 38,  "kind": "normal", "shape": "beast",  "color": [205, 140, 80],  "etc": "e_scale"},
+    "m_skelpirate": {"name": "해골 해적",     "level": 43,  "kind": "normal", "shape": "knight", "color": [225, 222, 200], "etc": "e_coin"},
+    "m_sandspirit": {"name": "모래 정령",     "level": 48,  "kind": "normal", "shape": "spirit", "color": [242, 210, 140], "etc": "e_sandgem"},
+    "m_ruingolem":  {"name": "유적 골렘",     "level": 54,  "kind": "tank",   "shape": "golem",  "color": [172, 150, 120], "etc": "e_ruinshard"},
+    "e_ruinwarden": {"name": "유적 감시자",   "level": 56,  "kind": "elite",  "shape": "knight", "color": [190, 160, 90],  "etc": null, "set_drop": "desert"},
+    "b_ruinguard":  {"name": "고대 유적 수호자", "level": 60, "kind": "boss",  "shape": "golem",  "color": [205, 172, 92],  "etc": null, "set_drop": "desert"},
+
+    "m_frostwolf":  {"name": "서리 늑대",     "level": 63,  "kind": "normal", "shape": "beast",  "color": [205, 232, 255], "etc": "e_frostfur"},
+    "m_icespirit":  {"name": "얼음 정령",     "level": 68,  "kind": "normal", "shape": "spirit", "color": [160, 222, 255], "etc": "e_icecore"},
+    "m_yeti":       {"name": "설인",          "level": 73,  "kind": "normal", "shape": "golem",  "color": [240, 240, 250], "etc": "e_yetihorn"},
+    "m_cloudknight":{"name": "구름 기사",     "level": 78,  "kind": "normal", "shape": "knight", "color": [205, 212, 245], "etc": "e_plume"},
+    "m_skygolem":   {"name": "천공 골렘",     "level": 84,  "kind": "tank",   "shape": "golem",  "color": [150, 172, 222], "etc": "e_skycore"},
+    "e_stormhawk":  {"name": "폭풍 매",       "level": 86,  "kind": "elite",  "shape": "flyer",  "color": [120, 150, 210], "etc": null, "set_drop": "frost"},
+    "b_stormwyrm":  {"name": "폭풍 비룡",     "level": 88,  "kind": "boss",   "shape": "dragon", "color": [90, 130, 200],  "etc": null, "set_drop": "frost"},
+
+    "m_voidwraith": {"name": "공허 망령",     "level": 91,  "kind": "normal", "shape": "spirit", "color": [130, 70, 180],  "etc": "e_voidash"},
+    "m_riftbeast":  {"name": "균열 마수",     "level": 94,  "kind": "normal", "shape": "beast",  "color": [95, 45, 125],   "etc": "e_riftclaw"},
+    "m_voidknight": {"name": "공허 기사",     "level": 97,  "kind": "normal", "shape": "knight", "color": [70, 48, 100],   "etc": "e_voidsigil"},
+    "e_voidherald": {"name": "공허의 전령",   "level": 98,  "kind": "elite",  "shape": "knight", "color": [120, 40, 150],  "etc": null, "set_drop": "sigil"},
+    "b_nox":        {"name": "공허의 군주 녹스", "level": 100, "kind": "boss", "shape": "knight", "color": [45, 22, 66],    "etc": null, "set_drop": "void", "hp_mult": 2.0, "def_mult": 1.3, "caster": true}
+  }
+}
