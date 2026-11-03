@@ -1,0 +1,10 @@
+# PyInstaller 빌드 결과물
+build/
+dist/
+*.spec
+
+# 크롤링 결과 파일
+naver_news_*.csv
+naver_news_*.xlsx
+
+__pycache__/
