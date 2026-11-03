@@ -16,8 +16,8 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-from PyQt6.QtCore import QThread, Qt, pyqtSignal
-from PyQt6.QtGui import QColor
+from PyQt6.QtCore import QRectF, QThread, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QIcon, QPainter, QPen, QPixmap
 from PyQt6.QtWidgets import (
     QAbstractItemView, QApplication, QComboBox, QFileDialog, QFrame, QHBoxLayout,
     QHeaderView, QLabel, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QPushButton,
@@ -73,6 +73,29 @@ QHeaderView::section {{ background: #F1ECF5; border: none; border-bottom: 1px so
     padding: 6px; font-weight: 600; color: {MUTED}; }}
 QTextBrowser {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 8px; padding: 6px; }}
 """
+
+
+def make_app_pixmap(size=64):
+    """앱 아이콘: 긍정/부정/중립 비율을 나타내는 도넛 차트 모양."""
+    pix = QPixmap(size, size)
+    pix.fill(Qt.GlobalColor.transparent)
+    p = QPainter(pix)
+    p.setRenderHint(QPainter.RenderHint.Antialiasing)
+    p.setPen(Qt.PenStyle.NoPen)
+    p.setBrush(QColor(ACCENT))
+    p.drawRoundedRect(QRectF(0, 0, size, size), size * 0.22, size * 0.22)
+    ring = QRectF(size * 0.16, size * 0.16, size * 0.68, size * 0.68)
+    pen = QPen()
+    pen.setWidthF(size * 0.14)
+    pen.setCapStyle(Qt.PenCapStyle.FlatCap)
+    start = 90 * 16  # 12시 방향부터 시계 방향으로 (Qt 각도 단위: 1/16도)
+    for key, span in (("긍정", 250), ("부정", 50), ("중립", 60)):
+        pen.setColor(QColor("#FFFFFF" if key == "긍정" else SENTIMENT_COLORS[key]))
+        p.setPen(pen)
+        p.drawArc(ring, start, -span * 16)
+        start -= span * 16
+    p.end()
+    return pix
 
 
 class CrawlWorker(QThread):
@@ -214,6 +237,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("컬리 후기 감성 분석기")
+        self.setWindowIcon(QIcon(make_app_pixmap(64)))
         self.resize(1320, 860)
         self.df = None
         self.worker = None
@@ -419,9 +443,13 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "저장 완료", f"저장했습니다.\n{path}")
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     app.setStyleSheet(STYLE)
     win = MainWindow()
     win.show()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

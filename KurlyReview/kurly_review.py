@@ -6,11 +6,10 @@
 - 컬리 후기에는 별점이 없으므로, 한국어 긍정/부정 표현 사전과 부정어(없다/않다/안 나다)
   처리를 이용한 규칙 기반 감성 분석으로 긍정·부정·중립을 분류합니다.
 
-단독 실행: python kurly_review.py [상품 URL 또는 상품번호] [개수]
+실행: python kurly_review.py  (또는 python kurly_review_gui.py) → PyQt6 GUI 앱이 열립니다.
 """
 
 import re
-import sys
 import time
 from collections import Counter
 
@@ -167,14 +166,6 @@ def summarize(df: pd.DataFrame) -> dict:
 
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else "https://www.kurly.com/goods/5029524"
-    limit = int(sys.argv[2]) if len(sys.argv) > 2 else 100
-    data = fetch_reviews(parse_goods_no(target), limit,
-                         progress=lambda n, t: print(f"\r수집 중 {n}/{t}", end=""))
-    print()
-    frame = build_dataframe(data)
-    info = summarize(frame)
-    print(info["counts"].to_string(), "\n", info["ratio"].to_string())
-    print("긍정 키워드:", info["pos_words"])
-    print("부정 키워드:", info["neg_words"])
-    frame.to_csv("kurly_reviews.csv", index=False, encoding="utf-8-sig")
+    # 이 파일을 직접 실행해도 PyQt6 GUI 앱이 열립니다.
+    from kurly_review_gui import main
+    main()
