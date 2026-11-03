@@ -14,9 +14,9 @@
       "port": 5174
     },
     {
-      "name": "demoboard",
+      "name": "demoweb",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "DemoBoard", "run", "dev", "--", "-p", "3100"],
+      "runtimeArgs": ["--prefix", "DemoWeb", "run", "dev", "--", "-p", "3100"],
       "port": 3100
     }
   ]
