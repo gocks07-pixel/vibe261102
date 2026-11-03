@@ -10,3 +10,9 @@ naver_kospi100*.csv
 naver_kospi100*.xlsx
 
 __pycache__/
+
+# 커밋하지 않는 개인 폴더
+새 폴더/
+
+# S&P 500 분석 결과물 (sp500_analysis.py 실행 시 생성)
+sp500_output/
