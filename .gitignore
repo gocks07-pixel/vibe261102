@@ -6,5 +6,7 @@ dist/
 # 크롤링 결과 파일
 naver_news_*.csv
 naver_news_*.xlsx
+naver_kospi100*.csv
+naver_kospi100*.xlsx
 
 __pycache__/
