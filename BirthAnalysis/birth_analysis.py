@@ -243,16 +243,17 @@ def analyze(df):
     return d
 
 
-def save(df, derived):
-    OUTPUT_DIR.mkdir(exist_ok=True)
-    df.to_csv(OUTPUT_DIR / "births_clean.csv", encoding="utf-8-sig")
-    with pd.ExcelWriter(OUTPUT_DIR / "births_analysis.xlsx") as w:
+def save(df, derived, out_dir=OUTPUT_DIR):
+    out_dir = Path(out_dir)
+    out_dir.mkdir(exist_ok=True)
+    df.to_csv(out_dir / "births_clean.csv", encoding="utf-8-sig")
+    with pd.ExcelWriter(out_dir / "births_analysis.xlsx") as w:
         df.to_excel(w, sheet_name="정제데이터")
         derived.round(4).to_excel(w, sheet_name="파생지표")
         df.astype(float).describe().T.to_excel(w, sheet_name="기술통계")
         df.astype(float).corr().to_excel(w, sheet_name="상관계수")
-    print(f"\n[저장] {OUTPUT_DIR / 'births_clean.csv'}")
-    print(f"[저장] {OUTPUT_DIR / 'births_analysis.xlsx'}")
+    print(f"\n[저장] {out_dir / 'births_clean.csv'}")
+    print(f"[저장] {out_dir / 'births_analysis.xlsx'}")
 
 
 if __name__ == "__main__":
