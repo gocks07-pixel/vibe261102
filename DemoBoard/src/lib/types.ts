@@ -9,21 +9,23 @@ export interface Comment {
   createdAt: string
 }
 
-export interface Post {
+/** 목록에 쓰는 게시글 요약 */
+export interface PostSummary {
   id: number
   title: string
-  content: string
   author: string
   category: Category
   views: number
-  passwordHash: string
   createdAt: string
   updatedAt: string
-  comments: Comment[]
+  commentCount: number
 }
 
-/** 클라이언트로 내려보내도 되는 게시글 형태 (비밀번호 해시 제외) */
-export type PublicPost = Omit<Post, "passwordHash">
+/** 상세 화면용 게시글 (비밀번호 해시는 서버 밖으로 내보내지 않는다) */
+export interface PublicPost extends PostSummary {
+  content: string
+  comments: Comment[]
+}
 
 export type FormState = {
   ok?: boolean

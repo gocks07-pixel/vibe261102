@@ -1,21 +1,11 @@
 import "server-only"
 
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto"
-import { mkdir, readFile, writeFile } from "node:fs/promises"
-import path from "node:path"
 
-import type { Category, Comment, Post, PublicPost } from "@/lib/types"
-
-const DATA_DIR = path.join(process.cwd(), "data")
-const DATA_FILE = path.join(DATA_DIR, "posts.json")
+import { sql } from "@/lib/db"
+import type { Category, Comment, PostSummary, PublicPost } from "@/lib/types"
 
 export const PAGE_SIZE = 10
-
-interface Store {
-  nextPostId: number
-  nextCommentId: number
-  posts: Post[]
-}
 
 export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex")
@@ -30,74 +20,30 @@ function verifyPassword(password: string, stored: string): boolean {
   return timingSafeEqual(expected, actual)
 }
 
-function seed(): Store {
-  const now = Date.now()
-  const day = 24 * 60 * 60 * 1000
-  const samples: Array<[Category, string, string, string]> = [
-    ["공지", "DemoBoard에 오신 것을 환영합니다", "관리자", "Next.js, shadcn/ui, TypeScript로 만든 데모 게시판입니다.\n\n샘플 게시글의 비밀번호는 모두 1234 입니다."],
-    ["자유", "오늘 날씨가 정말 좋네요", "홍길동", "점심 먹고 산책하기 딱 좋은 날씨입니다. 다들 즐거운 하루 보내세요!"],
-    ["질문", "Server Action에서 redirect는 어떻게 쓰나요?", "김개발", "폼 제출 후 상세 페이지로 이동시키고 싶은데, redirect를 try/catch 안에서 호출하면 동작하지 않네요."],
-    ["정보", "shadcn/ui 컴포넌트 추가 방법", "이디자인", "npx shadcn@latest add button 처럼 필요한 컴포넌트만 골라서 추가할 수 있습니다."],
-    ["자유", "주말 계획 공유해요", "박주말", "이번 주말에는 캠핑을 가려고 합니다. 다른 분들은 어떤 계획이 있으신가요?"],
-  ]
-  const passwordHash = hashPassword("1234")
-  const posts: Post[] = samples.map(([category, title, author, content], i) => {
-    const createdAt = new Date(now - (samples.length - i) * day).toISOString()
-    return {
-      id: i + 1,
-      title,
-      content,
-      author,
-      category,
-      views: Math.max(0, 40 - i * 7),
-      passwordHash,
-      createdAt,
-      updatedAt: createdAt,
-      comments: [],
-    }
-  })
-  posts[2].comments.push({
-    id: 1,
-    author: "이선배",
-    content: "redirect는 내부적으로 예외를 던지기 때문에 try/catch 밖에서 호출해야 합니다.",
-    createdAt: new Date(now - day / 2).toISOString(),
-  })
-  return { nextPostId: posts.length + 1, nextCommentId: 2, posts }
-}
+type Row = Record<string, unknown>
 
-async function load(): Promise<Store> {
-  try {
-    return JSON.parse(await readFile(DATA_FILE, "utf8")) as Store
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err
-    const store = seed()
-    await save(store)
-    return store
+const iso = (value: unknown) => new Date(value as string | Date).toISOString()
+
+function toSummary(row: Row): PostSummary {
+  return {
+    id: row.id as number,
+    title: row.title as string,
+    author: row.author as string,
+    category: row.category as Category,
+    views: row.views as number,
+    createdAt: iso(row.created_at),
+    updatedAt: iso(row.updated_at),
+    commentCount: Number(row.comment_count ?? 0),
   }
 }
 
-async function save(store: Store) {
-  await mkdir(DATA_DIR, { recursive: true })
-  await writeFile(DATA_FILE, JSON.stringify(store, null, 2), "utf8")
-}
-
-// 동시 요청에서 쓰기가 겹치지 않도록 변경 작업을 순서대로 실행한다.
-let queue: Promise<unknown> = Promise.resolve()
-function mutate<T>(fn: (store: Store) => T | Promise<T>): Promise<T> {
-  const run = queue.then(async () => {
-    const store = await load()
-    const result = await fn(store)
-    await save(store)
-    return result
-  })
-  queue = run.catch(() => {})
-  return run
-}
-
-function toPublic(post: Post): PublicPost {
-  const { passwordHash, ...rest } = post
-  void passwordHash
-  return rest
+function toComment(row: Row): Comment {
+  return {
+    id: row.id as number,
+    author: row.author as string,
+    content: row.content as string,
+    createdAt: iso(row.created_at),
+  }
 }
 
 export async function listPosts({
@@ -109,117 +55,103 @@ export async function listPosts({
   category?: Category
   page?: number
 }) {
-  const { posts } = await load()
-  const keyword = q.trim().toLowerCase()
-  const filtered = posts
-    .filter((p) => !category || p.category === category)
-    .filter(
-      (p) =>
-        !keyword ||
-        p.title.toLowerCase().includes(keyword) ||
-        p.content.toLowerCase().includes(keyword) ||
-        p.author.toLowerCase().includes(keyword)
-    )
-    .sort((a, b) => {
-      // 공지는 항상 위에 고정
-      if (a.category === "공지" && b.category !== "공지") return -1
-      if (b.category === "공지" && a.category !== "공지") return 1
-      return b.id - a.id
-    })
+  const keyword = q.trim()
+  const pattern = `%${keyword.replace(/[\\%_]/g, "\\$&")}%`
+  const cat = category ?? null
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const [{ total }] = await sql`
+    SELECT count(*)::int AS total FROM posts
+    WHERE (${cat}::text IS NULL OR category = ${cat})
+      AND (${keyword} = '' OR title ILIKE ${pattern} OR content ILIKE ${pattern} OR author ILIKE ${pattern})
+  `
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const current = Math.min(Math.max(1, page), totalPages)
-  return {
-    posts: filtered
-      .slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
-      .map(toPublic),
-    total: filtered.length,
-    page: current,
-    totalPages,
-  }
+
+  // 공지는 항상 위에 고정
+  const rows = await sql`
+    SELECT p.id, p.title, p.author, p.category, p.views, p.created_at, p.updated_at,
+           (SELECT count(*) FROM comments c WHERE c.post_id = p.id)::int AS comment_count
+    FROM posts p
+    WHERE (${cat}::text IS NULL OR p.category = ${cat})
+      AND (${keyword} = '' OR p.title ILIKE ${pattern} OR p.content ILIKE ${pattern} OR p.author ILIKE ${pattern})
+    ORDER BY (p.category = '공지') DESC, p.id DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(current - 1) * PAGE_SIZE}
+  `
+  return { posts: rows.map(toSummary), total: total as number, page: current, totalPages }
 }
 
 export async function getPost(id: number): Promise<PublicPost | null> {
-  const { posts } = await load()
-  const post = posts.find((p) => p.id === id)
-  return post ? toPublic(post) : null
+  if (!Number.isInteger(id)) return null
+  const [rows, comments] = await sql.transaction([
+    sql`SELECT id, title, content, author, category, views, created_at, updated_at FROM posts WHERE id = ${id}`,
+    sql`SELECT id, author, content, created_at FROM comments WHERE post_id = ${id} ORDER BY id`,
+  ])
+  const row = rows[0]
+  if (!row) return null
+  return {
+    ...toSummary(row),
+    content: row.content as string,
+    comments: comments.map(toComment),
+  }
 }
 
-export function createPost(input: {
+export async function createPost(input: {
   title: string
   content: string
   author: string
   category: Category
   password: string
 }): Promise<number> {
-  return mutate((store) => {
-    const now = new Date().toISOString()
-    const id = store.nextPostId++
-    store.posts.push({
-      id,
-      title: input.title,
-      content: input.content,
-      author: input.author,
-      category: input.category,
-      views: 0,
-      passwordHash: hashPassword(input.password),
-      createdAt: now,
-      updatedAt: now,
-      comments: [],
-    })
-    return id
-  })
+  const [row] = await sql`
+    INSERT INTO posts (title, content, author, category, password_hash)
+    VALUES (${input.title}, ${input.content}, ${input.author}, ${input.category}, ${hashPassword(input.password)})
+    RETURNING id
+  `
+  return row.id as number
 }
 
 type AuthResult = "ok" | "not-found" | "wrong-password"
 
-export function updatePost(
+async function checkPassword(id: number, password: string): Promise<AuthResult> {
+  const [row] = await sql`SELECT password_hash FROM posts WHERE id = ${id}`
+  if (!row) return "not-found"
+  return verifyPassword(password, row.password_hash as string) ? "ok" : "wrong-password"
+}
+
+export async function updatePost(
   id: number,
   input: { title: string; content: string; category: Category; password: string }
 ): Promise<AuthResult> {
-  return mutate((store) => {
-    const post = store.posts.find((p) => p.id === id)
-    if (!post) return "not-found"
-    if (!verifyPassword(input.password, post.passwordHash)) return "wrong-password"
-    post.title = input.title
-    post.content = input.content
-    post.category = input.category
-    post.updatedAt = new Date().toISOString()
-    return "ok"
-  })
+  const result = await checkPassword(id, input.password)
+  if (result !== "ok") return result
+  await sql`
+    UPDATE posts
+    SET title = ${input.title}, content = ${input.content}, category = ${input.category}, updated_at = now()
+    WHERE id = ${id}
+  `
+  return "ok"
 }
 
-export function deletePost(id: number, password: string): Promise<AuthResult> {
-  return mutate((store) => {
-    const index = store.posts.findIndex((p) => p.id === id)
-    if (index === -1) return "not-found"
-    if (!verifyPassword(password, store.posts[index].passwordHash)) return "wrong-password"
-    store.posts.splice(index, 1)
-    return "ok"
-  })
+export async function deletePost(id: number, password: string): Promise<AuthResult> {
+  const result = await checkPassword(id, password)
+  if (result !== "ok") return result
+  // 댓글은 ON DELETE CASCADE로 함께 삭제된다
+  await sql`DELETE FROM posts WHERE id = ${id}`
+  return "ok"
 }
 
-export function incrementViews(id: number): Promise<void> {
-  return mutate((store) => {
-    const post = store.posts.find((p) => p.id === id)
-    if (post) post.views++
-  })
+export async function incrementViews(id: number): Promise<void> {
+  await sql`UPDATE posts SET views = views + 1 WHERE id = ${id}`
 }
 
-export function addComment(
+export async function addComment(
   postId: number,
   input: { author: string; content: string }
 ): Promise<Comment | null> {
-  return mutate((store) => {
-    const post = store.posts.find((p) => p.id === postId)
-    if (!post) return null
-    const comment: Comment = {
-      id: store.nextCommentId++,
-      author: input.author,
-      content: input.content,
-      createdAt: new Date().toISOString(),
-    }
-    post.comments.push(comment)
-    return comment
-  })
+  const [row] = await sql`
+    INSERT INTO comments (post_id, author, content)
+    SELECT id, ${input.author}, ${input.content} FROM posts WHERE id = ${postId}
+    RETURNING id, author, content, created_at
+  `
+  return row ? toComment(row) : null
 }
