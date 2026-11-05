@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>앱 아이콘 시안 2</title>
+<!-- 앱 아이콘 시안 4종 (모바일 1차 이후). 그림 파일 없이 코드(SVG)로 그린다. 글씨는 게임 타이틀과 같은 주아체(SIL OFL) -->
+<link rel="stylesheet" href="../../../css/fonts/jua.css">
+<style>
+  :root { --bg: #0b0d16; --fg: #e8ecf6; --dim: #9aa6c8; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+  .sheet { width: 1600px; padding: 36px 40px; box-sizing: border-box; }
+  h1 { font-family: 'Jua', sans-serif; font-weight: 400; font-size: 40px; margin: 0 0 6px; color: #ffe4a0; }
+  .sub { color: var(--dim); margin-bottom: 26px; font-size: 16px; }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .card { background: #121727; border: 1px solid #2f3854; border-radius: 18px; padding: 18px; }
+  .card.rec { border-color: #ffd54a; box-shadow: 0 0 0 2px #ffd54a55; }
+  .big { width: 100%; aspect-ratio: 1; border-radius: 22.5%; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+  .big svg, .sm svg { width: 100%; height: 100%; display: block; }
+  .name { font-family: 'Jua', sans-serif; font-size: 26px; margin: 14px 0 4px; }
+  .name b { color: #ffd54a; font-weight: 400; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #6b5214; color: #fff3c4; margin-left: 6px; vertical-align: middle; font-family: 'Malgun Gothic', sans-serif; }
+  .why { font-size: 14px; line-height: 1.55; color: #cfd6ee; min-height: 88px; }
+  .home { margin-top: 12px; display: flex; align-items: flex-end; gap: 14px; padding: 12px; border-radius: 12px;
+    background: linear-gradient(135deg, #3b5b8f, #7a4f8f); }
+  .home .ap { text-align: center; font-size: 11px; color: #fff; text-shadow: 0 1px 2px #000; }
+  .sm { border-radius: 22.5%; overflow: hidden; margin: 0 auto 4px; box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>앱 아이콘 시안 4종 · 두 번째 묶음</h1>
+  <div class="sub">위: 크게 본 모양 · 아래: 휴대폰 홈 화면에 실제로 놓이는 크기 (60px · 44px). 모두 코드로 그림, 이미지 파일 없음</div>
+  <div class="row" id="row"></div>
+</div>
+<script>
+// ---------- 도구 ----------
+const star = (cx, cy, R, r, n = 5, rot = -90) => {
+  const p = [];
+  for (let i = 0; i < n * 2; i++) {
+    const a = (rot + i * 180 / n) * Math.PI / 180, rr = i % 2 ? r : R;
+    p.push((cx + Math.cos(a) * rr).toFixed(1) + ',' + (cy + Math.sin(a) * rr).toFixed(1));
+  }
+  return p.join(' ');
+};
+// 반짝이 (네 갈래 별)
+const spark = (x, y, s, c, o = 1) => `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s}Z" fill="${c}" opacity="${o}"/>`;
+// 배경 작은 별 (고정 난수)
+let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+const dots = (n, c = '#fff', top = 1024) => { let h = ''; for (let i = 0; i < n; i++) h += `<circle cx="${(rnd() * 1024).toFixed(0)}" cy="${(rnd() * top).toFixed(0)}" r="${(2 + rnd() * 4).toFixed(1)}" fill="${c}" opacity="${(0.25 + rnd() * 0.5).toFixed(2)}"/>`; return h; };
+// 일곱 별조각 색 (src/systems/chapter.js SHARD 와 같음): 바람 · 생명 · 대지 · 태양 · 얼음 · 하늘 · 공허
+const SHARD = ['#7de3f0', '#7de08a', '#d8a860', '#ffb040', '#a8e0ff', '#c0c8ff', '#c060ff'];
+const NIGHT = `<radialGradient id="night" cx="50%" cy="42%" r="70%"><stop offset="0" stop-color="#3a3478"/><stop offset=".55" stop-color="#1a1840"/><stop offset="1" stop-color="#07090f"/></radialGradient>`;
+const GOLD = id => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7c8"/><stop offset=".5" stop-color="#ffd36a"/><stop offset="1" stop-color="#ff9ac8"/></linearGradient>`;
+const GLOW = `<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+const svg = (defs, body) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs>${defs}</defs>${body}</svg>`;
+
+// ---------- E. 연희의 별 부적 ----------
+function iconE() {
+  seed = 3;
+  return svg(`<linearGradient id="bE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd6ec"/><stop offset="1" stop-color="#9a7ad8"/></linearGradient>
+     <linearGradient id="gE" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".55" stop-color="#ffc24a"/><stop offset="1" stop-color="#ff8ab8"/></linearGradient>` + GLOW,
+    `<rect width="1024" height="1024" fill="url(#bE)"/>${dots(22, '#fff')}
+     <path d="M512 -20 C500 80 530 120 512 200" stroke="#c0396a" stroke-width="16" fill="none" stroke-linecap="round"/>
+     <circle cx="512" cy="212" r="26" fill="none" stroke="#c0396a" stroke-width="14"/>
+     <polygon points="${star(512, 560, 330, 160)}" fill="url(#gE)" stroke="#8a3a7a" stroke-width="30" stroke-linejoin="round" filter="url(#glow)"/>
+     <polygon points="${star(512, 560, 270, 128)}" fill="none" stroke="#fff" stroke-width="8" stroke-dasharray="22 18" stroke-linejoin="round" opacity=".85"/>
+     <path d="M512 640 C440 580 440 520 482 520 C500 520 512 535 512 548 C512 535 524 520 542 520 C584 520 584 580 512 640Z" fill="#ff5a8a"/>
+     <circle cx="430" cy="545" r="16" fill="#5a2a5a"/><circle cx="594" cy="545" r="16" fill="#5a2a5a"/>
+     <ellipse cx="400" cy="590" rx="26" ry="14" fill="#ff8ab8" opacity=".6"/><ellipse cx="624" cy="590" rx="26" ry="14" fill="#ff8ab8" opacity=".6"/>
+     ${spark(800, 300, 50, '#fff')}${spark(230, 820, 34, '#fff', .8)}`);
+}
+// ---------- F. 별을 올려다보는 주인공 (뒷모습) ----------
+function iconF() {
+  seed = 17;
+  return svg(NIGHT + GOLD('gF') + GLOW + `<linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3a6a"/><stop offset="1" stop-color="#101830"/></linearGradient>`,
+    `<rect width="1024" height="1024" fill="url(#night)"/>${dots(46)}
+     <circle cx="660" cy="300" r="190" fill="#ffd36a" opacity=".14" filter="url(#glow)"/>
+     <polygon points="${star(660, 300, 170, 74)}" fill="url(#gF)" stroke="#5a2a7a" stroke-width="14" stroke-linejoin="round" filter="url(#glow)"/>
+     ${spark(660, 300, 34, '#fff')}${spark(300, 200, 26, '#c0c8ff', .9)}${spark(860, 560, 20, '#7de3f0', .9)}
+     <path d="M0 860 Q512 740 1024 860 V1024 H0Z" fill="url(#hill)"/>
+     <!-- 주인공: 게임 캐릭터처럼 머리가 큰 2등신, 별을 올려다보는 뒷모습 -->
+     <g transform="translate(380 560)">
+       <path d="M-70 210 Q-80 140 -50 120 L50 120 Q80 140 70 210 Z" fill="#3a5a9a"/>
+       <path d="M-50 120 L50 120 L40 150 L-40 150Z" fill="#e0485a"/>
+       <path d="M40 140 Q120 170 140 240 Q100 200 50 170Z" fill="#e0485a"/>
+       <rect x="-44" y="205" width="30" height="60" rx="12" fill="#2a2a4a"/><rect x="14" y="205" width="30" height="60" rx="12" fill="#2a2a4a"/>
+       <circle cx="0" cy="20" r="112" fill="#5a3a2a"/>
+       <path d="M-110 30 Q-120 -80 0 -95 Q120 -80 110 30 Q100 -10 60 -30 Q0 10 -60 -30 Q-100 -10 -110 30Z" fill="#6a4a32"/>
+       <path d="M60 -80 Q110 -120 100 -150 Q80 -100 30 -95Z" fill="#6a4a32"/>
+       <path d="M-30 -60 Q0 -90 40 -60" stroke="#8a6a4a" stroke-width="10" fill="none" stroke-linecap="round"/>
+       <circle cx="-95" cy="40" r="18" fill="#ffe0c2"/>
+     </g>`);
+}
+// ---------- G. 녹스의 등불 ----------
+function iconG() {
+  seed = 29;
+  return svg(`<radialGradient id="bG" cx="50%" cy="58%" r="70%"><stop offset="0" stop-color="#4a2a7a"/><stop offset=".6" stop-color="#1c1038"/><stop offset="1" stop-color="#05060c"/></radialGradient>
+     <radialGradient id="flame" cx="50%" cy="55%" r="55%"><stop offset="0" stop-color="#fff7c8"/><stop offset=".5" stop-color="#ffd36a"/><stop offset="1" stop-color="#ff9a48" stop-opacity=".2"/></radialGradient>` + GOLD('gG') + GLOW,
+    `<rect width="1024" height="1024" fill="url(#bG)"/>${dots(36, '#e0c8ff')}
+     <path d="M80 300 Q300 160 520 240 T940 200" stroke="#c060ff" stroke-opacity=".25" stroke-width="18" fill="none" stroke-linecap="round"/>
+     <path d="M60 820 Q300 900 560 820 T980 860" stroke="#c060ff" stroke-opacity=".2" stroke-width="14" fill="none" stroke-linecap="round"/>
+     <circle cx="512" cy="600" r="300" fill="#ffd36a" opacity=".13" filter="url(#glow)"/>
+     <path d="M512 130 C420 130 420 230 512 230 C604 230 604 130 512 130" fill="none" stroke="#c8b8e8" stroke-width="22"/>
+     <path d="M372 250 L652 250 L612 330 L412 330Z" fill="#3a2a5a" stroke="#c8b8e8" stroke-width="14" stroke-linejoin="round"/>
+     <path d="M402 330 L622 330 L652 760 L372 760Z" fill="url(#flame)" stroke="#c8b8e8" stroke-width="16" stroke-linejoin="round"/>
+     <line x1="512" y1="330" x2="512" y2="760" stroke="#c8b8e8" stroke-width="10" opacity=".7"/>
+     <polygon points="${star(512, 560, 120, 52)}" fill="#fff7c8" filter="url(#glow)"/>
+     ${spark(512, 560, 30, '#fff')}
+     <path d="M352 760 L672 760 L640 840 L384 840Z" fill="#3a2a5a" stroke="#c8b8e8" stroke-width="14" stroke-linejoin="round"/>
+     ${spark(790, 420, 26, '#fff2a8', .9)}${spark(250, 640, 20, '#fff2a8', .7)}`);
+}
+// ---------- H. 모험가의 방패 ----------
+function iconH() {
+  seed = 37;
+  return svg(NIGHT + GOLD('gH') + GLOW + `<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e4a8a"/><stop offset="1" stop-color="#1a2050"/></linearGradient>`,
+    `<rect width="1024" height="1024" fill="url(#night)"/>${dots(30)}
+     <!-- 뒤에 엇갈린 검과 지팡이 (전사 · 마법사) -->
+     <g transform="rotate(-38 512 520)"><rect x="494" y="120" width="36" height="640" rx="10" fill="#dfe6f5"/><path d="M494 120 L512 70 L530 120Z" fill="#dfe6f5"/><rect x="430" y="700" width="164" height="30" rx="12" fill="#ffd36a"/><rect x="496" y="730" width="32" height="110" rx="10" fill="#7a4a2a"/></g>
+     <g transform="rotate(38 512 520)"><rect x="498" y="150" width="28" height="700" rx="12" fill="#8a5a3a"/><circle cx="512" cy="150" r="52" fill="#7de3f0" filter="url(#glow)"/><circle cx="512" cy="150" r="24" fill="#fff"/></g>
+     <path d="M512 230 L740 300 Q760 600 512 860 Q264 600 284 300 Z" fill="url(#field)" stroke="url(#gH)" stroke-width="34" stroke-linejoin="round"/>
+     <path d="M512 290 L690 345 Q700 590 512 790 Q324 590 334 345 Z" fill="none" stroke="#ffd36a" stroke-opacity=".35" stroke-width="8"/>
+     <polygon points="${star(512, 520, 170, 72)}" fill="url(#gH)" stroke="#5a2a7a" stroke-width="12" stroke-linejoin="round" filter="url(#glow)"/>
+     ${spark(512, 520, 30, '#fff')}`);
+}
+
+const ICONS = [
+  ['E', '연희의 별 부적', iconE, true, '서브 퀘스트 "연희의 선물"에서 연희가 직접 만들어 주는 별 부적. 끈 달린 손바느질 별(점선 바느질 자국)에 웃는 얼굴과 하트. 게임 이름의 "연희"와 게임 속 물건이 함께 이어지고, 따뜻하고 귀여워 아이도 좋아할 느낌.'],
+  ['F', '별을 올려다보는 주인공', iconF, false, '기억을 잃은 표류자가 언덕에서 큰 별을 올려다보는 뒷모습. 머리 큰 2등신은 게임 속 캐릭터 모양 그대로, 빨간 망토. "별을 찾아 떠나는 모험"이 한눈에. 인물이 들어가 RPG 느낌이 가장 강하다.'],
+  ['G', '녹스의 등불', iconG, false, '이야기의 끝: 꺼져 있던 녹스의 등불에 주인공의 별빛이 옮겨붙어 처음으로 켜지는 장면. 보랏빛 밤(공허) 속 따뜻한 별빛 등불. 신비롭고 차분하다. 대신 엔딩을 본 사람에게 더 뜻이 깊은 아이콘.'],
+  ['H', '모험가의 방패', iconH, false, '전사의 검과 마법사의 지팡이를 엇갈리게 두고 별 문장 방패를 세운 전통적인 RPG 문장. 처음 보는 사람도 "모험 RPG"라고 바로 안다. 대신 다른 RPG 아이콘과 비슷해 보일 수 있다.'],
+];
+let h = '';
+for (const [k, nm, f, rec, why] of ICONS) {
+  const s = f();
+  h += `<div class="card ${rec ? 'rec' : ''}"><div class="big">${s}</div>
+    <div class="name"><b>${k}</b> ${nm}${rec ? '<span class="tag">추천</span>' : ''}</div><div class="why">${why}</div>
+    <div class="home"><div class="ap"><div class="sm" style="width:60px;height:60px">${s}</div>RPG 대모험</div>
+    <div class="ap"><div class="sm" style="width:44px;height:44px">${s}</div>작게</div></div></div>`;
+}
+document.getElementById('row').innerHTML = h;
+</script>
+</body>
+</html>
