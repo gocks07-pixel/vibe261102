@@ -50,3 +50,14 @@
 - **히든 엔딩 영상(hidden)**: 예전 장면들이 나오므로 주인공을 **연희 외형**으로 그린다
 - **희생 엔딩(seal) · 구원 엔딩(purify)**: 지금 그대로 (플레이어 캐릭터의 외형·눈·장비)
 - 구현 방법: `G.Cutscene.play(kind, done, opt)`에서 kind가 intro · hidden이면 `heroOpt`를 연희 외형으로 지정 (연희 NPC 외형을 바꾸면 영상도 같이 바뀌게 같은 데이터를 씀)
+
+## 8. 타이틀 화면 · 게임 이름 (2026-11-05 사용자 결정)
+- 시안: https://claude.ai/artifact/LJVHDLSRtoYBuvtsDj64gc (scratchpad `hannyomi-title.html`)
+- 타이틀 큰 제목: 두 줄 — 윗줄 작게 "과금없이 즐기는" / 아랫줄 크게 "연희의 RPG 대모험! ✦" (금색→분홍 그라데이션 + 보라 그림자, 살짝 둥실), 아래 작게 "아르셀리아 연대기" (버전 표시 "1.9 빌드"는 뺌)
+- 글씨체: **주아(Jua)** — SIL OFL. EXE는 인터넷 없이 실행될 수 있으므로 글꼴 파일을 `css/fonts/`에 넣고 @font-face로 불러온다
+- 배경: 시안 그대로 (밤하늘 별 반짝임 · 일곱 영웅 별자리 · 녹스의 등불 · 가끔 떨어지는 별조각 · 새싹항 등대(불빛 회전)와 바다 · 바닷가에서 별을 올려다보는 연희). 버튼은 지금 위치 그대로 위에 얹는다
+- 창 제목 (index.html `<title>`, electron/main.js `title`): **RPG 대모험_HC**
+- EXE 이름 (package.json `build.productName` → portable 파일 이름): **RPG Adventure** (사용자 입력 "RPG Adventur"를 오타로 보고 Adventure로 함 — 확인 필요)
+- 엔딩 크레딧 이름 (src/ui/ending.js): **과금없이 즐기는 연희의 RPG 대모험** · 아르셀리아 연대기
+- 바꾸지 않는 것: package.json `name`, `appId`, 세이브 저장 키 (기존 세이브 유지)
+- 남은 결정: 연희 NPC 데이터에 성별(gender: 'f')이 빠져 있어 게임에서 남자 모양(치마·속눈썹 없음)으로 그려짐 → 고칠지 확인 필요
