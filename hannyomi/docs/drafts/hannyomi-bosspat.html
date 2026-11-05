@@ -91,7 +91,7 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
   }
   function boss(c, id, x, t, o = {}) {
     const d = G.MONSTERS[id], m = { x: 0, y: 0, w: d.w, h: d.h, dir: o.dir || -1, d, id, hp: 1, maxHp: 1, dead: false, deadT: 0, hurtT: o.hurt ? 0.1 : 0, atkAnim: o.atk != null ? o.atk : -1, aggro: 0, moving: !!o.moving,
-      status: {}, boss: { phase: o.phase || 0, guarding: !!o.guard, raise: o.raise || 0, cur: null }, isBoss: true, groggy: o.groggy ? 1 : 0, kb: 0, vx: 0, purified: id === 'aurelion', soarY: 0 };
+      status: {}, boss: { phase: o.phase || 0, guarding: !!o.guard, raise: o.raise || 0, cur: null }, isBoss: true, groggy: o.groggy ? 1 : 0, kb: 0, vx: 0, purified: id === 'aurelion' && !o.corrupt, soarY: 0 };
     const s = (o.scale || 1) * Math.min(1, 118 / d.h);
     c.save(); c.translate(x, o.y || GY); if (o.rot) c.rotate(o.rot); c.scale(s, s); if (o.alpha != null) c.globalAlpha *= o.alpha;
     try { G.Draw.monster(c, m, t); } catch (e) { console.error(id, e.message); }
@@ -306,6 +306,35 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
     }],
   ];
 
+
+  function breath(c, x0, y0, x1, y1, k, w = 26) {   // 타락한 브레스: 보라빛이 섞인 흰빛
+    c.save(); c.lineCap = 'round'; c.shadowColor = '#c8a0ff'; c.shadowBlur = 24;
+    for (const [lw, col] of [[w * 1.6, 'rgba(170,110,255,.35)'], [w, 'rgba(235,220,255,.85)'], [w * 0.35, '#ffffff']]) { c.strokeStyle = col; c.lineWidth = Math.max(0.5, lw * k); c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); }
+    c.restore(); glow(c, x1, y1, 50 * k, 'rgba(220,190,255,1)', 0.8 * k);
+  }
+  const BR = [
+    ['aurelion', '아우렐리온 · 천공의 숨결 A (조준 브레스)', '50% 이후', '숨을 모으며 플레이어 자리에 조준 표시 → 1.2초 뒤 그 줄로 굵은 브레스. 표시가 뜨면 옆으로 움직이기!', (c, t) => {
+      stage(c, 'aurelion'); const bx = 390, mx = bx - 74, my = GY - 104, tx = 210;
+      boss(c, 'aurelion', bx, t, { scale: 1.1, corrupt: true, raise: t < 2.4 ? 1 : 0 });
+      if (t > 0.3 && t < 1.6) { glow(c, mx, my, 12 + (t - 0.3) * 24, 'rgba(210,180,255,1)', 0.9); c.strokeStyle = `rgba(255,80,120,${0.5 + 0.4 * Math.sin(t * 20)})`; c.lineWidth = 2; c.setLineDash([6, 5]); c.beginPath(); c.moveTo(mx, my); c.lineTo(tx, GY - 10); c.stroke(); c.setLineDash([]);
+        c.beginPath(); c.arc(tx, GY - 30, 18, 0, 7); c.stroke(); c.beginPath(); c.moveTo(tx - 26, GY - 30); c.lineTo(tx + 26, GY - 30); c.moveTo(tx, GY - 56); c.lineTo(tx, GY - 4); c.stroke(); }
+      if (t >= 1.6 && t < 2.6) { const k = t < 1.75 ? (t - 1.6) / 0.15 : t > 2.3 ? 1 - (t - 2.3) / 0.3 : 1; breath(c, mx, my, tx - 40, GY + 6, k); for (let i = 0; i < 8; i++) star(c, tx - 40 + Math.cos(i) * 40 * k, GY - 10 - Math.abs(Math.sin(i * 2)) * 30, 4, 'rgba(240,225,255,.9)'); }
+      const hx = t < 1.0 ? tx : t < 1.5 ? tx - (t - 1.0) / 0.5 * 110 : tx - 110; hero(c, hx, t, { moving: t >= 1.0 && t < 1.5, dir: -1 });
+      label(c, t < 1.6 ? '조준당했다! 옆으로!' : '천공의 숨결!', '#e0c8ff');
+    }],
+    ['aurelion', '아우렐리온 · 천공의 숨결 B (휩쓸기 브레스)', '50% 이후 · 추천', '숨을 모은 뒤 용 앞쪽 바닥부터 먼 끝까지 브레스가 쓸고 간다. 멀리 도망가면 맞고, 용의 발밑이나 등 뒤로 파고들어야 산다!', (c, t) => {
+      stage(c, 'aurelion'); const bx = 330, mx = bx - 74, my = GY - 104;
+      if (t < 1.1) { c.fillStyle = `rgba(200,140,255,${0.14 + 0.12 * Math.sin(t * 18)})`; c.fillRect(0, GY - 40, bx - 70, 40); c.strokeStyle = 'rgba(200,160,255,.9)'; c.setLineDash([8, 6]); c.strokeRect(1, GY - 40, bx - 72, 40); c.setLineDash([]);
+        c.fillStyle = 'rgba(140,255,170,.18)'; c.fillRect(bx - 60, GY - 40, W - bx + 60, 40); tag(c, '안전: 용 발밑 · 등 뒤', bx + 50, GY - 50, '#a8ffb8'); }
+      boss(c, 'aurelion', bx, t, { scale: 1.1, corrupt: true, raise: t < 2.8 ? 1 : 0 });
+      if (t > 0.2 && t < 1.1) glow(c, mx, my, 10 + (t - 0.2) * 30, 'rgba(210,180,255,1)', 0.9);
+      if (t >= 1.1 && t < 2.8) { const u = cl((t - 1.1) / 1.4, 0, 1), k = t > 2.5 ? 1 - (t - 2.5) / 0.3 : 1, hx2 = (bx - 90) - u * (bx - 60); breath(c, mx, my, hx2, GY, k, 22);
+        for (let i = 0; i < 5; i++) glow(c, hx2 + 30 + i * 30, GY - 6, 20, 'rgba(200,150,255,1)', 0.35 * (1 - i / 5) * k); }
+      const hx = t < 0.5 ? 170 : t < 1.05 ? 170 + (t - 0.5) / 0.55 * 230 : 400; hero(c, hx, t, { moving: t >= 0.5 && t < 1.05, dir: hx < 400 ? 1 : -1 });
+      label(c, t < 1.1 ? '용 쪽으로 파고들어!' : '천공의 숨결!', '#e0c8ff');
+    }],
+  ];
+
   // ---------------- 페이지 ----------------
   const book = document.getElementById('book'), views = [];
   function sect(title, lead, list, kind) {
@@ -322,6 +351,7 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
     }
   }
   sect('새 패턴 16개 (페이즈마다 1개씩 열림)', '보스 체력 70%와 40%에서 페이즈가 바뀌며 새 패턴이 하나씩 열려요. 직전에 쓴 패턴 2개는 다시 고르지 않아서 같은 패턴이 연달아 나오지 않아요.', P);
+  sect('아우렐리온 진짜 브레스: 천공의 숨결 A · B', '50% 천공 비상 이후에 넣을 브레스 두 가지 방식이에요. 이 전투의 아우렐리온은 타락한 상태라 보라빛이 섞인 흰 브레스예요 (녹스전에서 동료로 쏘는 브레스는 정화된 금빛).', BR);
   sect('추가 후보: 아우렐리온 · 엘드리크 (각각 하나 골라 주세요)', '아우렐리온과 엘드리크는 따로인 보스라 하나씩 더 넣어요. 후보 두 개씩 비교해 보세요. 쉘로크의 검은 천 연출도 함께 있어요.', EX);
   sect('그로기 기믹 4종 (신규)', '기믹을 성공하면 6초 동안 보스가 받는 피해가 1.75배가 돼요. 기존 기믹(기둥 · 잔영 · 별조각 · 근위대 · 보호막)도 똑같이 적용돼요.', GIM, '그로기');
   sect('개선', '녹스 종말의 별은 덜 억울하게, 비 형태 스킬은 보스를 조준하게 바꿔요.', FIX, '개선');
