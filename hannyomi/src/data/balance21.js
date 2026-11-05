@@ -8,7 +8,7 @@
   const tune = (id, pid, o) => { const pt = B[id].patterns.find(x => x.id === pid); if (pt) Object.assign(pt, o); };
 
   // ---------- 체력 배율 (시뮬레이션으로 맞춘 값: 보통 장비 기준 목표 길이) ----------
-  const HP = { shellock: 6, bark: 3, morwen: 8.5, grounder: 6, parakan: 2.2, kaien_boss: 3.8, aurelion: 7, eldrick: 7, nox: 8.5 };
+  const HP = { shellock: 7, bark: 4, morwen: 6.5, grounder: 6, parakan: 2.2, kaien_boss: 3.8, aurelion: 7, eldrick: 7, nox: 8.5 };
   for (const id in HP) M[id].hpMul = (M[id].hpMul || 1) * HP[id];
 
   // ---------- 새 패턴 ----------
@@ -96,7 +96,7 @@
   tune('morwen', 'roots', { cd: 6, weight: 2 });
   tune('kaien', 'waves', { cd: 8, weight: 1.5 });
   tune('nox', 'hand', { cd: 7, weight: 2 });
-  tune('bark', 'dash', { cd: 8, weight: 1.5 });
+  tune('bark', 'dash', { cd: 10, weight: 1 });
   tune('aurelion', 'starfall', { cd: 9, weight: 2 });
   tune('eldrick', 'skyfall', { cd: 8, weight: 2 });
 

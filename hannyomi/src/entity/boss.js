@@ -292,7 +292,7 @@ G.BossAI = class {
         if (!c.init) {
           c.init = true;
           const side = p.x < w.map.width / 2 ? -1 : 1;   // 플레이어가 있는 쪽
-          w.half = { left: pt.dur, side, dmg: pt.dmg, tick: 1, ground: !!pt.ground };
+          w.half = { left: pt.dur, side, dmg: pt.dmg, tick: 1, ground: !!pt.ground, tint: pt.tint };
         }
         return c.t > 0.6;
       }

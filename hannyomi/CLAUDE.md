@@ -33,7 +33,7 @@
 - **전체 이야기 기준 문서: `docs/STORY.md`** (배경 → 프롤로그~종장 → 녹스 → 엔딩 3종). 대사·퀘스트를 고칠 때 이 문서와 맞춘다
 - 게임 제목은 1.7.4부터 **"한요미의 대모험"** (보이는 제목만 변경. 내부 이름 `hannyomi-adventure`·`Hannyomi`·저장 폴더·`hny_*` 키는 세이브 호환을 위해 그대로)
 - 빌드 1.4: `docs/BUILD_1.4_PLAN.md` — 구현 완료, 곡 피드백까지 끝 (2026-11-03)
-- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → 2.0 완료 → **다음: EXE 빌드**)
+- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → 2.0 완료 → 2.1 완료 → **다음: EXE 빌드**)
 - 빌드 1.5: `docs/BUILD_1.5_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v3 (`G.Save.VERSION`, 변환은 `G.Save.upgrade`)
 - 빌드 1.6: `docs/BUILD_1.6_PLAN.md` — 구현 완료 (2026-11-04)
 - 빌드 1.6.1: `docs/BUILD_1.6.1_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v4
@@ -54,5 +54,5 @@
 - 빌드 1.8: `docs/BUILD_1.8_PLAN.md` (아래쪽 "실제 구현") — 구현 완료 (2026-11-05). 효과음 `src/core/sound.js` (`G.Sound`), 새 스킬은 `SKILL_SOUND`나 `BY_PROJ`/`BY_FX`로 소리 지정
 - 빌드 1.9: `docs/BUILD_1.9_PLAN.md` — 구현 완료 (2026-11-05). 복장·장비 모양 `src/render/outfit.js` (`G.Outfit.draw`가 사람형 캐릭터를 그림, 장비 id → 디자인 묶음 `styleOf`, 새 장비 묶음은 `S`·`WSTYLE`에 추가). 확인 페이지 `hannyomi-wardrobe.html`
 - 빌드 2.0: `docs/BUILD_2.0_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). 히든 엔딩 `src/systems/hidden.js`, 녹스전 동료 `src/systems/assist.js`, 타이틀 배경 `src/ui/titlebg.js`, 글꼴 `css/fonts/`. 게임 이름: 창 "RPG 대모험_HC" · EXE "RPG Adventure" · 크레딧 "과금없이 즐기는 연희의 RPG 대모험"
-- **지금 진행 중: 2.1 보스 밸런스** — `docs/BUILD_2.1_PLAN.md` 맨 아래 "진행 상황"에 이어서 할 일 정리됨
+- 빌드 2.1: `docs/BUILD_2.1_PLAN.md` — 구현 완료 (2026-11-05). 보스 밸런스 `src/data/balance21.js`, 기믹 그림 `src/render/boss21.js`, 시뮬레이터 `docs/drafts/sim/`. **다음: EXE 빌드** (`docs/BUILD_EXE_PLAN.md`, 자동 물약 · 별사탕 여부 확인)
 - 빌드 계획서 (사용자가 "1.x 진행해 줘"라고 하면 진행): `docs/BUILD_1.8_PLAN.md`, `docs/BUILD_1.9_PLAN.md`, `docs/BUILD_2.0_PLAN.md`

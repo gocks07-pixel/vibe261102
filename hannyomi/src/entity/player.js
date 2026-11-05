@@ -350,7 +350,7 @@ G.Player = class {
         const reach = a.ahead + a.area / 2 + 60;
         const tgt = w.monsters.filter(m => !m.dead && (m.isBoss || m.d.kind === 'elite') && Math.sign(m.x - this.x || this.dir) === this.dir && Math.abs(m.x - this.x) <= reach)
           .sort((p1, p2) => Math.abs(p1.x - this.x) - Math.abs(p2.x - this.x))[0];
-        const cx = tgt ? tgt.x : this.x + this.dir * a.ahead, area = tgt ? a.area / 2 : a.area;
+        const cx = tgt ? tgt.x : this.x + this.dir * a.ahead, area = tgt ? Math.min(a.area / 2, tgt.w * 1.6 + 60) : a.area;   // 보스 폭에 맞춰 좁힘
         for (let i = 0; i < a.count; i++) {
           const tx = cx + G.U.rand(-area / 2, area / 2);
           const gy = w.groundBelow(tx, this.y - 60);

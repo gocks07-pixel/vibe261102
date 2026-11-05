@@ -1,7 +1,7 @@
 {
   "name": "hannyomi-adventure",
-  "version": "2.0.0",
-  "description": "과금없이 즐기는 연희의 RPG 대모험 (2.0 빌드)",
+  "version": "2.1.0",
+  "description": "과금없이 즐기는 연희의 RPG 대모험 (2.1 빌드)",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
