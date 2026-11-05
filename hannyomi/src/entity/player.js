@@ -485,8 +485,8 @@ G.Player = class {
     G.FX.pillar(this.x, this.y, '#ffe06a'); G.FX.ring(this.x, this.y - 30, 120, '#ffe06a', 0.8);
     G.FX.stars(this.x, this.y - 50, 14); G.FX.burst(this.x, this.y - 40, '#ffe06a', 30, 300);
     G.UI.banner('LEVEL UP!', `Lv.${d.level} · 능력 포인트 +${d.job === 'beginner' ? G.F.AP_PER_LEVEL + G.F.AUTO_STAT : `${G.F.AP_PER_LEVEL} · ${G.STAT_NAMES[G.JOBS[d.job].main]} +${G.F.AUTO_STAT}`}${d.level >= 10 ? ` · 기술 포인트 +${G.F.spFor(d.level)}` : ''}`);
-    const adv = { 10: '각성 Ⅰ', 30: '각성 Ⅱ', 60: '각성 Ⅲ', 85: '각성 Ⅳ' }[d.level];
-    if (adv) G.UI.log(`${adv} 각성이 가능한 레벨입니다! 퀘스트 창(Q)의 "시작 가능" 탭을 확인하세요.`, '#ffe08a');
+    const adv = { 10: [0, '각성 Ⅰ'], 30: [1, '각성 Ⅱ'], 60: [2, '각성 Ⅲ'], 85: [3, '각성 Ⅳ'] }[d.level];   // 2.1.2: 지금 직업의 다음 차수일 때만
+    if (adv && G.JOBS[d.job].tier === adv[0]) G.UI.log(`${adv[1]} 시험을 받을 수 있는 레벨입니다! 퀘스트 창(Q)의 "시작 가능" 탭을 확인하세요.`, '#ffe08a');
     G.UI.log(`레벨 ${d.level} 달성! 남은 능력 포인트 ${d.ap} (S 키로 배분)`, '#ffe06a');
     G.Audio.play('levelup');
     G.UI.dirty();

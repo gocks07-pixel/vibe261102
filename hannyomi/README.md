@@ -1,4 +1,4 @@
-# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.1
+# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.2
 
 세계관 "아르셀리아 연대기"의 튜토리얼 ~ 엔딩 (Lv.1~100) 플레이 가능 버전입니다. 배경음악과 효과음이 함께 나옵니다.
 
@@ -8,8 +8,8 @@
   ```
   npm install            # 처음 한 번
   npm start              # EXE 창으로 실행 (테스트용)
-  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.1.exe
-  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.1.exe
+  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.2.exe
+  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.2.exe
   ```
   자세한 순서: `docs/EXE_빌드_안내.md`
   EXE 세이브 위치: `문서\RPG Adventure\Save Data\save_A·B·C.json` (테스트용은 `Save Data (DEV)`)
@@ -34,6 +34,9 @@
 | F11 | 전체화면 (EXE) |
 
 오른쪽 위 퀘스트를 더블클릭하면 길 안내가 켜집니다.
+
+## v2.1.2에서 바뀐 점
+- 마법사 지혜의 MP 보너스가 각성 Ⅱ~Ⅳ에도 적용 · 각성 알림은 다음 각성을 할 수 있을 때만, 문장 "각성 Ⅱ 시험을 받을 수 있는 레벨입니다!"
 
 ## v2.1.1에서 바뀐 점
 - 내 직업 스탯 우대: 장비 단련 · 별자리 각인 · 새 장비의 추가 줄에서, 직업에 쓸모없는 스탯 2개(주스탯·부스탯이 아닌 것)가 나올 확률을 절반으로 (이미 뽑힌 줄은 그대로)

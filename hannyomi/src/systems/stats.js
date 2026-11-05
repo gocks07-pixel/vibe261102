@@ -48,7 +48,7 @@ G.Stats = {
     s.minDmg = s.maxDmg * 0.85;
     const pre = Math.min(L - 1, 9), post = Math.max(0, L - 10);
     s.maxHP = Math.floor((50 + 12 * pre + job.hpLv * post + g('HP')) * (1 + g('HPp') / 100));
-    s.maxMP = Math.floor((30 + 6 * pre + job.mpLv * post + (d.job === 'mage' ? s.INT * 0.5 : 0) + g('MP')) * (1 + g('MPp') / 100));
+    s.maxMP = Math.floor((30 + 6 * pre + job.mpLv * post + (G.familyOf(d.job) === 'mage' ? s.INT * 0.5 : 0) + g('MP')) * (1 + g('MPp') / 100));
     s.def = g('def');
     s.crit = Math.min(100, job.crit + g('crit'));
     s.critDmg = 50 + g('critDmg');
