@@ -11,7 +11,7 @@ async function boot(b, opts = {}) {
     await pg.addInitScript(dev => {
       const store = {}; window.__bug = []; window.__errs = [];
       window.electronAPI = {
-        info: { version: '2.1.0', dev },
+        info: { version: '2.1.1', dev },
         saveGame: async (s, d) => { store[s] = d; return true; }, loadGame: async s => store[s] || null,
         deleteGame: async s => { delete store[s]; return true; }, backupGame: async () => true,
         writeErrors: l => { window.__errs = l; }, bugCapture: async () => true,
@@ -30,7 +30,7 @@ async function boot(b, opts = {}) {
   {
     const { pg, errs, ev } = await boot(b);
     const t = await ev(() => ({ ver: document.querySelector('.title-ov .ver')?.textContent, t3: !!document.querySelector('.ttl .t3'), dev: !!document.querySelector('[data-act=dev][data-arg=open]'), title: document.querySelector('.ttl').textContent }));
-    ok(t.ver === 'v2.1.0 DEV', '브라우저 버전 표시 ' + t.ver);
+    ok(t.ver === 'v2.1.1 DEV', '브라우저 버전 표시 ' + t.ver);
     ok(!t.t3 && !/아르셀리아/.test(t.title), '타이틀에 "아르셀리아 연대기" 없음');
     ok(t.dev, '브라우저 판 테스트 모드 버튼 있음');
     await pg.screenshot({ path: D + '/1_title.png' });
@@ -128,7 +128,7 @@ async function boot(b, opts = {}) {
     await pg.screenshot({ path: D + '/5_bug.png' });
     await pg.click('[data-bug=make]'); await pg.waitForTimeout(500);
     const bt = await ev(() => document.querySelector('.bug-text')?.value || '');
-    ok(/녹스에서 멈췄어요/.test(bt) && /버전: v2\.1\.0/.test(bt) && /테스트 오류/.test(bt) && /진행 중인 퀘스트/.test(bt), '브라우저 신고 내용');
+    ok(/녹스에서 멈췄어요/.test(bt) && /버전: v2\.1\.1/.test(bt) && /테스트 오류/.test(bt) && /진행 중인 퀘스트/.test(bt), '브라우저 신고 내용');
     await pg.screenshot({ path: D + '/6_bug_done.png' });
     console.log(bt.split('\n').slice(0, 16).join('\n'));
     await pg.keyboard.press('Escape'); await pg.waitForTimeout(100);
@@ -145,7 +145,7 @@ async function boot(b, opts = {}) {
   {
     const { pg, errs, ev } = await boot(b, { electron: true, dev: false });
     const t = await ev(() => ({ ver: document.querySelector('.title-ov .ver')?.textContent, dev: !!document.querySelector('[data-act=dev]'), gdev: !!G.Dev, where: document.querySelector('.title-ov .dim:last-of-type')?.textContent || document.querySelector('.title-ov').innerText }));
-    ok(t.ver === 'v2.1.0', '플레이어용 버전 ' + t.ver);
+    ok(t.ver === 'v2.1.1', '플레이어용 버전 ' + t.ver);
     ok(!t.dev && !t.gdev, '플레이어용 테스트 모드 없음');
     ok(/문서\/RPG Adventure\/Save Data(?! \()/.test(t.where), '저장 위치 문구');
     await pg.screenshot({ path: D + '/8_player_title.png' });
@@ -166,7 +166,7 @@ async function boot(b, opts = {}) {
     await pg.keyboard.press('F9'); await pg.waitForTimeout(300);
     await pg.click('[data-bug=make]'); await pg.waitForTimeout(800);
     const bug = await ev(() => window.__bug[0]);
-    ok(bug && bug.slot === 'A' && /"name":"연희"/.test(bug.save || '') && /버전: v2\.1\.0\n/.test(bug.info), 'EXE 버그 신고 데이터 (세이브 · 정보)');
+    ok(bug && bug.slot === 'A' && /"name":"연희"/.test(bug.save || '') && /버전: v2\.1\.1\n/.test(bug.info), 'EXE 버그 신고 데이터 (세이브 · 정보)');
     ok(!/DEV/.test(bug.info), '플레이어용 신고에 DEV 없음');
     await pg.screenshot({ path: D + '/9_exe_bug_done.png' });
     ok(errs.length === 0, '플레이어용 오류 없음 ' + JSON.stringify(errs.slice(0, 3)));
@@ -176,7 +176,7 @@ async function boot(b, opts = {}) {
   {
     const { pg, errs, ev } = await boot(b, { electron: true, dev: true });
     const t = await ev(() => ({ ver: document.querySelector('.title-ov .ver')?.textContent, dev: !!document.querySelector('[data-act=dev]'), txt: document.querySelector('.title-ov').innerText }));
-    ok(t.ver === 'v2.1.0 DEV' && t.dev && /Save Data \(DEV\)/.test(t.txt), '테스트용: DEV 표시 · 테스트 모드 · 저장 위치');
+    ok(t.ver === 'v2.1.1 DEV' && t.dev && /Save Data \(DEV\)/.test(t.txt), '테스트용: DEV 표시 · 테스트 모드 · 저장 위치');
     ok(errs.length === 0, '테스트용 오류 없음 ' + JSON.stringify(errs.slice(0, 3)));
     await pg.close();
   }
