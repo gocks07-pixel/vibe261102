@@ -4,13 +4,20 @@ G.Combat = {
   // 플레이어 → 몬스터. pct: 스킬 배율(%), idx: 다단히트 순번 (데미지 숫자 높이), color: 타격 섬광 색
   hit(p, m, pct, idx = 0, color = '#ffe0a0') {
     if (m.dead) return 0;
+    const B = m.boss;
+    if (B && B.phaseInv > 0) {   // 2.1 페이즈 전환 무적
+      if (!(B.invTextT > 0) || B.invTextT < Date.now()) { B.invTextT = Date.now() + 600; G.FX.text(m.x, m.y - m.h - 20, '무적', '#bfe6ff', 16, 0.6); }
+      return 0;
+    }
+    if (B) { const w = G.Game.world; if (B.weakOn) B.weakHit(w); if (B.smokeReal > 0 || B.cloneHint) B.revealReal(w); }   // 2.1 기믹
     const s = p.st;
     let dmg = G.U.rand(s.minDmg, s.maxDmg) * pct / 100;
     dmg *= 1 + (s.dmgp + (m.isBoss ? s.bossDmg : 0)) / 100;
     dmg *= 1 - Math.max(0, m.defense * (1 - s.ignoreDef / 100));
     dmg *= G.F.dmgPenalty(p.d.level, m.lv);
     if (m.guard) dmg *= 1 - m.guard;
-    if (m.vuln > 0) dmg *= 2;
+    if (m.vuln > 0) dmg *= m.vulnMul || 2;
+    if (m.isBoss && p.d.level < m.lv) dmg *= 1.3;   // 2.1 용기의 가호: 보스보다 레벨이 낮으면 +30%
     if (m.markUntil > Date.now()) dmg *= 1 + (m.markMul || 0.2);   // 1.7.11 표식 (급소 찌르기 등)
     const crit = Math.random() * 100 < s.crit;
     if (crit) dmg *= 1 + s.critDmg / 100;

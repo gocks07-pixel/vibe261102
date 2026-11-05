@@ -162,8 +162,7 @@ G.MonArt = {};
     const g = ctx.createRadialGradient(-10, -10, 6, 0, 0, 62); g.addColorStop(0, '#f4e2c4'); g.addColorStop(1, '#b08a5a');
     ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, 60, 50, 0, 0, PI * 2); ctx.fill(); ctx.strokeStyle = '#7a5a3a'; ctx.lineWidth = 3; ctx.stroke();
     ctx.lineWidth = 2.5; ctx.beginPath(); for (let a = 0; a < PI * 5; a += 0.2) { const r = 46 - a * 2.8; ctx.lineTo(cos(a) * r, sin(a) * r * 0.85); } ctx.stroke();
-    poly(ctx, '#1e1a24', [[-40, -24], [30, -40], [44, -22], [-30, -6]]);   // 감겨 있는 검은 천 (교단의 흔적)
-    line(ctx, '#3a3048', 2, [[-30, -15], [36, -31]]);
+    // 2.1: 껍데기의 검은 천은 지우고, 쓰러질 때 떨어지는 연출로 바꿈 (world.js cloth)
     ctx.restore();
     if (guard) {   // 껍데기 속으로 숨음
       for (let i = 0; i < 3; i++) ell(ctx, 30 + i * 12, -60 - ((t * 40 + i * 20) % 60), 4, 4, 'rgba(200,230,255,.6)');

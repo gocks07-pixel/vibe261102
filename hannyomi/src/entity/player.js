@@ -238,6 +238,7 @@ G.Player = class {
   hitArea(w, rect, targets, pct, hits = 1, color, after) {
     const list = w.monsters.filter(m => !m.dead && G.U.overlap(rect, m.box))
       .sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, targets);
+    if (targets >= 3 && list.length > 0 && list.length <= 2) pct *= 1.4;   // 2.1 집중 보너스: 범위 스킬이 1~2마리만 맞히면 +40%
     for (const m of list) { for (let i = 0; i < hits; i++) G.Combat.hit(this, m, pct, i, color); if (after) after(m); }
     return list.length;
   }
@@ -345,8 +346,13 @@ G.Player = class {
         break;
       }
       case 'rain': {
+        // 2.1: 사거리 안에 보스 · 정예가 있으면 그 적을 중심으로, 폭은 절반 (일반 사냥은 지금처럼)
+        const reach = a.ahead + a.area / 2 + 60;
+        const tgt = w.monsters.filter(m => !m.dead && (m.isBoss || m.d.kind === 'elite') && Math.sign(m.x - this.x || this.dir) === this.dir && Math.abs(m.x - this.x) <= reach)
+          .sort((p1, p2) => Math.abs(p1.x - this.x) - Math.abs(p2.x - this.x))[0];
+        const cx = tgt ? tgt.x : this.x + this.dir * a.ahead, area = tgt ? a.area / 2 : a.area;
         for (let i = 0; i < a.count; i++) {
-          const tx = this.x + this.dir * a.ahead + G.U.rand(-a.area / 2, a.area / 2);
+          const tx = cx + G.U.rand(-area / 2, area / 2);
           const gy = w.groundBelow(tx, this.y - 60);
           G.FX.beam(tx - this.dir * 50, gy - 460, gy, el);
           w.projectiles.push(new G.Projectile({
@@ -354,7 +360,7 @@ G.Player = class {
             owner: 'player', range: 1200, groundY: gy, color: el, onHit,
           }));
         }
-        G.FX.flash(this.x + this.dir * a.ahead, this.y - 300, 120, el, 0.35);
+        G.FX.flash(cx, this.y - 300, 120, el, 0.35);
         break;
       }
       case 'dash': {
@@ -425,7 +431,8 @@ G.Player = class {
     const ifr = s.fx('iframe');
     this.hp -= d; this.invuln = 1.0 + (ifr ? ifr.v : 0);
     G.FX.dmg(this.x, this.y - 78, d, 'hurt'); G.Audio.play('hurt');
-    if (!this.dash) { this.kbX = Math.sign(this.x - fromX || -this.dir) * 260; this.vy = -280; this.onGround = false; this.adash = 0; }
+    if (!this.dash) { this.kbX = Math.sign(this.x - fromX || -this.dir) * (src && src.isBoss ? 160 : 260);   // 2.1 보스는 덜 밀어냄
+      this.vy = -280; this.onGround = false; this.adash = 0; }
     if (opt.slow) this.slowT = opt.slow;
     if (opt.poison) this.poison = { dps: s.maxHP * opt.poison.pct / 100, left: opt.poison.dur, tick: 1 };
     if (this.hp <= 0) this.die();

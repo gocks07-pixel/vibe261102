@@ -103,3 +103,28 @@
 - 새 패턴 16개 · 기믹 4종 스크린샷, 기존 회귀 테스트
 - 문서 · 버전 2.1, 플레이 페이지, zip, GitHub 백업
 - 그다음: EXE 빌드 (`docs/BUILD_EXE_PLAN.md`) + 자동 물약 · 별사탕
+
+---
+
+## 진행 상황 (2026-11-05 중간 저장 · 토큰 한도로 일시 중단)
+**확정 선택**: 아우렐리온 = 성광 폭발(70%) + 천공의 숨결 B(50% 이후) / 엘드리크 = 교단의 낙인(70% 이후) + 별빛 감옥(40%) / 쉘로크 검은 천 = "가"
+
+**구현 완료 (코드에 들어감, 아직 시뮬레이션 · 화면 확인 전)**
+- `src/data/balance21.js` (새 파일, index.html · play · bestiary에 rework.js 다음으로 로드): 체력 배율, 새 패턴 18개, 페이즈(70% · 40%), 자주 나오던 패턴 cd ↑ · weight ↓, 그로기 기믹 플래그, 녹스 종말의 별(예고 6초 · 45초 · 실패 70%) · 광폭화 20분, 기믹 몬스터 3종(bark_decoy · cool_valve · forgotten_star)
+- `src/entity/boss.js`: 페이즈 전환 무적 3.5초, 페이즈마다 간격 8% 단축, 최근 2개 패턴 제외, expose()(약점 노출 6초 ×1.75), weakHit(쉘로크), revealReal(바르크 연막 · 카이엔 분신), 밸브(그라운더), 그림자 난무 반복(times), 껍데기 굴리기(shell · low), hands spread · slow · poison, nova 색, 새 타입 sweep(천공의 숨결) · brand(교단의 낙인), erosion tint, 종말의 별 첫 등장 엘마 컷인(G.Assist.say)
+- `src/systems/combat.js`: 페이즈 무적, 기믹 판정, vulnMul, 용기의 가호(보스보다 레벨 낮으면 +30%)
+- `src/entity/player.js`: 집중 보너스(범위 스킬 1~2마리면 +40%), 보스 넉백 160, 비 스킬 보스·정예 조준(폭 절반)
+- `src/data/skills.js`: 1차 전사 강타 +25%
+- `src/render/boss21.js`(새 파일): 냉각 밸브 · 잊힌 별 그림, 가짜 바르크
+- `src/render/monsters2.js`: 쉘로크 껍데기 검은 띠 삭제
+- `src/entity/fx.js`(trap · arrows · spore · missile · icespear), `src/entity/projectile.js`(thorn · twister · voidwave)
+- `src/world.js`: drawBoss21(브레스 · 안전 표시 · 낙인 · 약점 · 빨간 눈 · 파란 목도리 · 약점 노출 표시 · 검은 천 떨어짐), 종말의 별 머리 위 화살표 + 초, 별빛 감옥 보라 · 별, 밀물 파란색, 용기의 가호 안내
+- `src/systems/assist.js`: say() (다른 대사 컷인)
+- `src/data/quests.js` m08 엘마 대사 ("쓰러진 자리에 검은 천 조각"), `src/data/story2.js` c2_06 권장 Lv.30 + 2차 각성 안내
+
+**남은 일 (다음 세션에서 이어서)**
+1. 시뮬레이션: `docs/drafts/sim/fullsim4.js` + `mk3.py` (`python3 mk3.py v21 '{}' 2` → runs_v21_*.json, mech 보정 없이 실제 게임 코드로) → 보스 8종 길이 · 차이 · 쓰러짐 · 패턴 반복 확인, 체력 배율(balance21.js HP) 다시 맞춤
+2. 오류 확인 · 화면 스크린샷 (새 패턴 18개 · 기믹 4종 · 검은 천 · 종말의 별 화살표)
+3. 회귀 테스트(t161 a172 j173 n174 elite176 r178 b179 y1712 g20), 버전 2.1 (windows.js 없음 · package.json), README · ROADMAP · CLAUDE.md
+4. 플레이 페이지 게시(새 파일 balance21.js · boss21.js 포함), zip, GitHub 백업
+5. 그다음 EXE 빌드 (`docs/BUILD_EXE_PLAN.md`) + 자동 물약(HP 50% · MP 30% 기본 켬) · 별사탕(HP · MP 30%) — 사용자 확인 필요

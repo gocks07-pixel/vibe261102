@@ -121,6 +121,21 @@ G.Projectile = class {
         ctx.beginPath(); ctx.moveTo(14, 0); ctx.quadraticCurveTo(0, -6, -14, -3); ctx.lineTo(-10, 0); ctx.lineTo(-14, 3); ctx.quadraticCurveTo(0, 6, 14, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.strokeStyle = '#7d8ff0'; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-12, 0); ctx.stroke();
         break;
+      case 'thorn': {   // 2.1 모르웬 가시 덩굴: 바닥을 타고 오는 가시
+        ctx.fillStyle = '#4a8a3a'; ctx.strokeStyle = '#2a4a1a'; ctx.lineWidth = 1.5;
+        for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 9 - 7, 14); ctx.lineTo(i * 9, -10 - (i % 2 ? 8 : 0) + Math.sin(this.t * 10 + i) * 2); ctx.lineTo(i * 9 + 7, 14); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+        break;
+      }
+      case 'twister': {   // 2.1 파라칸 모래 회오리
+        for (let i = 0; i < 6; i++) { ctx.strokeStyle = `rgba(230,200,140,${0.85 - i * 0.08})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(Math.sin(this.t * 12 + i) * 3, 14 - i * 11, 8 + i * 4, 3 + i * 0.6, 0, 0, Math.PI * 2); ctx.stroke(); }
+        break;
+      }
+      case 'voidwave': {   // 2.1 녹스 공허의 파도
+        ctx.scale(Math.sign(this.vx) || 1, 1); ctx.globalCompositeOperation = 'lighter';
+        const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 30); g.addColorStop(0, 'rgba(200,150,255,.9)'); g.addColorStop(1, 'rgba(120,60,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#c890ff'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(-12, 0, 24, -1.3, 1.3); ctx.stroke();
+        break;
+      }
       case 'gust': {   // 1.7.2 천공 돌풍: 바닥을 구르는 회오리
         for (let i = 0; i < 5; i++) {
           const yy = 14 - i * 9, rx = 8 + i * 4, ph = this.t * 14 + i;

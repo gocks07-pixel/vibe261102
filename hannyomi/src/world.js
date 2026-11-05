@@ -10,7 +10,7 @@ G.World = class {
     const map = G.MAPS[mapId], pl = this.player;
     // 1.7.2: 2단계 보스 체크포인트는 살아서 보스방을 나가면 사라진다 (쓰러져서 마을로 가면 유지)
     if (this.mapId && this.mapId !== mapId && this.game.ckpt === this.mapId && !this.game.reviving) this.game.ckpt = null;
-    this.flyby = null; this.noxEnd = null; this.allies = []; this.cutins = [];
+    this.flyby = null; this.noxEnd = null; this.allies = []; this.cutins = []; this.sweep = null; this.brand = null; this.cloth = null;
     this.map = map; this.mapId = mapId; this.platforms = map.platforms;
     this.monsters = []; this.projectiles = []; this.drops = []; this.teles = []; this.smoke = null;
     this.zone = null; this.pull = null; this.doom = null; this.half = null; this.bossT = 0; this.mzones = [];
@@ -46,6 +46,7 @@ G.World = class {
         if (this.game.ckpt === mapId) G.UI.banner(`${boss.d.name} 등장!`, '체크포인트: 2단계부터 다시 시작합니다');
         else if (boss.d.kind === 'final') G.UI.banner(boss.d.name, '녹스: …또 별이 왔구나. 오백 년 만이다.');   // 1.7.7
         else this.shout(`${boss.d.name} 등장!`);
+        if (this.player.d.level < boss.lv) G.UI.log(`✦ 용기의 가호: ${boss.d.name}보다 레벨이 낮아 보스에게 주는 피해 +30%`, '#ffe08a');   // 2.1
       }
     }
   }
@@ -119,7 +120,8 @@ G.World = class {
       const boss = this.monsters.find(x => x.isBoss && !x.dead);
       if (boss) { boss.groggy = 5; if (boss.boss) { boss.boss.cur = null; boss.boss.cleanup(this); } this.shout('잔영이 사라지며 녹스가 무너졌다! (5초 그로기)'); }
     }
-    if (m.isBoss) { this.zone = null; this.pull = null; this.doom = null; this.half = null; p.despair = null; p.silence = 0; p.invert = 0; p.noPotion = 0; }
+    if (m.id === 'shellock') this.cloth = { x: m.x, y: m.y - 80, t: 0 };   // 2.1 쓰러진 쉘로크에게서 검은 천이 떨어진다
+    if (m.isBoss) { this.sweep = null; this.brand = null; this.zone = null; this.pull = null; this.doom = null; this.half = null; p.despair = null; p.silence = 0; p.invert = 0; p.noPotion = 0; }
     if (m.d.kind === 'final') {
       const sec = Math.round(m.boss ? m.boss.time : 0);
       // 1.7.7: 무릎 꿇은 녹스의 꺼진 등불에 주인공의 빛이 옮겨붙어 처음으로 켜진다 (약 4초, 임팩트 없이 밝기만)
@@ -322,21 +324,23 @@ G.World = class {
       if (u.left <= 0 || src.dead) this.pull = null;
     }
     if (this.doom) this.doom.left -= dt;
+    if (this.cloth) { this.cloth.t += dt; if (this.cloth.t > 9) this.cloth = null; }
     if (this.monsters.some(m => m.isBoss && !m.dead)) this.bossT += dt;
   }
   drawBossFields(ctx) {
     const cam = this.cam;
     if (this.zone) {
       const z = this.zone, cx = this.map.width / 2 - cam;
-      ctx.save(); ctx.fillStyle = 'rgba(4,4,16,.72)';   // 1.7.7: 녹스의 밤
+      ctx.save(); ctx.fillStyle = z.tint ? `rgba(${z.tint},.75)` : 'rgba(4,4,16,.72)';   // 1.7.7: 녹스의 밤 · 2.1 별빛 감옥은 보라
       ctx.fillRect(0, 0, Math.max(0, cx - z.cur), 720); ctx.fillRect(cx + z.cur, 0, 1280, 720);
       ctx.strokeStyle = '#b8b0f0'; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(cx - z.cur, 0); ctx.lineTo(cx - z.cur, 720); ctx.moveTo(cx + z.cur, 0); ctx.lineTo(cx + z.cur, 720); ctx.stroke();
+      if (z.stars) { ctx.fillStyle = '#e0c8ff'; for (let i = 0; i < 12; i++) { const yy = (i * 60 + this.time * 40) % 720; for (const xx of [cx - z.cur - 8, cx + z.cur + 8]) { ctx.beginPath(); ctx.arc(xx, yy, 3, 0, 7); ctx.fill(); } } }
       ctx.restore();
     }
     if (this.half) {
       const h = this.half, cx = this.map.width / 2 - cam;
-      ctx.save(); ctx.fillStyle = `rgba(150,60,200,${0.25 + Math.sin(this.time * 6) * 0.08})`;
+      ctx.save(); ctx.fillStyle = `rgba(${h.tint || '150,60,200'},${0.25 + Math.sin(this.time * 6) * 0.08})`;
       const y0 = h.ground ? G.GROUND_Y - 100 : 0, hh = h.ground ? 110 : 720;
       if (h.side < 0) ctx.fillRect(0, y0, Math.max(0, cx), hh); else ctx.fillRect(cx, y0, 1280, hh);
       ctx.restore();
@@ -358,10 +362,78 @@ G.World = class {
       const n = Math.max(1, Math.ceil(d.left));
       ctx.strokeText(n, 640, 300); ctx.fillStyle = '#ff5070'; ctx.fillText(n, 640, 300);
       ctx.font = 'bold 18px "Malgun Gothic"'; ctx.fillStyle = '#fff'; ctx.lineWidth = 4; ctx.strokeText(d.label, 640, 335); ctx.fillText(d.label, 640, 335);
+      // 2.1: 캐릭터 머리 위에 가장 가까운 안전지대 방향 화살표 + 남은 초
+      const p = this.player, px = p.x - cam, py = p.y - 120, near = d.zones.reduce((a, z) => Math.abs(z - p.x) < Math.abs(a - p.x) ? z : a), dirZ = Math.sign(near - p.x);
+      const inside = Math.abs(near - p.x) <= d.r;
+      ctx.font = '900 26px "Malgun Gothic"'; ctx.lineWidth = 5; ctx.strokeStyle = '#3a2a00'; ctx.fillStyle = inside ? '#8fffa0' : '#ffe680';
+      ctx.strokeText(inside ? '안전!' : String(n), px, py - 20); ctx.fillText(inside ? '안전!' : String(n), px, py - 20);
+      if (!inside) { ctx.fillStyle = '#ffe680'; ctx.strokeStyle = '#3a2a00'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px + dirZ * 46, py); ctx.lineTo(px + dirZ * 22, py - 14); ctx.lineTo(px + dirZ * 22, py - 5); ctx.lineTo(px - dirZ * 10, py - 5); ctx.lineTo(px - dirZ * 10, py + 5); ctx.lineTo(px + dirZ * 22, py + 5); ctx.lineTo(px + dirZ * 22, py + 14); ctx.closePath(); ctx.fill(); ctx.stroke(); }
       ctx.restore();
     }
+    this.drawBoss21(ctx);
     if (this.player.despair) {
       ctx.save(); ctx.fillStyle = 'rgba(60,60,70,.28)'; ctx.fillRect(0, 0, 1280, 720); ctx.restore();
+    }
+  }
+
+  // 2.1: 새 패턴 · 기믹 표시 (화면 좌표)
+  drawBoss21(ctx) {
+    const cam = this.cam, T = this.time, GY = G.GROUND_Y;
+    const glow = (x, y, r, col, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.restore(); };
+    const sw = this.sweep;
+    if (sw && sw.hx != null && !sw.src.dead) {   // 천공의 숨결: 입 → 바닥을 쓸고 가는 보랏빛 흰 브레스
+      const m = sw.src, mx = m.x + sw.dir * m.w * 0.32 - cam, my = m.y - m.h * 0.72, hx = sw.hx - cam;
+      ctx.save(); ctx.lineCap = 'round'; ctx.shadowColor = '#c8a0ff'; ctx.shadowBlur = 24;
+      for (const [lw, col] of [[42, 'rgba(170,110,255,.35)'], [26, 'rgba(235,220,255,.85)'], [9, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(hx, GY - 6); ctx.stroke(); }
+      ctx.restore(); glow(hx, GY - 10, 70, 'rgba(220,190,255,1)', 0.8);
+    } else if (sw && !sw.src.dead) {   // 예고: 안전한 곳(용 발밑 · 등 뒤) 초록 표시
+      const m = sw.src, x0 = m.x - sw.dir * 220 - cam, x1 = m.x + sw.dir * 60 - cam;
+      ctx.save(); ctx.fillStyle = 'rgba(140,255,170,.2)'; ctx.fillRect(Math.min(x0, x1), GY - 90, Math.abs(x1 - x0), 90);
+      ctx.font = 'bold 15px "Malgun Gothic"'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.fillStyle = '#a8ffb8';
+      ctx.strokeText('안전: 용 발밑 · 등 뒤', (x0 + x1) / 2, GY - 100); ctx.fillText('안전: 용 발밑 · 등 뒤', (x0 + x1) / 2, GY - 100); ctx.restore();
+      glow(m.x + sw.dir * m.w * 0.32 - cam, m.y - m.h * 0.72, 30 + Math.sin(T * 20) * 6, 'rgba(210,180,255,1)', 0.9);
+    }
+    const b = this.brand;
+    if (b) {   // 교단의 낙인: 눈 문양 + 남은 초
+      const x = b.x - cam, y = GY - 30, r = 34 + Math.sin(T * 10) * 3;
+      ctx.save(); ctx.strokeStyle = '#c890ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.45, 0, 0, 7); ctx.stroke();
+      ctx.fillStyle = 'rgba(122,58,208,.5)'; ctx.beginPath(); ctx.ellipse(x, y, r * 0.95, r * 0.42, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = '#7a3ad0'; ctx.beginPath(); ctx.arc(x, y, r * 0.3, 0, 7); ctx.fill(); ctx.fillStyle = '#1a0a2a'; ctx.beginPath(); ctx.arc(x, y, r * 0.13, 0, 7); ctx.fill();
+      ctx.font = '900 28px "Malgun Gothic"'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#1a0030'; ctx.fillStyle = '#e0c8ff';
+      const n = Math.max(1, Math.ceil(b.left)); ctx.strokeText(n, x, y - 40); ctx.fillText(n, x, y - 40); ctx.restore();
+    }
+    for (const m of this.monsters) {
+      if (!m.boss || m.dead) continue;
+      const B = m.boss, x = m.x - cam;
+      if (B.weakOn) {   // 쉘로크 약점: 껍데기 위 빛나는 점
+        const k = m.w / 170, sx = x - m.dir * 22 * k, sy = m.y - 78 * k;
+        glow(sx, sy, 34, 'rgba(255,230,120,1)', 0.55 + 0.3 * Math.sin(T * 10));
+        ctx.save(); ctx.fillStyle = '#fff6c0'; ctx.beginPath(); ctx.arc(sx, sy, 7, 0, 7); ctx.fill();
+        ctx.font = 'bold 15px "Malgun Gothic"'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.fillStyle = '#ffe680';
+        ctx.strokeText(`약점 ${B.weakHits}/3`, sx, sy - 30); ctx.fillText(`약점 ${B.weakHits}/3`, sx, sy - 30); ctx.restore();
+      }
+      if (B.smokeReal > 0) {   // 연막 속 진짜 바르크: 빨갛게 빛나는 눈
+        const ey = m.y - m.h * 0.8;
+        for (const dx of [6, 16]) { glow(x + m.dir * dx, ey, 12, 'rgba(255,60,60,1)', 0.9); ctx.fillStyle = '#ff3030'; ctx.fillRect(x + m.dir * dx - 3, ey - 2, 6, 4); }
+      }
+      if (B.cloneHint) {   // 진짜 카이엔: 파란 목도리
+        const ny = m.y - m.h * 0.62, nx = x - m.dir * 4;
+        ctx.save(); ctx.strokeStyle = '#5ab0ff'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(nx, ny); ctx.quadraticCurveTo(nx - m.dir * 18, ny - 4 + Math.sin(T * 12) * 6, nx - m.dir * 34, ny + 6 + Math.sin(T * 12 + 1) * 9); ctx.stroke(); ctx.restore();
+      }
+      if (m.vuln > 0 && m.vulnMul) {   // 약점 노출 표시
+        ctx.save(); ctx.font = 'bold 14px "Malgun Gothic"'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.fillStyle = '#ffe680';
+        const tx = `약점 노출! 피해 ×1.75 (${Math.ceil(m.vuln)})`; ctx.strokeText(tx, x, m.y - m.h - 26); ctx.fillText(tx, x, m.y - m.h - 26); ctx.restore();
+      }
+    }
+    const cl = this.cloth;
+    if (cl) {   // 쓰러진 쉘로크에게서 떨어지는 눈 문양 검은 천
+      const u = Math.min(1, cl.t / 2.2), x = cl.x - 50 * u + Math.sin(cl.t * 3) * 22 * (1 - u) - cam, y = cl.y + (GY - 8 - cl.y) * u, a = cl.t > 7 ? 1 - (cl.t - 7) / 2 : 1;
+      ctx.save(); ctx.globalAlpha = Math.max(0, a); ctx.translate(x, y); ctx.rotate(u < 1 ? Math.sin(cl.t * 4) * 0.6 : 0.1);
+      ctx.fillStyle = '#1e1a24'; ctx.beginPath(); ctx.moveTo(-18, -10); for (let i = 0; i <= 4; i++) ctx.lineTo(-18 + i * 9, -10 + Math.sin(cl.t * 8 + i) * 2 * (1 - u)); ctx.lineTo(18, 10); for (let i = 4; i >= 0; i--) ctx.lineTo(-18 + i * 9, 10 + Math.sin(cl.t * 8 + i + 1) * 2 * (1 - u)); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#c890ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 8, 4.5, 0, 0, 7); ctx.stroke(); ctx.fillStyle = '#7a3ad0'; ctx.beginPath(); ctx.arc(0, 0, 2.6, 0, 7); ctx.fill();
+      ctx.restore();
+      if (u >= 1) glow(x, y, 30, 'rgba(200,140,255,1)', 0.25 * Math.max(0, a));
     }
   }
 

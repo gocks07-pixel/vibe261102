@@ -54,4 +54,5 @@
 - 빌드 1.8: `docs/BUILD_1.8_PLAN.md` (아래쪽 "실제 구현") — 구현 완료 (2026-11-05). 효과음 `src/core/sound.js` (`G.Sound`), 새 스킬은 `SKILL_SOUND`나 `BY_PROJ`/`BY_FX`로 소리 지정
 - 빌드 1.9: `docs/BUILD_1.9_PLAN.md` — 구현 완료 (2026-11-05). 복장·장비 모양 `src/render/outfit.js` (`G.Outfit.draw`가 사람형 캐릭터를 그림, 장비 id → 디자인 묶음 `styleOf`, 새 장비 묶음은 `S`·`WSTYLE`에 추가). 확인 페이지 `hannyomi-wardrobe.html`
 - 빌드 2.0: `docs/BUILD_2.0_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). 히든 엔딩 `src/systems/hidden.js`, 녹스전 동료 `src/systems/assist.js`, 타이틀 배경 `src/ui/titlebg.js`, 글꼴 `css/fonts/`. 게임 이름: 창 "RPG 대모험_HC" · EXE "RPG Adventure" · 크레딧 "과금없이 즐기는 연희의 RPG 대모험"
+- **지금 진행 중: 2.1 보스 밸런스** — `docs/BUILD_2.1_PLAN.md` 맨 아래 "진행 상황"에 이어서 할 일 정리됨
 - 빌드 계획서 (사용자가 "1.x 진행해 줘"라고 하면 진행): `docs/BUILD_1.8_PLAN.md`, `docs/BUILD_1.9_PLAN.md`, `docs/BUILD_2.0_PLAN.md`

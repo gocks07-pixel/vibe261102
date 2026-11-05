@@ -225,6 +225,33 @@ G.FX = {
           if (fall >= 1) { ctx.rotate(-k * 6); ctx.strokeStyle = 'rgba(255,240,180,.8)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 10, 30 + k * 40, 8 + k * 6, 0, 0, Math.PI * 2); ctx.stroke(); }
           break;
         }
+        case 'trap': {   // 2.1 바르크 덫: 바닥에서 철 이빨이 닫힘
+          const up = Math.min(1, k * 4); ctx.globalAlpha = 1 - Math.max(0, k - 0.6) / 0.4; ctx.translate(f.x, f.y);
+          ctx.strokeStyle = '#c0c0c8'; ctx.lineWidth = 3;
+          for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(i * 9, 0); ctx.lineTo(i * 9 + (i % 2) * 4, -26 * up); ctx.stroke(); }
+          ctx.strokeStyle = '#7a7a84'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, -2, 34, 7, 0, 0, Math.PI * 2); ctx.stroke();
+          break;
+        }
+        case 'arrows': {   // 2.1 부하 궁수 화살 비
+          const fall = Math.min(1, k * 3); ctx.globalAlpha = k < 0.4 ? 1 : 1 - (k - 0.4) / 0.6; ctx.strokeStyle = '#d8c8a0'; ctx.lineWidth = 2.5;
+          for (let i = 0; i < 5; i++) { const x = f.x - 40 + i * 20, y = f.y - 280 * (1 - fall) - (i % 2) * 20; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 8, y - 26); ctx.stroke(); ctx.fillStyle = '#8a8a90'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 4, y - 7); ctx.lineTo(x + 3, y - 5); ctx.fill(); }
+          break;
+        }
+        case 'spore': {   // 2.1 모르웬 독 포자 비
+          ctx.globalAlpha = 1 - k; for (let i = 0; i < 6; i++) { const g = ctx.createRadialGradient(f.x - 40 + i * 16, f.y - 20 - (i % 3) * 18, 0, f.x - 40 + i * 16, f.y - 20 - (i % 3) * 18, 26 + k * 20); g.addColorStop(0, 'rgba(150,230,90,.8)'); g.addColorStop(1, 'rgba(150,230,90,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x - 40 + i * 16, f.y - 20 - (i % 3) * 18, 26 + k * 20, 0, 7); ctx.fill(); }
+          break;
+        }
+        case 'missile': {   // 2.1 그라운더 미사일
+          const fall = Math.min(1, k * 3), y = f.y - 340 * (1 - fall); ctx.globalAlpha = k < 0.34 ? 1 : 1 - (k - 0.34) / 0.66; ctx.translate(f.x, fall < 1 ? y : f.y);
+          if (fall < 1) { ctx.fillStyle = '#c0c0c8'; ctx.fillRect(-4, -22, 8, 22); ctx.fillStyle = '#ff7a3a'; ctx.beginPath(); ctx.moveTo(-4, -22); ctx.lineTo(0, -30); ctx.lineTo(4, -22); ctx.fill(); ctx.fillStyle = 'rgba(255,180,80,.8)'; ctx.beginPath(); ctx.arc(0, -36, 6, 0, 7); ctx.fill(); }
+          else { const g = ctx.createRadialGradient(0, -20, 0, 0, -20, 70); g.addColorStop(0, 'rgba(255,220,140,.95)'); g.addColorStop(1, 'rgba(255,120,40,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -20, 70, 0, 7); ctx.fill(); }
+          break;
+        }
+        case 'icespear': {   // 2.1 카이엔 서리 창
+          const fall = Math.min(1, k * 3), y = f.y - 320 * (1 - fall); ctx.globalAlpha = k < 0.4 ? 1 : 1 - (k - 0.4) / 0.6; ctx.translate(f.x, fall < 1 ? y : f.y);
+          ctx.fillStyle = '#d8f2ff'; ctx.strokeStyle = '#6ab0e0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-9, -60); ctx.lineTo(9, -60); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+          break;
+        }
         case 'cut': {    // 차원 절단 섬광 (tint: 녹스는 차가운 별빛)
           ctx.globalAlpha = 1 - k;
           const g = ctx.createLinearGradient(f.x, f.y, f.w > f.h ? f.x : f.x + f.w, f.w > f.h ? f.y + f.h : f.y), tc = f.tint || '160,60,255';

@@ -27,6 +27,7 @@ G.Assist = (function () {
   const aurFake = () => ({ x: 0, y: 0, w: 220, h: 200, dir: 1, dead: false, deadT: 0, hurtT: 0, atkAnim: -1, aggro: 0, moving: false, d: G.MONSTERS.aurelion, id: 'aurelion', purified: true, soarY: 40 });
 
   // ---------------- 시작 ----------------
+  function say(w, who, line, tag, right) { (w.cutins = w.cutins || []).push({ who, t: 0, right: !!right, line, tag }); G.Sound.play('buff', { s: 0.7 }); }   // 2.1 다른 대사 컷인
   function cut(w, who, right) { (w.cutins = w.cutins || []).push({ who, t: 0, right: !!right }); G.Sound.play('buff', { s: 0.7 }); }
   function add(w, a) { (w.allies = w.allies || []).push(Object.assign({ t: 0 }, a)); }
 
@@ -182,7 +183,7 @@ G.Assist = (function () {
     for (let i = 0; i < 3; i++) { c.fillStyle = `rgba(255,211,106,${0.25 - i * 0.07})`; const wd = 520 - i * 90; c.fillRect(right ? x + 600 - wd : x, y + 128 + i * 6, wd, 3); }
     const px = right ? x + 510 : x + 90, tx = right ? x + 422 : x + 178;
     portrait(c, ci.who, px, y + 58, 66, t);
-    const [name, line, tag] = CUT[ci.who];
+    const [name, line0, tag0] = CUT[ci.who], line = ci.line || line0, tag = ci.tag || tag0;
     c.textAlign = right ? 'right' : 'left'; c.textBaseline = 'alphabetic';
     c.font = '30px Jua, "Malgun Gothic", sans-serif'; c.fillStyle = '#ffd36a'; c.fillText(name, tx, y + 44);
     const n = Math.floor(clamp((k - 0.2) / 1.0, 0, 1) * line.length);
@@ -195,5 +196,5 @@ G.Assist = (function () {
     for (const ci of w.cutins) drawCut(ctx, ci, w.time);
   }
 
-  return { kaien, elma, aurelion, update, drawWorld, drawScreen, CUT };
+  return { kaien, elma, aurelion, say, update, drawWorld, drawScreen, CUT };
 })();

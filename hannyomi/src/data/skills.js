@@ -30,8 +30,8 @@
   add('w_strike', {
     name: '강타', job: 'warrior', type: 'attack', icon: { g: 'slash', el: 'fire' },
     mp: L(4, 10), cd: 0,
-    atk: { kind: 'melee', pct: L(180, 280), w: 120, h: 90, targets: 1, hits: 1, fx: 'slash' },
-    desc: lv => `앞의 적 1명을 강하게 내려쳐 ${L(180, 280)(lv)}% 데미지.`,
+    atk: { kind: 'melee', pct: L(225, 350), w: 120, h: 90, targets: 1, hits: 1, fx: 'slash' },   // 2.1: +25%
+    desc: lv => `앞의 적 1명을 강하게 내려쳐 ${L(225, 350)(lv)}% 데미지.`,
   });
   add('w_whirl', {
     name: '회전 베기', job: 'warrior', type: 'attack', icon: { g: 'whirl', el: 'fire' },
