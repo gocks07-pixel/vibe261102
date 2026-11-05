@@ -190,14 +190,40 @@ G.Play = {
   autoOn: false, held: new Set(), taps: [], userT: 0, stuckT: 0, lastX: 0, patrol: 1,
   fieldOk() {
     const w = G.Game.world, m = w && G.MAPS[w.mapId];
-    return !!(m && !m.town && !m.bossRoom && !m.hidden && w.mapId !== 'dream_beach');
+    if (!m || m.town || m.hidden || w.mapId === 'dream_beach') return false;
+    return !m.bossRoom || this.bossLeft() <= 0;
   },
+  // ④ 2차-1.3: 보스 방은 같은 방에서 5번 쓰러지면 자동 허용 (캐릭터 · 보스 방마다, hny_touch 에 기억)
+  BOSS_TRIES: 5,
+  bossKey() { const w = G.Game.world, p = G.Game.player; return p && w ? `${G.Save.slot}:${p.d.name}:${w.mapId}` : ''; },
+  bossLeft() {
+    const w = G.Game.world, m = w && G.MAPS[w.mapId];
+    if (!m || !m.bossRoom) return 0;
+    if (this.forceBoss) return 0;   // 시뮬레이터 측정용
+    const c = (G.Touch.opt.bossDeaths || {})[this.bossKey()] || 0;
+    return Math.max(0, this.BOSS_TRIES - c);
+  },
+  get bossMode() { const w = G.Game.world, m = w && G.MAPS[w.mapId]; return !!(m && m.bossRoom); },
+  onDeath(p) {
+    const w = G.Game.world, m = w && G.MAPS[w.mapId];
+    if (!m || !m.bossRoom || !this.on()) return;
+    const k = this.bossKey(), o = G.Touch.opt, bd = o.bossDeaths || (o.bossDeaths = {});
+    bd[k] = (bd[k] || 0) + 1; G.Touch.save();
+    if (bd[k] === this.BOSS_TRIES) { this.toast(`🌟 ${this.BOSS_TRIES}번 도전했어요! 이제 이 보스는 자동으로 도와줄게요`); G.UI.log(`🌟 ${this.BOSS_TRIES}번 도전했어요! 이제 ${m.name}에서는 자동 사냥으로 도와줄게요.`, '#ffe08a'); }
+  },
+  // 보스를 지키는 것 (부숴야 보스 무적이 풀리는 기둥 · 잔영 등, 2.1 시뮬레이터와 같은 목록)
+  GUARD: ['void_pillar', 'hero_echo', 'corrupt_shard', 'cool_valve', 'forgotten_star', 'rot_fruit', 'mummy_guard'],
+  isGuard(m) { return !!(m.d && m.d.chainPillar) || this.GUARD.includes(m.id); },
   toggleAuto() {
     if (this.autoOn) { this.stop('자동 사냥을 멈췄어요.'); return; }
     if (!G.Game.player || !G.Game.world) return;
-    if (!this.fieldOk()) { this.toast('🤖 자동 사냥은 사냥터에서만 쓸 수 있어요 (마을 · 보스 방 · 튜토리얼 제외)'); return; }
+    if (!this.fieldOk()) {
+      const left = this.bossLeft();
+      this.toast(left > 0 ? `🤖 보스 방에서는 ${this.BOSS_TRIES}번 도전한 뒤에 자동 사냥을 쓸 수 있어요 (남은 도전 ${left}번)` : '🤖 자동 사냥은 사냥터에서만 쓸 수 있어요 (마을 · 튜토리얼 제외)');
+      return;
+    }
     this.autoOn = true; this.userT = 0; this.stuckT = 0;
-    this.toast('🤖 자동 사냥 시작! 포탈 · 퀘스트 · 맵 이동은 직접 해 주세요. 몬스터 스킬은 피하지 않아요.');
+    this.toast(this.bossMode ? '🤖 보스 자동 전투 시작! 기둥 같은 기믹은 먼저 부수지만, 보스 공격은 피하지 않아요.' : '🤖 자동 사냥 시작! 포탈 · 퀘스트 · 맵 이동은 직접 해 주세요. 몬스터 스킬은 피하지 않아요.');
     this.ui();
   },
   stop(msg, warn) {
@@ -234,6 +260,11 @@ G.Play = {
     if (!p || !w || !this.on()) { this.stop(); return; }
     if (!this.fieldOk()) { this.stop('🤖 사냥터가 아니라서 자동 사냥을 멈췄어요.'); return; }
     if (p.dead) { this.stop('🤖 쓰러져서 자동 사냥을 멈췄어요.', true); return; }
+    if (this.bossMode) {   // 보스가 모두 쓰러지고 3초 지나도 다음 보스가 없으면 승리로 보고 끔 (2단계 보스는 기다림)
+      const alive = w.monsters.filter(m => m.isBoss && !m.dead);
+      if (alive.length) { this.bossGone = 0; this.bossNext = alive.some(m => m.d && m.d.next); }   // 2단계 보스(다음 보스가 나옴)면 더 기다림
+      else if ((this.bossGone = (this.bossGone || 0) + dt) > (this.bossNext ? 12 : 3)) { this.bossNext = false; this.stop('🤖 보스를 물리쳤어요! 자동 전투를 마쳤어요.'); return; }
+    }
     if (p.hp < p.st.maxHP * 0.3 && p.potionIdx('hp') < 0) { this.stop('🤖 HP 가 낮은데 HP 물약이 없어서 자동 사냥을 멈췄어요!', true); return; }
     if (this.paused() || this.userBusy()) { this.hold(new Set()); return; }
     this.drive(dt, p, w);
@@ -245,9 +276,13 @@ G.Play = {
     const reach = ranged ? 300 : 70;
     // 목표: 같은 층 먼저, 한 번에 올라갈 수 있는 위층, 아래층 (보스 · 쓰러진 몬스터 제외)
     let tgt = null, best = 1e9;
+    const boss = this.bossMode, guards = boss ? w.monsters.filter(m => !m.dead && this.isGuard(m)) : [];
     for (const m of w.monsters) {
-      if (m.dead || m.isBoss || !m.plat) continue;
-      const my = m.plat.y, dy = py - my;
+      if (m.dead || (!boss && m.isBoss)) continue;
+      if (boss && guards.length && !this.isGuard(m)) continue;                    // 기믹(기둥 · 잔영 등)부터
+      if (boss && m.isBoss && m.boss && m.boss.phaseInv > 0 && w.monsters.some(x => !x.dead && !x.isBoss && x !== m)) continue;   // 무적 중엔 다른 적
+      if (!boss && !m.plat) continue;
+      const my = m.plat ? m.plat.y : py, dy = py - my;
       const cost = Math.abs(dy) < 12 ? 0 : dy > 0 && dy <= 270 ? 420 : dy < 0 ? 320 : 1e9;
       const c = Math.abs(m.x - p.x) + cost;
       if (c < best) { best = c; tgt = m; }
@@ -258,13 +293,14 @@ G.Play = {
       if (p.x < 100) this.patrol = 1; else if (p.x > w.map.width - 100) this.patrol = -1;
       want.add(this.patrol > 0 ? 'ArrowRight' : 'ArrowLeft');
     } else {
-      const tp = tgt.plat, dy = py - tp.y;
+      const tp = tgt.plat || { x: 0, y: py, w: w.map.width }, dy = py - tp.y;
       if (Math.abs(dy) < 12) {
         // 같은 층: 사거리 안으로 → 바라보기 → 스킬 · 공격
         const dx = tgt.x - p.x, dist = Math.abs(dx);
         if (dist > reach) moveTo(tgt.x - Math.sign(dx) * (reach - 20));
         else if (ranged && dist < 40) moveTo(p.x - Math.sign(dx || 1) * 80);   // 너무 붙으면 살짝 물러남
-        if (dist <= reach + 30) {
+        const inv = tgt.isBoss && tgt.boss && tgt.boss.phaseInv > 0;   // 페이즈 전환 무적: 헛손질하지 않고 기다림
+        if (dist <= reach + 30 && !inv) {
           if (Math.sign(dx) !== p.dir && Math.abs(dx) > 6 && p.lock <= 0) want.add(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
           else this.attack(p, want);
         }
@@ -379,6 +415,8 @@ G.Play = {
     const b = document.getElementById('tw-auto'), st = document.getElementById('auto-st');
     if (b) {
       b.classList.toggle('on', this.autoOn); b.classList.toggle('off', !this.autoOn && !this.fieldOk());
+      const left = this.bossLeft(), n = b.querySelector('.auto-n');
+      if (n) n.textContent = left > 0 && !this.autoOn ? left : '';
       if (b.dataset.on !== String(this.autoOn)) { b.dataset.on = String(this.autoOn); b.querySelector('svg').outerHTML = this.icon(this.autoOn); }
     }
     if (st) st.style.display = this.autoOn ? '' : 'none';
@@ -408,6 +446,8 @@ G.Play = {
     // 진짜 사람이 누른 터치 버튼이면 2초 동안 직접 조작
     const tp = G.Touch.press;
     G.Touch.press = function () { if (!P.inAuto) P.userT = performance.now(); return tp.apply(this, arguments); };
+    const die = G.Player.prototype.die;
+    G.Player.prototype.die = function () { const was = this.dead; const r = die.apply(this, arguments); if (!was && this.dead) { try { P.onDeath(this); } catch (e) { /* 기록만 실패 */ } setTimeout(() => P.ui(), 0); } return r; };
     const lu = G.Player.prototype.levelUp;
     G.Player.prototype.levelUp = function () { const r = lu.apply(this, arguments); try { P.afterLevel(this); } catch (e) { /* 안내만 실패 */ } return r; };
     const sr = G.Win.stat.render;
