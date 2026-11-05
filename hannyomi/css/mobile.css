@@ -146,3 +146,9 @@ body.touch-on #win-shop { width: 370px !important; }
 #touch .topbar { gap: 4px; }
 #touch .topbar .tw { white-space: nowrap; padding: 0 7px; min-width: 40px; font-size: 12.5px; }
 @media (max-width: 700px) { #touch .topbar { gap: 3px; } #touch .topbar .tw { padding: 0 5px; min-width: 34px; font-size: 11.5px; height: 30px; } }
+
+/* 2차-1.3 자동 버튼 아이콘 A */
+#touch .topbar .tw#tw-auto { gap: 3px; }
+#touch .tw .auto-ic, #auto-st .auto-ic, #play-toast .auto-ic { flex: none; vertical-align: -3px; }
+#touch .tw .auto-n { font-size: 10px; color: #ffe08a; }
+#touch .tw .auto-n:empty { display: none; }

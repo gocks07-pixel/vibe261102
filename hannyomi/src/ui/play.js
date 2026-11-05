@@ -290,20 +290,75 @@ G.Play = {
     if (p.onGround) want.delete('ArrowUp');
     this.hold(want);
   },
+  // ② 2차-1.3: 스킬 칸(1~6) 안에서 가장 효율적인 스킬 (예상 피해 = 배율 × 타수 × 지금 맞힐 수 있는 몬스터 수)
+  //  궁극기(재사용 12초 이상)는 3마리 이상 맞거나 보스가 있을 때만 · MP 30% 아래면 MP 아끼기 · 같으면 앞 칸
+  targets(p, w) { return w.monsters.filter(m => !m.dead && (this.bossMode || !m.isBoss)); },
+  skillScore(p, sk, lv, w, list) {
+    const a = sk.atk;
+    if (!a) return { score: 0, n: 0 };
+    const dir = p.dir, ahead = (m, far, near = -20) => { const dx = (m.x - p.x) * dir; return dx >= near && dx <= far; };
+    const sameY = (m, h = 70) => Math.abs((m.y - (m.h || 40) / 2) - (p.y - 30)) < h;
+    let n = 0, hits = a.hits || 1, mult = 1;
+    switch (a.kind) {
+      case 'melee': n = Math.min(a.targets || 1, list.filter(m => ahead(m, a.w + 20) && sameY(m, a.h)).length); break;
+      case 'aoe': n = Math.min(a.targets || 1, list.filter(m => Math.abs(m.x - p.x) <= a.w / 2 + 10 && sameY(m, a.h)).length); break;
+      case 'proj': { const c = list.filter(m => ahead(m, a.range) && sameY(m)).length; n = Math.min(c, a.pierce || 1); mult = c ? (a.count || 1) : 0; break; }
+      case 'rain': {
+        const reach = a.ahead + a.area / 2 + 60, inr = list.filter(m => ahead(m, reach, 0) && sameY(m, 160));
+        n = inr.length ? 1 : 0;
+        mult = inr.some(m => m.isBoss || m.d.kind === 'elite') ? a.count : a.count * Math.min(1, inr.length * 70 / a.area);
+        break;
+      }
+      case 'dash': n = Math.min(a.targets || 1, list.filter(m => ahead(m, a.dist) && sameY(m)).length); break;
+      case 'back': n = Math.min(a.pierce || 1, list.filter(m => ahead(m, a.range) && sameY(m)).length); break;
+      default: n = 0;
+    }
+    return { score: a.pct(lv) / 100 * hits * n * mult, n };
+  },
   attack(p, want) {
-    const d = p.d;
-    if (p.lock <= 0) {
+    const d = p.d, w = G.Game.world;
+    if (p.lock <= 0 && !(p.silence > 0)) {
+      const list = this.targets(p, w), boss = list.some(m => m.isBoss && Math.abs(m.x - p.x) < 600);
+      const lowMp = p.mp < p.st.maxMP * 0.3;
+      let best = null, bestS = 1.0001;   // 기본 공격 = 100% × 1마리
       for (let i = 0; i < 6; i++) {
         const id = d.hot[i], sk = id && G.SKILLS[id], lv = id ? d.skills[id] || 0 : 0;
-        if (!sk || lv <= 0 || p.cd[id] > 0 || (sk.mp && p.mp < sk.mp(lv)) || p.silence > 0) continue;
-        if (sk.type === 'buff' && p.buffs[id]) continue;
-        if (sk.type === 'heal' && p.hp > p.st.maxHP * 0.6) continue;
-        if (sk.type !== 'attack' && sk.type !== 'buff' && sk.type !== 'heal') continue;
-        this.tap(G.Touch.code('skill' + (i + 1)));
-        return;
+        if (!sk || lv <= 0 || p.cd[id] > 0) continue;
+        const mp = sk.mp ? sk.mp(lv) : 0;
+        if (mp && p.mp < mp) continue;
+        // 버프 · 회복은 바로 (꺼져 있을 때 · HP 60% 아래)
+        if (sk.type === 'buff') { if (!p.buffs[id]) { this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); return; } continue; }
+        if (sk.type === 'heal') { if (p.hp < p.st.maxHP * 0.6) { this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); return; } continue; }
+        if (sk.type !== 'attack') continue;
+        const r = this.skillScore(p, sk, lv, w, list);
+        if (!r.n) continue;
+        if ((sk.cd || 0) >= 12 && r.n < 3 && !boss) continue;   // 궁극기는 아껴 두기
+        let sc = r.score;
+        if (lowMp && mp) sc = sc / (1 + mp / Math.max(1, p.st.maxMP * 0.05));
+        if (sc > bestS) { bestS = sc; best = i; }
       }
+      if (best != null) { this.lastSkill = d.hot[best]; this.tap(G.Touch.code('skill' + (best + 1))); return; }
     }
+    this.lastSkill = 'basic';
     want.add(G.Touch.code('attack'));
+  },
+
+  // ① 2차-1.3: 자동 버튼 아이콘 A "별의 순환" (docs/drafts/icons/auto_btn_drafts.html) — 켜짐은 밝은 화살표
+  // 원을 도는 화살표 (시안의 loop 그대로)
+  loop(cx, cy, r, w, col, a0 = -60, a1 = 250) {
+    const P = a => [cx + Math.cos(a * Math.PI / 180) * r, cy + Math.sin(a * Math.PI / 180) * r], f = v => v.toFixed(1);
+    const [x0, y0] = P(a0), [x1, y1] = P(a1), ang = (a1 + 90) * Math.PI / 180;
+    const pt = d => [x1 + Math.cos(ang + d) * w * (d ? 1.4 : 1.6), y1 + Math.sin(ang + d) * w * (d ? 1.4 : 1.6)];
+    const tri = [pt(0), pt(2.4), pt(-2.4)].map(q => f(q[0]) + ',' + f(q[1])).join(' ');
+    return `<path d="M${f(x0)} ${f(y0)} A${r} ${r} 0 1 1 ${f(x1)} ${f(y1)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><polygon points="${tri}" fill="${col}"/>`;
+  },
+  icon(on, size = 20) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) { const a = (-90 + i * 36) * Math.PI / 180, r = i % 2 ? 10 : 24; pts.push((50 + Math.cos(a) * r).toFixed(1) + ',' + (52 + Math.sin(a) * r).toFixed(1)); }
+    const col = on ? '#eafff0' : '#9fd8ff';
+    return `<svg class="auto-ic" width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="aig${on ? 1 : 0}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7c8"/><stop offset=".5" stop-color="#ffd36a"/><stop offset="1" stop-color="#ff9ac8"/></linearGradient></defs>
+      ${this.loop(50, 50, 36, 8, col)}
+      <polygon points="${pts.join(' ')}" fill="url(#aig${on ? 1 : 0})" stroke="#5a2a7a" stroke-width="3.5" stroke-linejoin="round"/></svg>`;
   },
 
   // ---------- 화면 (🤖 버튼 · 자동 사냥 중 표시 · 알림) ----------
@@ -311,24 +366,27 @@ G.Play = {
     const bar = document.querySelector('#touch .topbar');
     if (!bar || document.getElementById('tw-auto')) return;
     const b = document.createElement('div');
-    b.className = 'tw'; b.id = 'tw-auto'; b.textContent = '🤖 자동';
+    b.className = 'tw'; b.id = 'tw-auto'; b.innerHTML = this.icon(false) + '<span>자동</span><span class="auto-n"></span>';
     b.addEventListener('pointerdown', e => { e.preventDefault(); this.toggleAuto(); });
     bar.appendChild(b);
     const st = document.createElement('div');
-    st.id = 'auto-st'; st.textContent = '🤖 자동 사냥 중 · 탭하면 멈춤';
+    st.id = 'auto-st'; st.innerHTML = this.icon(true, 16) + ' 자동 사냥 중 · 탭하면 멈춤';
     st.addEventListener('pointerdown', e => { e.preventDefault(); this.stop('자동 사냥을 멈췄어요.'); });
     document.querySelector('#touch .g-top').appendChild(st);
     const t = document.createElement('div'); t.id = 'play-toast'; document.body.appendChild(t);
   },
   ui() {
     const b = document.getElementById('tw-auto'), st = document.getElementById('auto-st');
-    if (b) { b.classList.toggle('on', this.autoOn); b.classList.toggle('off', !this.autoOn && !this.fieldOk()); }
+    if (b) {
+      b.classList.toggle('on', this.autoOn); b.classList.toggle('off', !this.autoOn && !this.fieldOk());
+      if (b.dataset.on !== String(this.autoOn)) { b.dataset.on = String(this.autoOn); b.querySelector('svg').outerHTML = this.icon(this.autoOn); }
+    }
     if (st) st.style.display = this.autoOn ? '' : 'none';
   },
   toast(msg) {
     const t = document.getElementById('play-toast');
     if (!t) return;
-    t.textContent = msg; t.classList.add('on');
+    t.innerHTML = G.U.esc(msg).replace(/^🤖/, this.icon(true, 16)); t.classList.add('on');
     clearTimeout(this.toastT); this.toastT = setTimeout(() => t.classList.remove('on'), 3200);
   },
 
