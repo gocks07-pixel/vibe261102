@@ -253,6 +253,7 @@ G.Play = {
   },
   // 게임 한 프레임 직전에 (입력이 같은 프레임에 들어가도록)
   pre(dt) {
+    this.gt = (this.gt || 0) + dt;   // 게임 시간 (시뮬레이터가 프레임을 빨리 넘겨도 같은 기준)
     for (const c of this.taps) G.Touch.release(c);
     this.taps = [];
     if (!this.autoOn) return;
@@ -301,7 +302,8 @@ G.Play = {
         else if (ranged && dist < 40) moveTo(p.x - Math.sign(dx || 1) * 80);   // 너무 붙으면 살짝 물러남
         const inv = tgt.isBoss && tgt.boss && tgt.boss.phaseInv > 0;   // 페이즈 전환 무적: 헛손질하지 않고 기다림
         if (dist <= reach + 30 && !inv) {
-          if (Math.sign(dx) !== p.dir && Math.abs(dx) > 6 && p.lock <= 0) want.add(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
+          // 반대쪽을 보고 있으면 공격을 멈추고(경직이 풀려야 돌아설 수 있음) 돌아선다
+          if (Math.sign(dx) !== p.dir && Math.abs(dx) > 6) { if (p.lock <= 0) want.add(dx > 0 ? 'ArrowRight' : 'ArrowLeft'); }
           else this.attack(p, want);
         }
       } else if (dy > 0) {
@@ -353,7 +355,10 @@ G.Play = {
   },
   attack(p, want) {
     const d = p.d, w = G.Game.world;
-    if (p.lock <= 0 && !(p.silence > 0)) {
+    // 기본 공격을 누르고 있으면 경직(lock)이 끝나는 순간 기본 공격이 먼저 나가서 스킬을 못 쓴다
+    //  → 쓸 스킬이 있으면 기본 공격을 떼고, 경직이 끝나기 0.3초 전부터 스킬 키를 누른다 (게임의 선입력 0.35초)
+    const ready = p.lock < 0.3 && this.gt - (this.skT || -9) > 0.35;
+    if (!(p.silence > 0)) {
       const list = this.targets(p, w), boss = list.some(m => m.isBoss && Math.abs(m.x - p.x) < 600);
       const lowMp = p.mp < p.st.maxMP * 0.3;
       let best = null, bestS = 1.0001;   // 기본 공격 = 100% × 1마리
@@ -363,8 +368,8 @@ G.Play = {
         const mp = sk.mp ? sk.mp(lv) : 0;
         if (mp && p.mp < mp) continue;
         // 버프 · 회복은 바로 (꺼져 있을 때 · HP 60% 아래)
-        if (sk.type === 'buff') { if (!p.buffs[id]) { this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); return; } continue; }
-        if (sk.type === 'heal') { if (p.hp < p.st.maxHP * 0.6) { this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); return; } continue; }
+        if (sk.type === 'buff') { if (!p.buffs[id]) { if (ready) { this.skT = this.gt; this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); } return; } continue; }
+        if (sk.type === 'heal') { if (p.hp < p.st.maxHP * 0.6) { if (ready) { this.skT = this.gt; this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); } return; } continue; }
         if (sk.type !== 'attack') continue;
         const r = this.skillScore(p, sk, lv, w, list);
         if (!r.n) continue;
@@ -373,7 +378,7 @@ G.Play = {
         if (lowMp && mp) sc = sc / (1 + mp / Math.max(1, p.st.maxMP * 0.05));
         if (sc > bestS) { bestS = sc; best = i; }
       }
-      if (best != null) { this.lastSkill = d.hot[best]; this.tap(G.Touch.code('skill' + (best + 1))); return; }
+      if (best != null) { if (ready) { this.skT = this.gt; this.lastSkill = d.hot[best]; this.tap(G.Touch.code('skill' + (best + 1))); } return; }
     }
     this.lastSkill = 'basic';
     want.add(G.Touch.code('attack'));
