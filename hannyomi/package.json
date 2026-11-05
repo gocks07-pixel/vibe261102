@@ -1,19 +1,14 @@
 {
   "name": "hannyomi-adventure",
   "version": "2.1.0",
-  "description": "과금없이 즐기는 연희의 RPG 대모험 (2.1 빌드)",
+  "description": "과금없이 즐기는 연희의 RPG 대모험",
+  "author": "HC",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable",
-    "build:setup": "electron-builder --win nsis"
-  },
-  "build": {
-    "appId": "com.hannyomi.adventure",
-    "productName": "RPG Adventure",
-    "files": ["index.html", "css/**", "src/**", "electron/**"],
-    "directories": { "output": "dist" },
-    "win": { "target": "portable" }
+    "build:player": "electron-builder --win portable --config electron/build-player.json",
+    "build:dev": "electron-builder --win portable --config electron/build-dev.json",
+    "build": "npm run build:player"
   },
   "devDependencies": {
     "electron": "33.2.0",

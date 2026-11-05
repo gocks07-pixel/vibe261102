@@ -1,0 +1,8 @@
+{
+  "appId": "com.hannyomi.adventure",
+  "productName": "RPG Adventure",
+  "files": ["index.html", "css/**", "src/**", "!src/dev.js", "electron/main.js", "electron/preload.js"],
+  "directories": { "output": "dist" },
+  "win": { "target": "portable" },
+  "portable": { "artifactName": "RPG Adventure ${version}.${ext}" }
+}

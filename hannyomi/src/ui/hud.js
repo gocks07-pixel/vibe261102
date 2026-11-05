@@ -41,8 +41,8 @@ G.HUD = {
     const p = G.Game.player;
     if (!p) return;
     const d = p.d, E = this.el;
-    const cell = (key, src, extra = '', tip = '') =>
-      `<div class="qs" ${tip}>${src ? `<img src="${src}">` : ''}<span class="k">${key}</span>${extra}<div class="cd"></div><div class="cdt"></div></div>`;
+    const cell = (key, src, extra = '', tip = '', cls = '') =>
+      `<div class="qs ${cls}" ${tip}>${src ? `<img src="${src}">` : ''}<span class="k">${key}</span>${extra}<div class="cd"></div><div class="cdt"></div></div>`;
     const KL = G.Keys.label.bind(G.Keys);
     let html = cell(KL('attack'), G.Icons.skill(this.BASIC_ICON));
     for (let i = 0; i < 6; i++) {
@@ -50,14 +50,16 @@ G.HUD = {
       html += cell(KL('skill' + (i + 1)), id ? G.Icons.skill(G.SKILLS[id]) : null, '', id ? `data-tip="skill:${id}"` : '');
     }
     const pot = kind => {
-      const s = d.inv.use.find(x => x && G.ITEMS[x.tid].use[kind]);
+      const i = p.potionIdx(kind), s = i >= 0 ? d.inv.use[i] : null;   // EXE 빌드: 물약이 없으면 별사탕
       if (!s) return [null, 0];
       const total = d.inv.use.reduce((n, x) => n + (x && x.tid === s.tid ? x.qty : 0), 0);
       return [G.Icons.item(G.ITEMS[s.tid]), total];
     };
     const [hpI, hpN] = pot('hp'), [mpI, mpN] = pot('mp');
-    html += cell(KL('hp'), hpI, `<span class="n">${hpN || ''}</span>`);
-    html += cell(KL('mp'), mpI, `<span class="n">${mpN || ''}</span>`);
+    // EXE 빌드: 자동 물약 표시 (켬 = 초록 테두리 + "자동", 끔 = 회색 "꺼짐")
+    const ap = G.AutoPot.of(d), at = k => `<span class="at" title="자동 물약 설정: 메뉴(Esc)">${ap[k] ? '자동' : '꺼짐'}</span>`;
+    html += cell(KL('hp'), hpI, `<span class="n">${hpN || ''}</span>${at('hp')}`, '', ap.hp ? 'auto' : 'auto off');
+    html += cell(KL('mp'), mpI, `<span class="n">${mpN || ''}</span>${at('mp')}`, '', ap.mp ? 'auto' : 'auto off');
     // 메뉴 버튼의 키 표시도 현재 키 설정을 따름
     for (const b of this.el.hud.querySelectorAll('.mbtn')) {
       const w = b.dataset.arg, names = { stat: '스탯', equip: '장비', inv: '인벤', skill: '스킬', quest: '퀘스트' };

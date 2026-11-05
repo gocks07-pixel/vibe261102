@@ -18,7 +18,7 @@ G.Combat = {
     if (m.guard) dmg *= 1 - m.guard;
     if (m.vuln > 0) dmg *= m.vulnMul || 2;
     if (m.isBoss && p.d.level < m.lv) dmg *= 1.3;
-    if (m.isBoss && G.familyOf(p.d.job) === 'mage') dmg *= 2.2;   // 2.1 마법사 보스 보정 (넓게 흩어지는 마법이 보스 하나에는 덜 맞는 만큼)   // 2.1 용기의 가호: 보스보다 레벨이 낮으면 +30%
+    if (m.isBoss && G.familyOf(p.d.job) === 'mage') dmg *= 2.3;   // 2.1 마법사 보스 보정 (EXE 빌드: 2.2 → 2.3) (넓게 흩어지는 마법이 보스 하나에는 덜 맞는 만큼)   // 2.1 용기의 가호: 보스보다 레벨이 낮으면 +30%
     if (m.markUntil > Date.now()) dmg *= 1 + (m.markMul || 0.2);   // 1.7.11 표식 (급소 찌르기 등)
     const crit = Math.random() * 100 < s.crit;
     if (crit) dmg *= 1 + s.critDmg / 100;

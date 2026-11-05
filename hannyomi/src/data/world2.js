@@ -48,6 +48,10 @@
   U('pot_hp5', '별빛 생명수', 'potion', '#ffd46a', 1000, { hp: 2000 }, 'HP를 2000 회복한다.');
   U('pot_mp3', '달빛 이슬', 'potion', '#a8b8ff', 300, { mp: 500 }, 'MP를 500 회복한다.');
   U('pot_mp4', '별이슬', 'potion', '#c8a8ff', 700, { mp: 1200 }, 'MP를 1200 회복한다.');
+  // EXE 빌드: HP·MP를 함께 채우는 물약 (최대치의 %로 회복 → 레벨이 올라도 쓸모 있음)
+  U('pot_candy', '별사탕', 'candy', '#ffd86a', 500, { hpP: 30, mpP: 30 }, 'HP와 MP를 각각 최대치의 30% 회복한다. HP 물약이 떨어지면 자동 물약이 대신 먹는다.');
+  U('pot_essence', '별의 정수', 'essence', '#fff2a8', 0, { hpP: 100, mpP: 100, cd: 30 }, 'HP와 MP를 모두 회복한다. 한 번 쓰면 30초 뒤에 다시 쓸 수 있다. 할머니가 남긴 귀한 정수라 팔 수 없다.');
+  G.ITEMS.pot_essence.noSell = true;
   const QI = [
     ['q_herb', '은빛 약초', 'jelly', '#a8e0a0'], ['q_carapace', '가시 껍질', 'shell', '#5a7a3a'], ['q_venom', '거미 독주머니', 'spore', '#8a5aa0'],
     ['q_helmet', '광부의 헬멧', 'hat', '#c0a040'], ['q_key', '감옥 열쇠', 'gear', '#e0c060'], ['q_spring', '정밀 태엽', 'gear', '#a0b0c0'],
@@ -205,7 +209,7 @@
 
   // ======================= NPC =======================
   const N = (id, name, title, look, o = {}) => { G.NPCS[id] = Object.assign({ name, title, look, greet: o.greet || ['...'] }, o); };
-  const potShop = tier => ['pot_red', 'pot_orange', 'pot_white', 'pot_hp4', 'pot_hp5'].slice(0, 3 + tier).concat(['pot_blue', 'pot_elixir', 'pot_mp3', 'pot_mp4'].slice(0, 2 + tier), ['scroll_town', 'scroll_tele', 'scroll_100', 'flame', 'cube']);
+  const potShop = (tier, candy) => ['pot_red', 'pot_orange', 'pot_white', 'pot_hp4', 'pot_hp5'].slice(0, 3 + tier).concat(['pot_blue', 'pot_elixir', 'pot_mp3', 'pot_mp4'].slice(0, 2 + tier), candy ? ['pot_candy'] : [], ['scroll_town', 'scroll_tele', 'scroll_100', 'flame', 'cube']);   // EXE 빌드: 라그하르트부터 별사탕
   const eqShop = lvs => {
     const out = [];
     for (const lv of lvs) {
@@ -229,13 +233,13 @@
   N('tiko', '티코', '발명가', { hair: '#e07a3a', top: '#c0c0c8', bottom: '#5a5a6a', style: 'spiky', eye: 'big' }, { greet: ['언젠가 하늘을 나는 기계를 만들 거야!'] });
   N('kaien_rag', '카이엔', '떠돌이 검사', G.NPCS.kaien.look, { greet: ['교단 놈들의 공방은 경비가 삼엄해.'] });
   N('rag_smith', '브론', '무기·방어구 상인', { hair: '#3a3a3a', top: '#5a5a62', bottom: '#3a3a42', style: 'short', beard: true }, { shop: eqShop([40]) });
-  N('rag_shop', '미라벨', '잡화상', { hair: '#a05a8a', top: '#c08aa0', bottom: '#5a3a4a', style: 'bob', gender: 'f' }, { shop: potShop(1) });
+  N('rag_shop', '미라벨', '잡화상', { hair: '#a05a8a', top: '#c08aa0', bottom: '#5a3a4a', style: 'bob', gender: 'f' }, { shop: potShop(1, true) });
   // 사하린
   N('azar', '아자르', '사막 부족장', { hair: '#2a1a0a', top: '#e8d0a0', bottom: '#8a6a3a', style: 'short', beard: true, hat: '#f0f0e0' }, { greet: ['모래는 모든 것을 기억한다네.'] });
   N('hakim', '하킴', '상단 대장', { hair: '#3a2a1a', top: '#c08a4a', bottom: '#6a4a2a', style: 'short', hat: '#e0c080' }, { greet: ['이 사막을 건너려면 호위가 필요해.'] });
   N('meirin', '메이린', '고고학자', { hair: '#3a2a4a', top: '#d8c8a0', bottom: '#7a6a4a', style: 'bun', gender: 'f', eye: 'big' }, { greet: ['고대 문자는 거짓말을 하지 않아요.'] });
   N('sah_smith', '자파르', '무기·방어구 상인', { hair: '#2a2a2a', top: '#a07040', bottom: '#5a3a2a', style: 'bald', beard: true }, { shop: eqShop([50, 60]).concat(['ac55_earring', 'ac55_ring', 'ac55_pendant', 'ac55_belt']) });
-  N('sah_shop', '라일라', '잡화상', { hair: '#1a1a1a', top: '#e0b060', bottom: '#8a5a2a', style: 'long', gender: 'f' }, { shop: potShop(2) });
+  N('sah_shop', '라일라', '잡화상', { hair: '#1a1a1a', top: '#e0b060', bottom: '#8a5a2a', style: 'long', gender: 'f' }, { shop: potShop(2, true) });
   // 프로스트벨
   N('valeria', '발레리아', '얼음성채 성주', { hair: '#e8f0ff', top: '#5a7ab0', bottom: '#2a3a6a', style: 'long', gender: 'f', hat: '#bfe6ff' }, { greet: ['이 성채는 북쪽의 마지막 방벽이에요.'] });
   N('artel', '아르텔', '각성 Ⅲ관 · 빙하의 현자', { hair: '#ffffff', top: '#7aa8d0', bottom: '#3a5a8a', style: 'long', beard: true, hat: '#5a7ab0' }, { greet: ['극한의 추위가 극한의 힘을 만든다네. 레벨 60에 오게.'] });
@@ -244,14 +248,14 @@
   N('heidel', '하이델', '서리용', { hair: '#bfe6ff', top: '#8ac8ff', bottom: '#5a9ad0', style: 'spiky', eye: 'sharp', eyeColor: '#3a7ac0' }, { greet: ['(거대한 용이 인간의 모습으로 당신을 바라본다) 작은 별이여.'] });
   N('rok', '로크', '사냥꾼', { hair: '#6a4a2a', top: '#8a6a4a', bottom: '#4a3a2a', style: 'short', hat: '#7a5a3a' }, { greet: ['형이 아직 돌아오지 않았어...'] });
   N('fro_smith', '그림', '무기·방어구 상인', { hair: '#c0c0c0', top: '#6a7a8a', bottom: '#3a4a5a', style: 'short', beard: true }, { shop: eqShop([60]).concat(['ac75_earring', 'ac75_ring', 'ac75_pendant', 'ac75_belt']) });
-  N('fro_shop', '눈송이', '잡화상', { hair: '#ffffff', top: '#bfe6ff', bottom: '#7aa8d0', style: 'twin', gender: 'f' }, { shop: potShop(2) });
+  N('fro_shop', '눈송이', '잡화상', { hair: '#ffffff', top: '#bfe6ff', bottom: '#7aa8d0', style: 'twin', gender: 'f' }, { shop: potShop(2, true) });
   // 아에로스
   N('orion', '오리온', '대현자', { hair: '#f0f0f0', top: '#3a3a8a', bottom: '#1a1a5a', style: 'long', beard: true, hat: '#2a2a6a' }, { greet: ['별은 언제나 제자리에 있다네. 길을 잃는 건 우리지.'] });
   N('oriel', '오리엘', '각성 Ⅳ관 · 별의 기사', { hair: '#ffe680', top: '#e0e8ff', bottom: '#8a9ac8', style: 'side', eye: 'sharp' }, { greet: ['최후의 길은 레벨 85에 열린다.'] });
   N('yuna', '유나', '별지기 소녀', { hair: '#c0a0ff', top: '#fff0f8', bottom: '#a080d0', style: 'twin', gender: 'f', eye: 'big' }, { greet: ['밤하늘의 별은 전부 내 친구야!'] });
   N('kaien_sky', '카이엔', '돌아온 검사', G.NPCS.kaien.look, { greet: ['...면목이 없다.'] });
   N('aer_smith', '세라핀', '무기·방어구 상인', { hair: '#e0e0ff', top: '#a0b0e0', bottom: '#5a6a9a', style: 'pony', gender: 'f' }, { shop: eqShop([80, 90]).concat(['ac95_earring', 'ac95_ring', 'ac95_pendant', 'ac95_belt']) });
-  N('aer_shop', '루시', '잡화상', { hair: '#ffd0e0', top: '#ffffff', bottom: '#c0c8e8', style: 'bob', gender: 'f' }, { shop: potShop(2) });
+  N('aer_shop', '루시', '잡화상', { hair: '#ffd0e0', top: '#ffffff', bottom: '#c0c8e8', style: 'bob', gender: 'f' }, { shop: potShop(2, true) });
   // 녹스게이트
   N('elma_nox', '엘마', '영웅의 후손', G.NPCS.elma.look, { greet: ['당신과 함께라면 무섭지 않아요.'] });
   N('kaien_nox', '카이엔', '동료', G.NPCS.kaien.look, { greet: ['이번엔 등 뒤를 맡겨도 좋다.'] });
@@ -262,7 +266,7 @@
   N('yeonhee_nox', '연희', '별 이야기를 모으는 소녀', YEONHEE, { pin: '#ffd84a',
     greet: ['여기까지 왔네요! 아스트라 님이 기다리고 계세요.', '무섭지 않냐고요? 조금요. 그래도 이야기의 끝은 꼭 보고 싶어요!'] });
   N('astra', '아스트라', '첫 번째 영웅의 잔영', { hair: '#e8f4ff', top: '#7ab8ff', bottom: '#3a5aa0', style: 'long', eye: 'sharp', eyeColor: '#bfe6ff' }, { greet: ['우리가 끝내지 못한 일을, 네가 끝내 다오.'] });
-  N('nox_shop', '그림자 상인', '보급 담당', { hair: '#3a2a5a', top: '#2a2a3a', bottom: '#14141e', style: 'short', hat: '#1a1a2a' }, { shop: potShop(2) });
+  N('nox_shop', '그림자 상인', '보급 담당', { hair: '#3a2a5a', top: '#2a2a3a', bottom: '#14141e', style: 'short', hat: '#1a1a2a' }, { shop: potShop(2, true) });
 
   // ======================= 맵 =======================
   const LAYOUT = [

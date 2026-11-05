@@ -1,4 +1,4 @@
-# EXE 빌드 계획 (승인 대기)
+# EXE 빌드 계획 (구현 완료 2026-11-05)
 
 2026-11-05 작성. 사용자가 "EXE 빌드 진행해 줘"라고 하면 구현한다. 2.1 다음, 마지막 단계.
 게임 내용(퀘스트 · 아이템 · 몬스터)과 아이템 id · 세이브 형식은 바꾸지 않는다 (기존 세이브 유지).
@@ -101,3 +101,25 @@
 - 자동 물약(기준 · 간격 · 별사탕 대체 · HUD 표시), 마법사 ×2.3 적용, 별의 정수 지급 · 재사용 대기
 - 회귀 테스트 전체 + 2.0 · 2.1 테스트
 - 문서 · README · ROADMAP 갱신, GitHub 백업
+
+---
+
+## 구현 결과 (2026-11-05)
+| 항목 | 파일 |
+|---|---|
+| EXE 두 가지 | `package.json` (`build:player` · `build:dev`), `electron/build-player.json` (`!src/dev.js`), `electron/build-dev.json` (productName "RPG Adventure DEV") |
+| 테스트용 구분 · 창 제목 · 저장 위치 · 옛 세이브 복사 | `electron/main.js` (`src/dev.js` 가 있으면 테스트용), `electron/preload.js` (`electronAPI.info`) |
+| index.html 의 dev.js | EXE 플레이어용이면 불러오지 않음 (`document.write` 한 줄). 브라우저 · 테스트용은 불러옴 |
+| 버전 | `src/version.js` (`G.VERSION`, EXE 는 package.json 값) · 타이틀 오른쪽 아래 |
+| 오류 기록 | `src/core/errlog.js` + `electron/main.js` (`log:errors`, 최근 200줄). `src/main.js` 루프를 `try/catch` 로 감싸 오류가 나도 다음 프레임 계속 |
+| 버그 신고 | `src/ui/bugreport.js` (F9 · 메뉴), `electron/main.js` (`bug:capture` · `bug:write`, 폴더 자동 열기) |
+| 자동 물약 | `src/ui/autopot.js` (`d.autoPot`, 1초 간격, 저주 · 대화 · 영상 중 안 먹음), `player.potionIdx` (물약 → 별사탕), HUD `.qs.auto` |
+| 별사탕 · 별의 정수 | `src/data/world2.js` (`pot_candy` 500G · `pot_essence` cd 30 · noSell), 상점 `potShop(tier, true)` 라그하르트부터, `f_06` 보상 + 엘마 대사, 이미 f_06 을 끝낸 세이브는 시작할 때 3개 (`d.vExe`) |
+| 문구 | `src/ui/windows.js` (아르셀리아 연대기 줄 삭제), `src/ui/ending.js` (크레딧) |
+| 마법사 | `src/systems/combat.js` ×2.3 |
+
+### 확인
+- 기능 테스트 37개 통과: 브라우저 판 · 플레이어용 EXE 흉내(dev.js 막음) · 테스트용 EXE 흉내 (`docs/drafts/exe/t_exe.js`)
+- 메인 프로세스 테스트 18개 통과: 가짜 Electron 으로 저장 위치 · 옛 세이브 복사 · 오류기록 200줄 · 버그신고 폴더 5개 파일 (`docs/drafts/exe/t_main.js`)
+- 회귀 테스트 9개 오류 0 (t161 a172 j173 n174 elite176 r178 b179 g20 y1712)
+- 실제 Windows EXE 빌드는 이 환경에서 할 수 없어 사용자 PC 에서 처음 만든다

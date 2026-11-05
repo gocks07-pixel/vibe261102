@@ -125,6 +125,8 @@ G.UI = {
       case 'tele': G.Teleport.go(arg); break;
       case 'hero': G.Win.heroset.act(arg); break;
       case 'snd': G.Win.sound.act(arg); break;
+      case 'autopot': G.Win.autopot.act(arg); break;   // EXE 빌드
+      case 'bug': G.Bug.open(); break;
       case 'saveas': G.Win.saveas.act(arg); break;
       case 'title': G.Title.act(arg); break;
       case 'hidden': if (arg === 'seek') { this.overlay(''); if (/^end_/.test(G.Music.want || '')) G.Music.playMap(G.Game.world.mapId, 2); G.Hidden.seek(); } break;   // 2.0
@@ -238,6 +240,7 @@ G.UI = {
     if (!it) return;
     if (t.quest) { this.log('퀘스트 아이템은 판매할 수 없습니다.', '#ff7a7a'); return; }
     if (t.gift) { this.log('연희의 선물은 판매할 수 없습니다.', '#ff9ad0'); return; }
+    if (t.noSell) { this.log(`${t.name}은(는) 귀한 물건이라 팔 수 없습니다.`, '#ffe08a'); return; }
     if ((it.grade || 0) >= 2 && !ok) {
       this.ask(`<b style="color:${G.GRADES[it.grade].color}">${G.GRADES[it.grade].name}</b> 등급 <b>${G.U.esc(t.name)}</b>을(를) 판매할까요?`, '판매',
         () => { if (p.d.inv[tab][idx] === it) this.sell(tab, idx, true); });

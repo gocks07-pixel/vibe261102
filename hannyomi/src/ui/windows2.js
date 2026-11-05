@@ -49,10 +49,12 @@
         <button class="btn" data-act="menu" data-arg="help">조작법 (F1)</button>
         <button class="btn" data-act="menu" data-arg="keys">키 설정</button>
         <button class="btn" data-act="menu" data-arg="sound">음향 설정</button>
+        <button class="btn" data-act="menu" data-arg="autopot">자동 물약 설정</button>
         <button class="btn" data-act="menu" data-arg="fx">스킬 이펙트: ${G.Settings.fx === 'high' ? '화려' : '보통'}</button>
         <button class="btn" data-act="menu" data-arg="minimap">미니맵: ${G.Settings.minimap ? '켬' : '끔'}</button>
         <button class="btn" data-act="menu" data-arg="dtap">방향키 두 번 대쉬: ${G.Settings.dtapDash ? '켬' : '끔'}</button>
         ${G.Game.player && G.Game.player.d.ending ? '<button class="btn" data-act="menu" data-arg="replay">✦ 엔딩 다시 보기</button>' : ''}
+        <button class="btn" data-act="bug" data-arg="menu">🐞 버그 신고 (F9)</button>
         <button class="btn" data-act="menu" data-arg="title">저장 후 타이틀로</button></div>
         <div class="dim" style="font-size:11px;margin-top:8px">맵 이동, 퀘스트 완료 시 슬롯 ${G.Save.slot}에 자동 저장됩니다.</div>`;
     },
@@ -63,6 +65,7 @@
       if (a === 'help') { G.UI.closeWin('menu'); G.UI.showHelp(); }
       if (a === 'keys') { G.UI.closeWin('menu'); G.UI.openWin('keys'); }
       if (a === 'sound') { G.UI.closeWin('menu'); G.UI.openWin('sound'); return; }
+      if (a === 'autopot') { G.UI.closeWin('menu'); G.UI.openWin('autopot'); return; }
       if (a === 'saveas') { G.UI.closeWin('menu'); G.UI.openWin('saveas'); return; }
       if (a === 'fx') { S.fx = S.fx === 'high' ? 'normal' : 'high'; S.save(); }
       if (a === 'minimap') { S.minimap = !S.minimap; S.save(); }

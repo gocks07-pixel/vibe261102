@@ -4,7 +4,7 @@
 // dtap = 이번 프레임에 방향키를 0.25초 안에 두 번 누름
 G.Input = {
   down: {}, pressed: {}, lastH: null, dtap: null, lastTap: null,
-  PREVENT: new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'AltLeft', 'AltRight', 'Tab', 'ControlLeft', 'ControlRight', 'F1', 'ShiftLeft', 'ShiftRight']),
+  PREVENT: new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'AltLeft', 'AltRight', 'Tab', 'ControlLeft', 'ControlRight', 'F1', 'ShiftLeft', 'ShiftRight', 'F9']),
   KEY_FALLBACK: { ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', ' ': 'Space' },
   codeOf(e) { return e.code || this.KEY_FALLBACK[e.key] || ''; },
   init() {

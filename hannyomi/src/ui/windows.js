@@ -251,7 +251,7 @@ G.Title = {
     const any = this.used().length > 0, S = G.Settings;
     // 2.0: 새 제목 (주아 글씨체) + 이야기 배경 (src/ui/titlebg.js)
     G.UI.overlay(`<div class="overlay title-ov" style="${this.BG}"><canvas class="title-bg" width="1280" height="720"></canvas>
-      <div class="ttl"><div class="t1">과금없이 즐기는</div><div class="t2">연희의 RPG 대모험!<span class="st">✦</span></div><div class="t3">아르셀리아 연대기</div></div>
+      <div class="ttl"><div class="t1">과금없이 즐기는</div><div class="t2">연희의 RPG 대모험!<span class="st">✦</span></div></div>
       ${any ? '<button class="btn gold" data-act="title" data-arg="continue">이어하기</button>' : ''}
       <button class="btn ${any ? '' : 'gold'}" data-act="title" data-arg="new">새로 시작</button>
       <button class="btn" data-act="title" data-arg="help">조작법 (F1)</button>
@@ -261,7 +261,8 @@ G.Title = {
         <button class="btn sm" data-act="title" data-arg="bgm">♪ 배경음악: ${S.bgm ? '켬' : '끔'}</button>
         <button class="btn sm" data-act="title" data-arg="sfx">효과음: ${S.sfx ? '켬' : '끔'}</button>
       </div>
-      <div class="dim" style="margin-top:18px;font-size:12px">${window.electronAPI ? '저장 위치: 문서/Hannyomi/save_A.json · save_B.json · save_C.json' : '브라우저 저장소에 저장됩니다 (슬롯 3개)'}</div></div>`);
+      <div class="dim" style="margin-top:18px;font-size:12px">${window.electronAPI ? `저장 위치: 문서/RPG Adventure/${G.IS_DEV ? 'Save Data (DEV)' : 'Save Data'}` : '브라우저 저장소에 저장됩니다 (슬롯 3개)'}</div>
+      <div class="ver">v${G.VERSION}${G.IS_DEV ? ' DEV' : ''}</div></div>`);
     G.TitleBG.start(document.querySelector('#overlay .title-bg'));
   },
   // 음악 감상: 28곡 + 장 전환 효과음 8개

@@ -104,6 +104,8 @@ G.Icons = (function () {
     cloth: (c, d) => `<path d="M5 9 Q20 4 35 9 L33 33 Q20 28 7 33 Z" fill="${c}" stroke="#555" stroke-width="1.5"/><ellipse cx="20" cy="19" rx="7" ry="4" fill="none" stroke="#c03030" stroke-width="2"/><circle cx="20" cy="19" r="2" fill="#c03030"/>`,
     hide: (c, d) => `<path d="M8 10 Q20 4 32 10 Q36 20 32 30 Q20 36 8 30 Q4 20 8 10 Z" fill="${c}" stroke="${d}" stroke-width="1.5"/><path d="M14 16 Q20 20 26 16" stroke="${d}" fill="none"/>`,
     bag: (c, d) => `<path d="M12 12 Q8 34 20 35 Q32 34 28 12 Z" fill="${c}" stroke="${d}" stroke-width="1.5"/><path d="M12 12 Q20 7 28 12" stroke="${d}" stroke-width="3" fill="none"/>`,
+    candy: (c, d) => `<path d="M3 14 L10 20 L3 26 Z M37 14 L30 20 L37 26 Z" fill="#ff9ad0" stroke="#c0508a" stroke-width="1.2"/><polygon points="${starPoints(20, 20, 5, 14, 6.5)}" fill="${c}" stroke="${d}" stroke-width="1.5"/><circle cx="17" cy="16" r="2" fill="#fff" opacity=".8"/>`,
+    essence: (c, d) => `<circle cx="20" cy="22" r="17" fill="#ffe680" opacity=".25"/><path d="M15 6 H25 V12 Q34 16 34 25 Q34 36 20 36 Q6 36 6 25 Q6 16 15 12 Z" fill="#1e2350" stroke="#c9a33a" stroke-width="1.8"/><polygon points="${starPoints(20, 25, 5, 8, 3.5)}" fill="${c}" stroke="#ffd54a"/><circle cx="12" cy="20" r="1.2" fill="#fff"/><circle cx="28" cy="29" r="1" fill="#fff"/><rect x="14" y="3" width="12" height="4" rx="1" fill="#c9a33a"/>`,
     shard: (c, d) => `<circle cx="20" cy="20" r="16" fill="${c}" opacity=".3"/><path d="M20 3 L29 17 L20 37 L11 17 Z" fill="${c}" stroke="${d}" stroke-width="1.5"/><path d="M20 3 L20 37 M11 17 H29" stroke="#fff" opacity=".6"/>`,
   };
 

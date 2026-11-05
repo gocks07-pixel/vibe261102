@@ -39,6 +39,7 @@ G.Game = {
       G.UI.log(`${d.name}님, 한요미의 대모험에 오신 것을 환영합니다!`, '#ffe08a');
     } else {
       G.UI.log(`${d.name}님, 다시 오신 것을 환영합니다! (F1: 단축키 안내)`, '#ffe08a');
+      if (d.essGift) { G.UI.log('[업데이트] 엘마가 할머니의 별의 정수 3개를 건네주었습니다. 정말 위험할 때만 쓰세요! (인벤토리 소비 칸)', '#ffe68a'); delete d.essGift; }
       if (d.notice161) { G.UI.log(`[1.6.1 업데이트] ${d.notice161}`, '#7dff9a'); delete d.notice161; }
       if (d.spGift) { G.UI.log(`[1.5 업데이트] 레벨업 기술 포인트가 늘어나 지난 레벨만큼 기술 포인트를 ${d.spGift} 더 받았습니다. 새 스킬을 익혀 보세요! (K)`, '#7dff9a'); delete d.spGift; }
       if (d.ap > 0) G.UI.log(`남은 능력 포인트 ${d.ap} — S 키로 스탯창을 열어 배분하세요.`, '#ffe06a');
@@ -64,6 +65,8 @@ G.Game = {
 
   keys() {
     const I = G.Input;
+    if (I.hit('F9')) { G.Bug.open(); return; }   // EXE 빌드: 버그 신고 (어느 화면에서나)
+    if (G.Bug.isOpen()) return;
     if (I.hit('F1')) { G.UI.toggleHelp(); return; }
     if (G.UI.helpOpen() && I.hit('Escape')) { G.UI.toggleHelp(); return; }
     if (G.UI.asking()) { if (I.hit('Escape')) G.UI.answer(false); if (I.hit('Enter', 'NumpadEnter')) G.UI.answer(true); return; }
@@ -74,7 +77,13 @@ G.Game = {
     for (const w of ['stat', 'equip', 'inv', 'skill', 'quest', 'map']) if (G.Keys.hit(w)) G.UI.toggle(w);
   },
 
+  // EXE 빌드: 한 프레임에서 오류가 나도 기록만 하고 다음 프레임은 계속 (게임이 멈추지 않게)
   loop(ts) {
+    try { this.frame(ts); } catch (e) { G.ErrLog.add(e); }
+    G.Input.endFrame();
+    requestAnimationFrame(t => this.loop(t));
+  },
+  frame(ts) {
     const dt = Math.min(0.05, (ts - this.last) / 1000 || 0);
     this.last = ts;
     this.keys();
@@ -93,8 +102,6 @@ G.Game = {
       g.addColorStop(0, '#141436'); g.addColorStop(1, '#03050a');
       this.ctx.fillStyle = g; this.ctx.fillRect(0, 0, 1280, 720);
     }
-    G.Input.endFrame();
-    requestAnimationFrame(t => this.loop(t));
   },
 };
 

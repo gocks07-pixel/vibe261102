@@ -31,6 +31,16 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 .qs .cd { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.65); }
 .qs .cdt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; }
 .qs.nomp { filter: grayscale(.8) brightness(.6); }
+/* EXE 빌드: 자동 물약 표시 */
+.qs.auto { border-color: #5fe08a; box-shadow: 0 0 0 1px #5fe08a, 0 0 8px #5fe08a99; overflow: visible; }
+.qs .at { position: absolute; right: -4px; top: -7px; font-size: 9px; font-weight: 900; line-height: 12px; padding: 0 3px; background: #1f7a3e; color: #eaffef; border: 1px solid #8ff0b0; border-radius: 6px; letter-spacing: -0.5px; z-index: 1; }
+.qs.auto.off { border-color: #4a5578; box-shadow: none; }
+.qs.auto.off .at { background: #3a3f52; color: #9aa3bf; border-color: #5a6280; }
+.qs.auto .cd { border-radius: 6px; }
+.ap-row { display: flex; align-items: center; gap: 6px; margin: 8px 0; font-size: 13px; }
+.ap-row > b { width: 96px; flex: none; }
+.ap-row .btn.sm { min-width: 0; margin: 0; padding: 3px 9px; }
+.ap-row .btn.on { background: #1f7a3e; border-color: #8ff0b0; color: #eaffef; }
 #hud .menu { margin-left: auto; display: flex; gap: 5px; }
 .mbtn { position: relative; padding: 3px 9px; line-height: 1.25; border-radius: 6px; border: 1px solid #4a5578; background: #1a2135; color: #dfe5f7; font-size: 12px; cursor: pointer; }
 .mbtn:hover { background: #26304d; }
@@ -298,13 +308,13 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 .overlay.title-ov { overflow: hidden; }
 .overlay.title-ov > *:not(.title-bg) { position: relative; z-index: 1; }
 .overlay .title-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-.ttl { display: flex; flex-direction: column; align-items: center; margin-bottom: 18px; }
+.ttl { display: flex; flex-direction: column; align-items: center; margin-bottom: 26px; }
 .ttl .t1 { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 34px; color: #fff4d8; letter-spacing: 3px; text-shadow: 0 3px 0 #3a2a6a, 0 0 16px rgba(255,200,240,.6); transform: rotate(-2deg); }
 .ttl .t2 { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 84px; line-height: 1.05; white-space: nowrap; letter-spacing: 1px;
   background: linear-gradient(#fff7c8 10%, #ffd36a 48%, #ff9ac8 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 4px 0 #5a2a7a) drop-shadow(0 0 14px rgba(255,190,120,.55)); animation: ttlBob 3.2s ease-in-out infinite; }
 .ttl .t2 .st { display: inline-block; color: #fff2a8; -webkit-text-fill-color: #fff2a8; font-size: .6em; vertical-align: .5em; margin-left: .15em; animation: ttlTw 1.6s ease-in-out infinite; }
-.ttl .t3 { font-size: 17px; color: #c8d0f0; letter-spacing: 6px; margin-top: 6px; }
+.overlay.title-ov > .ver { position: absolute; right: 16px; bottom: 10px; font-size: 12px; color: #8a94b8; letter-spacing: 1px; }
 @keyframes ttlBob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
 @keyframes ttlTw { 0%, 100% { opacity: 1; transform: scale(1) } 50% { opacity: .55; transform: scale(.8) } }
 @media (prefers-reduced-motion: reduce) { .ttl .t2, .ttl .t2 .st { animation: none } }
@@ -317,3 +327,13 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 .btn.hid-gold { box-shadow: 0 0 12px rgba(255,220,120,.7); border-color: #ffe08a; }
 .clr.hid { color: #ffe9a8; margin-left: 6px; }
 .cr-title { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 1.15em; color: #ffe4a0; }
+/* EXE 빌드: 버그 신고 창 */
+.bug-ov { position: absolute; inset: 0; z-index: 900; background: rgba(4,6,14,.6); display: flex; align-items: center; justify-content: center; }
+.bug-box { width: 520px; background: linear-gradient(#1b2340, #10152a); border: 1px solid #5a6aa0; border-radius: 12px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.6); color: #e8ecff; }
+.bug-box h3 { margin: 0 0 8px; font-size: 20px; color: #ffd54a; }
+.bug-box textarea { width: 100%; box-sizing: border-box; background: #0b1020; color: #e8ecff; border: 1px solid #4a5a8a; border-radius: 8px; padding: 8px; font: inherit; font-size: 13px; resize: none; }
+.bug-note { height: 90px; }
+.bug-text { height: 170px; font-size: 11px !important; margin: 8px 0 6px; }
+.bug-ok { margin-top: 10px; font-size: 13px; line-height: 1.6; color: #9affc0; }
+.bug-bt { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.bug-bt .btn { min-width: 0; margin: 0; }

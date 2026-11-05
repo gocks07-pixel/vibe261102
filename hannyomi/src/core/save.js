@@ -62,6 +62,17 @@ G.Save = {
     // 1.5: 방문 기록(여행자의 나침반), 창고, 세트 무기 보증 횟수
     G.Teleport.prepare(d);
     if (!d.pity) d.pity = {};
+    // EXE 빌드: 자동 물약 설정 + 이미 f_06(마지막 별조각)을 끝낸 세이브에 별의 정수 3개 (녹스 전, 한 번만)
+    G.AutoPot.of(d);
+    if (!d.vExe) {
+      const q = d.quests || {}, done = id => q[id] && q[id].s === 'done';
+      if (done('f_06') && !done('f_07')) {
+        const tmp = { d };
+        if (!G.Inv.add(tmp, 'pot_essence', 3) && d.storage) G.Inv.add({ d: { inv: d.storage } }, 'pot_essence', 3);
+        d.essGift = true;
+      }
+      d.vExe = true;
+    }
     // 1.5: 레벨업 SP 상향 (30~59: 4 → 5, 60~: 5 → 6). 이미 올린 레벨만큼 차액을 지급
     // 1.6.1: 고유 시스템으로 변환 (한 번만)
     if (!d.v161) this.upgrade161(d);

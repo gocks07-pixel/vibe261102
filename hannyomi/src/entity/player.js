@@ -26,7 +26,7 @@ G.Player = class {
     this.gdash = 0; this.gdashCd = 0;
     this.x = 0; this.y = 0; this.vx = 0; this.vy = 0; this.kbX = 0; this.dir = 1;
     this.onGround = false; this.plat = null; this.dropT = 0; this.dropFrom = null;
-    this.buffs = {}; this.cd = {}; this.lock = 0; this.atkT = -1; this.atkKind = 'melee';
+    this.buffs = {}; this.cd = {}; this.itemCd = {}; this.autoT = { hp: 0, mp: 0 }; this.lock = 0; this.atkT = -1; this.atkKind = 'melee';
     this.invuln = 0; this.dead = false; this.slowT = 0; this.poison = null; this.regenT = 0; this.t = 0; this.dash = null;
     this.adash = 0; this.airDashed = false; this.ghostT = 0; this.auraT = 0;
     this.pity = {};
@@ -55,6 +55,8 @@ G.Player = class {
     if (this.cheerCd > 0) this.cheerCd -= dt;   // 1.7.12 연희의 응원 재사용
     if (this.dropT > 0) this.dropT -= dt;
     for (const k in this.cd) if (this.cd[k] > 0) this.cd[k] -= dt;
+    for (const k in this.itemCd) if (this.itemCd[k] > 0) this.itemCd[k] -= dt;   // EXE 빌드: 별의 정수 재사용 대기
+    G.AutoPot.update(this, dt);
     G.SkillX.update(dt, w);   // 1.7.10: 조준선 뒤 발사 · 지연 폭발 · 바닥 장판
     let buffChanged = false;
     for (const id in this.buffs) {
@@ -568,26 +570,39 @@ G.Player = class {
     if (this.dead) return;
     if (u.target) { G.UI.setTarget(u.target, s.tid); return; }
     if (u.tele) { G.Teleport.open(); return; }   // 나침반은 맵을 고른 뒤에 사라진다
-    if ((u.hp || u.mp) && this.noPotion > 0) { G.UI.log('저주 상태: 물약을 쓸 수 없습니다.', '#c08cff'); return; }
-    if (u.hp) {
-      if (this.hp >= this.st.maxHP) return;
-      this.heal(u.hp);
-      G.FX.rise(this.x, this.y - 10, '#ff8a8a', 6);
-      G.Tutorial.ev('potion');
-    }
-    if (u.mp) {
-      if (this.mp >= this.st.maxMP && !u.hp) return;
-      this.healMp(u.mp);
-      G.FX.rise(this.x, this.y - 10, '#8ab8ff', 6);
+    // EXE 빌드: 고정 회복(hp/mp) + 최대치 % 회복(hpP/mpP, 별사탕·별의 정수) + 아이템 재사용 대기(cd)
+    const hA = u.hp || (u.hpP ? Math.round(this.st.maxHP * u.hpP / 100) : 0);
+    const mA = u.mp || (u.mpP ? Math.round(this.st.maxMP * u.mpP / 100) : 0);
+    if ((hA || mA) && this.noPotion > 0) { G.UI.log('저주 상태: 물약을 쓸 수 없습니다.', '#c08cff'); return; }
+    if (u.cd && (this.itemCd[s.tid] || 0) > 0) { G.UI.log(`${t.name}은(는) ${Math.ceil(this.itemCd[s.tid])}초 뒤에 다시 쓸 수 있어요.`, '#ffe08a'); return; }
+    if (hA || mA) {
+      const needH = hA > 0 && this.hp < this.st.maxHP, needM = mA > 0 && this.mp < this.st.maxMP;
+      if (!needH && !needM) return;
+      if (needH) {
+        this.heal(hA);
+        G.FX.rise(this.x, this.y - 10, '#ff8a8a', 6);
+        G.Tutorial.ev('potion');
+      }
+      if (needM) {
+        this.healMp(mA);
+        G.FX.rise(this.x, this.y - 10, '#8ab8ff', 6);
+      }
+      if (u.cd) { this.itemCd[s.tid] = u.cd; if (u.hpP >= 100) G.FX.pillar(this.x, this.y, '#ffe68a'); }
     }
     if (u.town) G.Game.changeMap(this.d.town || 'sprout_port', null);
     s.qty--;
     if (s.qty <= 0) this.d.inv.use[idx] = null;
     G.Audio.play('pickup'); G.UI.dirty();
   }
-  quickPotion(kind) {
+  // H·J 칸과 자동 물약이 먹을 물약: 그 종류 물약 → 없으면 별사탕 (별의 정수처럼 재사용 대기가 있는 건 제외)
+  potionIdx(kind) {
     const arr = this.d.inv.use;
     const idx = arr.findIndex(s => s && G.ITEMS[s.tid].use[kind]);
+    if (idx >= 0) return idx;
+    return arr.findIndex(s => s && G.ITEMS[s.tid].use[kind + 'P'] && !G.ITEMS[s.tid].use.cd);
+  }
+  quickPotion(kind) {
+    const idx = this.potionIdx(kind);
     if (idx < 0) { G.UI.log(kind === 'hp' ? 'HP 물약이 없습니다.' : 'MP 물약이 없습니다.', '#ff7a7a'); return; }
     this.useItem(idx);
   }

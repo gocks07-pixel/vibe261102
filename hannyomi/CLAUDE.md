@@ -5,7 +5,8 @@
 
 ## 실행
 - 빌드 도구 없음. `index.html`을 브라우저로 열면 바로 실행된다 (모듈이 아닌 일반 `<script>` 태그, 로드 순서 중요).
-- EXE: `npm install` → `npm start` (테스트) / `npm run build` (포터블 EXE, `dist/`)
+- EXE: `npm install` → `npm start` (테스트용으로 실행) / `npm run build:player` (플레이어용) · `npm run build:dev` (테스트용) → `dist/`. 안내: `docs/EXE_빌드_안내.md`
+- 버전: `src/version.js` 의 `G.VERSION` 과 `package.json` version 을 함께 올린다 (버그 수정마다 2.1.1, 2.1.2 …)
 
 ## 구조
 - 모든 모듈은 전역 `G` 아래에 등록 (`src/util.js`가 `window.G` 생성)
@@ -20,7 +21,7 @@
 - `src/entity/` 플레이어, 몬스터, 보스 AI, 투사체, 드롭, 이펙트
 - `src/ui/` HUD, 창들, 대화, 지도, 캐릭터 만들기, 엔딩, `cutscene.js` 이야기 영상(1.7.7) (최종 보스 체험 모드는 1.6에서 제거)
 - `electron/` 창 생성과 세이브 파일 입출력
-- `src/dev.js` 테스트 모드 (Lv.100 4차 8직업 선택·직업만 바꾸기, 장 선택 시작, 어디든 순간이동, 엔딩 미리보기). 다른 파일을 고치지 않고 덧붙이는 방식이라 **최종 EXE 빌드 전에 이 파일과 index.html의 script 한 줄만 지우면 된다**
+- `src/dev.js` 테스트 모드 (Lv.100 4차 8직업 선택·직업만 바꾸기, 장 선택 시작, 어디든 순간이동, 엔딩 미리보기). 다른 파일을 고치지 않고 덧붙이는 방식. **지우지 않는다**: 플레이어용 EXE 빌드(`electron/build-player.json`)가 이 파일을 빼고 포장하고, index.html 은 EXE 가 테스트용일 때만 불러온다. 메인 프로세스는 이 파일이 있는지로 테스트용을 구분한다
 
 ## 원칙
 - 다른 게임의 고유 명칭·캐릭터·그래픽·시스템 이름은 쓰지 않는다 (`docs/IP_REVIEW.md`). 화폐는 "골드". 공개 문서·스토어 문구에 다른 게임 이름을 쓰지 않는다.
@@ -33,7 +34,7 @@
 - **전체 이야기 기준 문서: `docs/STORY.md`** (배경 → 프롤로그~종장 → 녹스 → 엔딩 3종). 대사·퀘스트를 고칠 때 이 문서와 맞춘다
 - 게임 제목은 1.7.4부터 **"한요미의 대모험"** (보이는 제목만 변경. 내부 이름 `hannyomi-adventure`·`Hannyomi`·저장 폴더·`hny_*` 키는 세이브 호환을 위해 그대로)
 - 빌드 1.4: `docs/BUILD_1.4_PLAN.md` — 구현 완료, 곡 피드백까지 끝 (2026-11-03)
-- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → 2.0 완료 → 2.1 완료 → **다음: EXE 빌드**)
+- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → 2.0 완료 → 2.1 완료 → EXE 빌드 완료 → **다음: 1.8 소리 피드백 · 버그 신고 대응**)
 - 빌드 1.5: `docs/BUILD_1.5_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v3 (`G.Save.VERSION`, 변환은 `G.Save.upgrade`)
 - 빌드 1.6: `docs/BUILD_1.6_PLAN.md` — 구현 완료 (2026-11-04)
 - 빌드 1.6.1: `docs/BUILD_1.6.1_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v4
@@ -54,5 +55,6 @@
 - 빌드 1.8: `docs/BUILD_1.8_PLAN.md` (아래쪽 "실제 구현") — 구현 완료 (2026-11-05). 효과음 `src/core/sound.js` (`G.Sound`), 새 스킬은 `SKILL_SOUND`나 `BY_PROJ`/`BY_FX`로 소리 지정
 - 빌드 1.9: `docs/BUILD_1.9_PLAN.md` — 구현 완료 (2026-11-05). 복장·장비 모양 `src/render/outfit.js` (`G.Outfit.draw`가 사람형 캐릭터를 그림, 장비 id → 디자인 묶음 `styleOf`, 새 장비 묶음은 `S`·`WSTYLE`에 추가). 확인 페이지 `hannyomi-wardrobe.html`
 - 빌드 2.0: `docs/BUILD_2.0_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). 히든 엔딩 `src/systems/hidden.js`, 녹스전 동료 `src/systems/assist.js`, 타이틀 배경 `src/ui/titlebg.js`, 글꼴 `css/fonts/`. 게임 이름: 창 "RPG 대모험_HC" · EXE "RPG Adventure" · 크레딧 "과금없이 즐기는 연희의 RPG 대모험"
-- 빌드 2.1: `docs/BUILD_2.1_PLAN.md` — 구현 완료 (2026-11-05). 보스 밸런스 `src/data/balance21.js`, 기믹 그림 `src/render/boss21.js`, 시뮬레이터 `docs/drafts/sim/`. **다음: EXE 빌드** (`docs/BUILD_EXE_PLAN.md`, 자동 물약 · 별사탕 여부 확인)
+- 빌드 2.1: `docs/BUILD_2.1_PLAN.md` — 구현 완료 (2026-11-05). 보스 밸런스 `src/data/balance21.js`, 기믹 그림 `src/render/boss21.js`, 시뮬레이터 `docs/drafts/sim/`. 
+- EXE 빌드: `docs/BUILD_EXE_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). `electron/main.js`(저장 위치 · 오류기록 · 버그신고) · `electron/build-player.json` · `build-dev.json`, `src/version.js`, `src/core/errlog.js`, `src/ui/autopot.js`, `src/ui/bugreport.js`. 버그 신고 파일을 받으면: 오류기록.txt 로 위치 → save_X.json 으로 재현 → 수정 → 회귀 테스트 → 버전 올리기 → 백업
 - 빌드 계획서 (사용자가 "1.x 진행해 줘"라고 하면 진행): `docs/BUILD_1.8_PLAN.md`, `docs/BUILD_1.9_PLAN.md`, `docs/BUILD_2.0_PLAN.md`

@@ -50,7 +50,7 @@ G.Ending = {
       <div class="end-box">
         <h2 style="opacity:0;animation:endIn 1.5s ${tEnd}s forwards;color:#ffe4a0;font-size:26px;font-weight:900;margin-top:26px">— ${E.title} —</h2>
         <div style="opacity:0;animation:endIn 1.5s ${tEnd + 1.5}s forwards" class="credits">
-          <span class="cr-title">과금없이 즐기는 연희의 RPG 대모험</span> · 아르셀리아 연대기<br>기획 · 플레이어 &nbsp;|&nbsp; 개발 · Claude<br>플레이해 주셔서 감사합니다!<br><br>
+          <span class="cr-title">과금없이 즐기는 연희의 RPG 대모험</span><br>기획 · 개발 : HC<br>플레이해 주셔서 감사합니다!<br><br>
           ${G.Hidden.creditNote(kind)}
           ${kind !== 'hidden' && !G.Hidden.ready() ? '' : `<button class="btn gold" data-act="title" data-arg="closehelp">계속 플레이</button>`}
           <button class="btn" data-act="menu" data-arg="title">타이틀로</button>

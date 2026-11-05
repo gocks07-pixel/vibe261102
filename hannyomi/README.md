@@ -1,4 +1,4 @@
-# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — 2.1 빌드
+# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.0 (EXE 빌드)
 
 세계관 "아르셀리아 연대기"의 튜토리얼 ~ 엔딩 (Lv.1~100) 플레이 가능 버전입니다. 배경음악과 효과음이 함께 나옵니다.
 
@@ -6,12 +6,14 @@
 - **바로 플레이**: `index.html` 을 크롬/엣지로 열면 됩니다. (저장은 브라우저에 됨)
 - **EXE로 실행/빌드** (Node.js 필요: https://nodejs.org 에서 LTS 설치)
   ```
-  npm install          # 처음 한 번
-  npm start            # EXE 창으로 실행 (테스트)
-  npm run build        # dist 폴더에 설치 없이 실행되는 포터블 EXE 생성
-  npm run build:setup  # 설치형 Setup.exe 생성
+  npm install            # 처음 한 번
+  npm start              # EXE 창으로 실행 (테스트용)
+  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.0.exe
+  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.0.exe
   ```
-  EXE 세이브 파일 위치: `문서\Hannyomi\save_A.json`, `save_B.json`, `save_C.json` (슬롯 3개)
+  자세한 순서: `docs/EXE_빌드_안내.md`
+  EXE 세이브 위치: `문서\RPG Adventure\Save Data\save_A·B·C.json` (테스트용은 `Save Data (DEV)`)
+  오류 기록: `문서\RPG Adventure\오류기록.txt` · 버그 신고(F9): `문서\RPG Adventure\버그신고\`
 
 ## 조작법 (게임 안에서 F1)
 | 키 | 기능 |
@@ -23,7 +25,8 @@
 | 1 ~ 6 | 스킬 단축키 |
 | ↑ | 포탈 이동 / NPC 대화 (NPC 클릭도 가능) |
 | Enter | 대화 넘기기 |
-| H / J | HP / MP 회복약 |
+| H / J | HP / MP 회복약 (자동 물약: 메뉴 → 자동 물약 설정) |
+| F9 | 🐞 버그 신고 |
 | S / E / I / K / Q | 스탯 / 장비 / 인벤토리 / 스킬 / 퀘스트 |
 | M | 지도 (월드맵 / 현재 맵) |
 | F1 | 단축키 전체 안내 |
@@ -31,6 +34,16 @@
 | F11 | 전체화면 (EXE) |
 
 오른쪽 위 퀘스트를 더블클릭하면 길 안내가 켜집니다.
+
+## EXE 빌드 (v2.1.0)에서 바뀐 점
+- EXE 두 가지: 플레이어용(테스트 모드 없음) · 테스트용(DEV). 세이브 폴더 분리
+- 저장 위치 `문서\RPG Adventure\Save Data` (옛 `문서\Hannyomi` 세이브는 자동 복사)
+- 시작 화면 오른쪽 아래 버전 표시, "아르셀리아 연대기" 줄 삭제
+- 엔딩 크레딧: 과금없이 즐기는 연희의 RPG 대모험 / 기획 · 개발 : HC / 플레이해 주셔서 감사합니다!
+- 자동 물약 (HP·MP 각각 켬/끔, 30·50·70%, 캐릭터마다 저장, 처음 HP 50%·MP 30%)
+- 별사탕 (HP·MP 30%, 500G, 라그하르트부터 잡화상) · 별의 정수 (전부 회복, 30초 대기, 엘마의 f_06 보상 3개, 판매 불가)
+- 마법사 보스 피해 ×2.3
+- 오류 자동 기록 (오류가 나도 게임은 계속), 🐞 버그 신고 (F9 · 메뉴)
 
 ## 1.1에서 바뀐 점
 - 제목 변경: 한뇨미의 대모험
