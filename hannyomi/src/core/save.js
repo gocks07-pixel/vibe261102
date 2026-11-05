@@ -123,6 +123,55 @@ G.Save = {
     return this.write(s, JSON.stringify({ v: this.VERSION, slot: s, time: Date.now(), d: player.d }));
   },
 
+  // ---------- 모바일 1차: 세이브 내보내기 · 가져오기 (형식은 그대로, 옮기는 방법만) ----------
+  //  파일: 저장된 내용 그대로 (EXE 의 save_A.json 과 같은 {v, slot, time, d})
+  //  글자: 'HNY1:' + 압축(deflate) 후 base64 — 카카오톡 등에 붙여 넣기 쉽게 짧게. 압축이 안 되는 브라우저는 JSON 그대로
+  TEXT_HEAD: 'HNY1:',
+  async exportRaw(s) { return await this.read(s); },
+  async packText(raw) {
+    try {
+      if (!window.CompressionStream) return raw;
+      const st = new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      const buf = new Uint8Array(await new Response(st).arrayBuffer());
+      let bin = '';
+      for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+      return this.TEXT_HEAD + btoa(bin);
+    } catch (e) { return raw; }
+  },
+  // 붙여 넣은 글자 · 고른 파일 내용 → { data } 또는 { err: '안내 문구' }. 아무것도 바꾸지 않는다
+  async parseImport(text) {
+    let t = String(text || '').replace(/^﻿/, '').trim();
+    if (!t) return { err: '내용이 비어 있어요.' };
+    try {
+      const at = t.indexOf(this.TEXT_HEAD);
+      if (at >= 0) {
+        if (!window.DecompressionStream) return { err: '이 브라우저는 압축된 세이브 글자를 풀 수 없어요. 파일로 옮겨 주세요.' };
+        const b64 = t.slice(at + this.TEXT_HEAD.length).replace(/[^A-Za-z0-9+/=]/g, '');
+        const bin = atob(b64), buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        const st = new Blob([buf]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        t = await new Response(st).text();
+      } else {
+        // 메신저가 앞뒤에 글자를 붙였을 때를 대비해 { … } 만 꺼낸다
+        const a = t.indexOf('{'), b = t.lastIndexOf('}');
+        if (a < 0 || b < a) return { err: '세이브 글자가 아니에요.' };
+        t = t.slice(a, b + 1);
+      }
+    } catch (e) { return { err: '세이브 글자가 잘렸거나 바뀌었어요. 처음부터 끝까지 다시 복사해 주세요.' }; }
+    let data;
+    try { data = JSON.parse(t); } catch (e) { return { err: '세이브 글자가 잘렸거나 바뀌었어요. 처음부터 끝까지 다시 복사해 주세요.' }; }
+    const d = data && data.d;
+    if (!d || typeof d !== 'object' || !d.name || !d.job || !d.level || !d.inv) return { err: '이 게임의 세이브가 아니에요.' };
+    if ((data.v || 1) > this.VERSION) return { err: '더 새 버전 게임의 세이브예요. 게임을 최신 버전으로 바꾼 뒤 넣어 주세요.' };
+    return { data };
+  },
+  // 슬롯에 넣기. 원래 있던 세이브는 먼저 백업 (hny_save_X_backup / save_X.backup.json)
+  async importData(s, data) {
+    const old = await this.read(s);
+    if (old) await this.backup(s, old);
+    return this.write(s, JSON.stringify(Object.assign({}, data, { slot: s })));
+  },
+
   // 슬롯 카드에 보여 줄 요약
   info(data) {
     if (!data) return null;

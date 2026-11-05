@@ -3,9 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>RPG 대모험_HC</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <!-- 모바일 1차: 홈 화면에 추가했을 때 전체 화면 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RPG 대모험">
+  <meta name="theme-color" content="#07090f">
+  <meta name="format-detection" content="telephone=no">
   <link rel="stylesheet" href="css/fonts/jua.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
   <div id="stage">
@@ -44,6 +52,7 @@
   <!-- 코어 -->
   <script src="src/core/input.js"></script>
   <script src="src/core/keys.js"></script>
+  <script src="src/core/touch.js"></script>
   <script src="src/core/audio.js"></script>
   <script src="src/core/music.js"></script>
   <script src="src/core/sound.js"></script>
@@ -94,6 +103,7 @@
   <script src="src/ui/titlebg.js"></script>
   <script src="src/ui/autopot.js"></script>
   <script src="src/ui/bugreport.js"></script>
+  <script src="src/ui/mobile.js"></script>
   <!-- 테스트 모드: 브라우저와 테스트용 EXE 에서만 불러온다. 플레이어용 EXE 에는 src/dev.js 파일 자체가 없다 -->
   <script>if (!window.electronAPI || (window.electronAPI.info && window.electronAPI.info.dev)) document.write('<script src="src/dev.js"><\/script>');</script>
   <!-- 시작 -->

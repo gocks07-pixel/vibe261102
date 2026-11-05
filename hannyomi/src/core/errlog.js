@@ -60,7 +60,7 @@ G.ErrLog = {
   },
 
   line(x) {
-    return `[${this.stamp(x.time)}] v${G.VERSION}${G.IS_DEV ? ' DEV' : ''} | ${x.ctx} | ${x.msg}${x.where ? ' @ ' + x.where : ''}${x.n > 1 ? ` (×${x.n})` : ''}`;
+    return `[${this.stamp(x.time)}] v${G.VERSION}${G.IS_DEV ? ' DEV' : ''}${G.IS_MOBILE ? ' 모바일' : ''} | ${x.ctx} | ${x.msg}${x.where ? ' @ ' + x.where : ''}${x.n > 1 ? ` (×${x.n})` : ''}`;
   },
   text() { return this.list.length ? this.list.map(x => this.line(x)).join('\n') : '(이번 실행에서 기록된 오류 없음)'; },
 

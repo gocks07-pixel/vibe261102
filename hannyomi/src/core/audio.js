@@ -33,6 +33,9 @@ G.Audio = {
     };
     window.addEventListener('keydown', unlock);
     window.addEventListener('mousedown', unlock);
+    // 모바일 1차: 휴대폰은 첫 터치에서 소리를 켠다 (아이폰은 touchend 에서만 허락되는 경우가 있다)
+    window.addEventListener('touchend', unlock);
+    window.addEventListener('pointerup', unlock);
   },
   buildBus() {
     const c = this.ctx;

@@ -25,19 +25,23 @@ G.UI = {
     });
     r.addEventListener('mousemove', e => { if (this.tip.style.display === 'block') this.moveTip(e); });
     r.addEventListener('mouseleave', () => this.hideTip());
-    // 창 드래그
-    r.addEventListener('mousedown', e => {
+    // 창 드래그 (모바일 1차: 마우스 대신 pointer 이벤트 → 손가락으로도 끌 수 있다. 마우스 동작은 그대로)
+    r.addEventListener('pointerdown', e => {
       const h = e.target.closest('.wh');
       if (!h || e.target.closest('.x')) return;
-      const win = h.parentElement, sc = G.Game.scale;
+      const win = h.parentElement, sc = G.Game.scale, id = e.pointerId;
       const sx = e.clientX, sy = e.clientY, ox = win.offsetLeft, oy = win.offsetTop;
       this.front(win);
       const mv = ev => {
+        if (ev.pointerId !== id) return;
         win.style.left = G.U.clamp(ox + (ev.clientX - sx) / sc, -100, 1200) + 'px';
         win.style.top = G.U.clamp(oy + (ev.clientY - sy) / sc, 0, 660) + 'px';
       };
-      const up = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); };
-      window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
+      const up = ev => {
+        if (ev.pointerId !== id) return;
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      };
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
     });
   },
 

@@ -8,6 +8,9 @@ G.Game = {
     this.ctx = this.canvas.getContext('2d');
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    // 모바일 1차: 화면을 돌리거나 주소창이 나왔다 들어갈 때도 다시 맞춘다
+    window.addEventListener('orientationchange', () => setTimeout(() => this.resize(), 300));
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', () => this.resize());
     G.Keys.init(); G.Input.init(); G.Audio.init(); G.UI.init();
     this.canvas.addEventListener('mousedown', e => {
       if (!this.world || G.UI.blocking()) return;
@@ -15,11 +18,22 @@ G.Game = {
       this.world.clickAt((e.clientX - r.left) / this.scale + this.world.cam, (e.clientY - r.top) / this.scale);
     });
     window.addEventListener('beforeunload', () => { if (this.player) this.save(true); });
+    // 모바일 1차: 휴대폰은 창을 닫을 때 beforeunload 가 오지 않을 수 있어서, 앱을 내리거나 다른 앱으로 갈 때도 저장
+    window.addEventListener('pagehide', () => { if (this.player) this.save(true); });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && this.player) this.save(true); });
     G.Title.show();
     requestAnimationFrame(t => this.loop(t));
   },
   resize() {
-    this.scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    // 모바일 1차: 노치 · 홈 바 여백(#stage 의 safe-area padding, PC 는 0)을 빼고 맞춘다
+    let W = window.innerWidth, H = window.innerHeight;
+    const st = document.getElementById('stage');
+    if (st) {
+      const cs = getComputedStyle(st);
+      W -= (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      H -= (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    }
+    this.scale = Math.max(0.1, Math.min(W / 1280, H / 720));
     document.getElementById('game').style.transform = `scale(${this.scale})`;
   },
 
