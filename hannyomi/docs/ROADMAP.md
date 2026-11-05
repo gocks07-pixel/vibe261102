@@ -66,4 +66,4 @@
 7. 1.8: 스킬 효과음 — **구현 완료 (2026-11-05)** (+ 배경음악 5곡 수정, `docs/BUILD_1.8_PLAN.md` 아래쪽) (아우렐리온 패턴 · 몬스터 스킬 8가지 틀 소리 포함, `docs/BUILD_1.8_PLAN.md`) · 사용자 피드백은 추후
 8. 1.9: 복장 4종 전용 디자인 + 장비 모양 — **구현 완료 (2026-11-05)** (`docs/BUILD_1.9_PLAN.md` 아래쪽, 확인 페이지 `hannyomi-wardrobe.html`) 
 9. 2.0: 히든 엔딩 "공명 · 함께 빛나는 별" + 타이틀 화면 · 게임 이름 · 녹스전 동료 등장 — **구현 완료 (2026-11-05)** (`docs/BUILD_2.0_PLAN.md` 아래쪽) / **← 다음은 EXE 빌드** (src/dev.js와 index.html의 dev.js 줄 제거)
-10. EXE 빌드와 최종 점검 — **테스트 모드는 이 단계에서 제거**: `src/dev.js` 파일과 `index.html`의 `<script src="src/dev.js">` 한 줄 삭제 (Lv.100 천붕검제, 장 선택 시작, 어디든 순간이동)
+10. EXE 빌드와 최종 점검 (`docs/BUILD_EXE_PLAN.md`: 테스트용/플레이어용 EXE 2개 · 버전 표시 · 오류 기록 · 버그 신고 버튼) — **테스트 모드는 이 단계에서 제거**: `src/dev.js` 파일과 `index.html`의 `<script src="src/dev.js">` 한 줄 삭제 (Lv.100 천붕검제, 장 선택 시작, 어디든 순간이동)
