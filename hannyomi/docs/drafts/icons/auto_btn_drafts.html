@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자동 버튼 시안</title>
+<!-- 자동 사냥 버튼 아이콘 시안 4종 (2차-1.2 의 "🤖 자동" 대신). 코드(SVG)로 그림 -->
+<link rel="stylesheet" href="../../../css/fonts/jua.css">
+<style>
+  body { margin: 0; background: #0b0d16; color: #e8ecf6; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+  .sheet { width: 1600px; padding: 32px 40px; box-sizing: border-box; }
+  h1 { font-family: 'Jua', sans-serif; font-weight: 400; font-size: 38px; margin: 0 0 6px; color: #ffe4a0; }
+  .sub { color: #9aa6c8; margin-bottom: 22px; font-size: 16px; }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .card { background: #121727; border: 1px solid #2f3854; border-radius: 18px; padding: 18px; }
+  .card.rec { border-color: #ffd54a; box-shadow: 0 0 0 2px #ffd54a55; }
+  .big { display: flex; gap: 18px; align-items: center; justify-content: center; height: 190px; border-radius: 14px; background: radial-gradient(circle, #2a2a5a, #0a0c18); }
+  .big svg { width: 150px; height: 150px; }
+  .name { font-family: 'Jua', sans-serif; font-size: 24px; margin: 12px 0 4px; }
+  .name b { color: #ffd54a; font-weight: 400; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #6b5214; color: #fff3c4; margin-left: 6px; vertical-align: middle; font-family: 'Malgun Gothic', sans-serif; }
+  .why { font-size: 14px; line-height: 1.55; color: #cfd6ee; min-height: 66px; }
+  /* 실제 위쪽 버튼 줄 흉내 (게임과 같은 크기 · 색) */
+  .bar { margin-top: 12px; padding: 10px; border-radius: 12px; background: linear-gradient(#8fd0ff, #c8ecff); display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+  .tw { position: relative; height: 32px; padding: 0 7px; min-width: 40px; border-radius: 9px; border: 1px solid rgba(255,255,255,.45); background: rgba(16,20,34,.78); color: #e8ecf6;
+    font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
+  .tw svg { width: 20px; height: 20px; }
+  .tw.on { background: #1f7a3e; border-color: #8ff0b0; }
+  .lbl { font-size: 12px; color: #9aa6c8; margin: 8px 0 2px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>🤖 자동 버튼 아이콘 시안 4종</h1>
+  <div class="sub">위: 크게 본 모양 (꺼짐 · 켜짐) · 아래: 휴대폰 위쪽 버튼 줄에 실제 크기로 넣은 모습. 모두 코드로 그림</div>
+  <div class="row" id="row"></div>
+</div>
+<script>
+const star = (cx, cy, R, r, n = 5, rot = -90) => { const p = []; for (let i = 0; i < n * 2; i++) { const a = (rot + i * 180 / n) * Math.PI / 180, rr = i % 2 ? r : R; p.push((cx + Math.cos(a) * rr).toFixed(1) + ',' + (cy + Math.sin(a) * rr).toFixed(1)); } return p.join(' '); };
+const G1 = id => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7c8"/><stop offset=".5" stop-color="#ffd36a"/><stop offset="1" stop-color="#ff9ac8"/></linearGradient>`;
+// 원을 도는 화살표 (호 + 화살촉)
+const loop = (cx, cy, r, w, col, a0 = -60, a1 = 250) => {
+  const P = a => [cx + Math.cos(a * Math.PI / 180) * r, cy + Math.sin(a * Math.PI / 180) * r];
+  const [x0, y0] = P(a0), [x1, y1] = P(a1), [hx, hy] = P(a1 + 1), ang = (a1 + 90) * Math.PI / 180;
+  const tip = [x1 + Math.cos(ang) * w * 1.6, y1 + Math.sin(ang) * w * 1.6], s1 = [x1 + Math.cos(ang + 2.4) * w * 1.4, y1 + Math.sin(ang + 2.4) * w * 1.4], s2 = [x1 + Math.cos(ang - 2.4) * w * 1.4, y1 + Math.sin(ang - 2.4) * w * 1.4];
+  return `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 1 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>
+    <polygon points="${tip.map(v => v.toFixed(1)).join(',')} ${s1.map(v => v.toFixed(1)).join(',')} ${s2.map(v => v.toFixed(1)).join(',')}" fill="${col}"/>`;
+};
+const svg = (body, defs = '') => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+
+// A. 별 + 도는 화살표 (별이 스스로 싸운다 = 여덟 번째 별 아이콘과 같은 금빛)
+const A = on => svg(`${loop(50, 50, 36, 8, on ? '#8ff0b0' : '#9fd8ff')}<polygon points="${star(50, 52, 24, 10)}" fill="url(#ga)" stroke="#5a2a7a" stroke-width="3.5" stroke-linejoin="round"/>`, G1('ga'));
+// B. 검 + 도는 화살표 (자동 "사냥")
+const B = on => svg(`${loop(50, 50, 38, 7, on ? '#8ff0b0' : '#9fd8ff', -20, 290)}
+  <g transform="rotate(-45 50 50)"><rect x="46" y="18" width="8" height="46" rx="2" fill="#e8f0ff" stroke="#5a2a7a" stroke-width="2.5"/><path d="M46 18 L50 10 L54 18Z" fill="#e8f0ff" stroke="#5a2a7a" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="36" y="62" width="28" height="7" rx="3" fill="#ffd36a" stroke="#5a2a7a" stroke-width="2.5"/><rect x="46.5" y="69" width="7" height="16" rx="3" fill="#a0703a" stroke="#5a2a7a" stroke-width="2.5"/></g>`);
+// C. 별빛 요정 (작은 별 동료가 대신 싸워 줌, 로봇 대신 게임 세계관에 맞게)
+const C = on => svg(`<circle cx="50" cy="54" r="30" fill="${on ? '#7dff9a' : '#ffd36a'}" opacity=".18"/>
+  <path d="M28 50 Q14 34 22 26 Q34 30 36 44Z" fill="#c8ecff" opacity=".9"/><path d="M72 50 Q86 34 78 26 Q66 30 64 44Z" fill="#c8ecff" opacity=".9"/>
+  <polygon points="${star(50, 56, 28, 15)}" fill="url(#gc)" stroke="#5a2a7a" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="43" cy="55" r="3.2" fill="#3a1a4a"/><circle cx="57" cy="55" r="3.2" fill="#3a1a4a"/><path d="M45 62 Q50 66 55 62" fill="none" stroke="#3a1a4a" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="39" cy="61" r="3" fill="#ff8ab8" opacity=".7"/><circle cx="61" cy="61" r="3" fill="#ff8ab8" opacity=".7"/>
+  ${on ? '<path d="M70 18 l3 6 6 3 -6 3 -3 6 -3 -6 -6 -3 6 -3Z" fill="#fff"/>' : ''}`, G1('gc'));
+// D. 재생 ▶ + "A" (가장 단순 · 한눈에 "자동")
+const D = on => svg(`<circle cx="50" cy="50" r="40" fill="${on ? '#1f7a3e' : '#2a3555'}" stroke="${on ? '#8ff0b0' : '#9fd8ff'}" stroke-width="6"/>
+  <path d="M40 30 L72 50 L40 70Z" fill="${on ? '#eaffef' : '#e8ecf6'}" stroke-linejoin="round"/>
+  <text x="26" y="44" font-family="Jua" font-size="22" fill="#ffd36a" stroke="#5a2a7a" stroke-width="1">A</text>`);
+
+const ICONS = [
+  ['A', '별의 순환', A, true, '금빛 별을 도는 화살표 = "별(주인공)이 스스로 계속 싸워요". 앱 아이콘 A(여덟 번째 별)와 같은 별이라 게임과 잘 어울리고, 켜면 화살표가 초록으로 바뀌어요.'],
+  ['B', '검과 순환', B, false, '검 + 도는 화살표 = "자동 사냥". 무엇을 하는 버튼인지 가장 바로 알 수 있어요. 대신 RPG 에서 흔한 모양이에요.'],
+  ['C', '별빛 요정', C, false, '날개 달린 작은 별 친구가 대신 싸워 주는 느낌. 로봇보다 이 게임 세계관에 맞고 귀여워요. 작은 크기에서는 얼굴이 잘 안 보일 수 있어요.'],
+  ['D', '재생 버튼', D, false, '▶ 재생 + "A"(Auto). 가장 단순해서 아주 작게 해도 또렷해요. 대신 게임 분위기와의 연결은 약해요.'],
+];
+const BAR = ['스탯', '장비', '인벤', '스킬', '퀘스트', '지도', '≡ 메뉴'];
+let h = '';
+for (const [k, nm, f, rec, why] of ICONS) {
+  const bar = on => BAR.map(t => `<div class="tw">${t}</div>`).join('') + `<div class="tw ${on ? 'on' : ''}">${f(on)}자동</div>`;
+  h += `<div class="card ${rec ? 'rec' : ''}"><div class="big">${f(false)}${f(true)}</div>
+    <div class="name"><b>${k}</b> ${nm}${rec ? '<span class="tag">추천</span>' : ''}</div><div class="why">${why}</div>
+    <div class="lbl">꺼짐</div><div class="bar">${bar(false)}</div><div class="lbl">켜짐 (자동 사냥 중)</div><div class="bar">${bar(true)}</div></div>`;
+}
+document.getElementById('row').innerHTML = h;
+</script>
+</body>
+</html>
