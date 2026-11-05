@@ -258,6 +258,7 @@ G.Title = {
       <button class="btn" data-act="title" data-arg="juke">♪ 음악 감상</button>
       <button class="btn" data-act="title" data-arg="story">✦ 이야기 다시 보기</button>
       <button class="btn" data-act="title" data-arg="savefile">💾 세이브 옮기기</button>
+      ${G.Mobile && G.Mobile.showBigBtn() ? '<button class="btn" data-act="title" data-arg="bigview">📱 크게 보는 방법</button>' : ''}
       <div style="margin-top:14px;display:flex;gap:8px">
         <button class="btn sm" data-act="title" data-arg="bgm">♪ 배경음악: ${S.bgm ? '켬' : '끔'}</button>
         <button class="btn sm" data-act="title" data-arg="sfx">효과음: ${S.sfx ? '켬' : '끔'}</button>
@@ -337,6 +338,7 @@ G.Title = {
     if (a === 'sfx') { S.sfx = !S.sfx; S.save(); G.Audio.applyVolume(); this.render(); }
     if (a === 'help') G.UI.showHelp();
     if (a === 'savefile') G.Mobile.saveFile();   // 모바일 1차: 세이브 내보내기 · 가져오기
+    if (a === 'bigview') G.Mobile.bigGuide();    // 모바일 2차-1: 아이폰 크게 보는 방법
     if (a === 'closehelp') {
       if (G.Game.player) { G.UI.overlay(''); if (G.Game.world && /^end_/.test(G.Music.want || '')) G.Music.playMap(G.Game.world.mapId, 2); }
       else this.render();

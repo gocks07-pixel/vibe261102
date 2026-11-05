@@ -21,7 +21,7 @@
 - `src/entity/` 플레이어, 몬스터, 보스 AI, 투사체, 드롭, 이펙트
 - `src/ui/` HUD, 창들, 대화, 지도, 캐릭터 만들기, 엔딩, `cutscene.js` 이야기 영상(1.7.7) (최종 보스 체험 모드는 1.6에서 제거)
 - `electron/` 창 생성과 세이브 파일 입출력
-- 모바일 1차: `src/core/touch.js` (`G.Touch`: 휴대폰 판별 · 터치 버튼 설정 `hny_touch` · 버튼 → 키 입력), `src/ui/mobile.js` (`G.Mobile`: 터치 버튼 · 세로 안내 · 조작 안내 · 세이브 옮기기 창, `G.Game.frame`·`G.HUD.refresh`·`G.Win.menu`·`G.Keys.label`·`G.UI.showHelp` 를 감싸는 방식), `css/mobile.css`. 세이브 내보내기/가져오기 `G.Save.parseImport`·`importData` (형식 그대로). 터치가 꺼져 있으면(PC·EXE) 그대로 동작. 계획서 `docs/BUILD_MOBILE_PLAN.md`
+- 모바일 1차: `src/core/touch.js` (`G.Touch`: 휴대폰 판별 · 터치 버튼 설정 `hny_touch` · 버튼 → 키 입력), `src/ui/mobile.js` (`G.Mobile`: 터치 버튼 · 세로 안내 · 조작 안내 · 세이브 옮기기 창, `G.Game.frame`·`G.HUD.refresh`·`G.Win.menu`·`G.Keys.label`·`G.UI.showHelp` 를 감싸는 방식), `css/mobile.css`. 세이브 내보내기/가져오기 `G.Save.parseImport`·`importData` (형식 그대로). 터치가 꺼져 있으면(PC·EXE) 그대로 동작. 계획서 `docs/BUILD_MOBILE_PLAN.md`. 2차-1: 휴대폰 창 배율 `G.Mobile.layoutWins`(창 열기 · 닫기 · 다시 그리기를 감쌈), 아이폰 안내 `bigGuide`, 앱 아이콘 `icons/`(코드에서 뽑음 `docs/drafts/icons/export_icons.js`)
 - `src/dev.js` 테스트 모드 (Lv.100 4차 8직업 선택·직업만 바꾸기, 장 선택 시작, 어디든 순간이동, 엔딩 미리보기). 다른 파일을 고치지 않고 덧붙이는 방식. **지우지 않는다**: 플레이어용 EXE 빌드(`electron/build-player.json`)가 이 파일을 빼고 포장하고, index.html 은 EXE 가 테스트용일 때만 불러온다. 메인 프로세스는 이 파일이 있는지로 테스트용을 구분한다
 
 ## 원칙
@@ -35,7 +35,7 @@
 - **전체 이야기 기준 문서: `docs/STORY.md`** (배경 → 프롤로그~종장 → 녹스 → 엔딩 3종). 대사·퀘스트를 고칠 때 이 문서와 맞춘다
 - 게임 제목은 1.7.4부터 **"한요미의 대모험"** (보이는 제목만 변경. 내부 이름 `hannyomi-adventure`·`Hannyomi`·저장 폴더·`hny_*` 키는 세이브 호환을 위해 그대로)
 - 빌드 1.4: `docs/BUILD_1.4_PLAN.md` — 구현 완료, 곡 피드백까지 끝 (2026-11-03)
-- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → 2.0 완료 → 2.1 완료 → EXE 빌드 완료 → **다음: 1.8 소리 피드백 · 버그 신고 대응**) · 휴대폰판은 브랜치 `hannyomi-mobile` (모바일 1차 완료 → 앱 아이콘 시안 → 2차)
+- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → 2.0 완료 → 2.1 완료 → EXE 빌드 완료 → **다음: 1.8 소리 피드백 · 버그 신고 대응**) · 휴대폰판은 브랜치 `hannyomi-mobile` (모바일 1차 · 2차-1 완료, 아이콘 A → 다음 2차-2 새 저장소 배포 → 갤럭시 APK)
 - 빌드 1.5: `docs/BUILD_1.5_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v3 (`G.Save.VERSION`, 변환은 `G.Save.upgrade`)
 - 빌드 1.6: `docs/BUILD_1.6_PLAN.md` — 구현 완료 (2026-11-04)
 - 빌드 1.6.1: `docs/BUILD_1.6.1_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v4

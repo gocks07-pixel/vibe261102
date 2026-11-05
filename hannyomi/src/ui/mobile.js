@@ -40,6 +40,13 @@ G.Mobile = {
     // 터치 버튼을 길게 눌렀을 때 메뉴가 뜨지 않게
     this.el.addEventListener('contextmenu', e => e.preventDefault());
     this.checkPortrait();
+    this.fxDefault();
+    this.scaleVars();
+    window.addEventListener('resize', () => { this.scaleVars(); this.layoutWins(); });
+    // 이름 입력 등으로 브라우저가 게임 화면을 밀어 올리면 제자리로 (화면이 어긋나지 않게)
+    for (const id of ['stage', 'game']) { const el = document.getElementById(id); if (el) el.addEventListener('scroll', () => { if (el.scrollTop || el.scrollLeft) { el.scrollTop = 0; el.scrollLeft = 0; } }); }
+    // 창 제목 줄을 손가락으로 끌어 옮긴 창은 자동 정렬에서 뺀다 (옮긴 자리 그대로)
+    G.UI.root.addEventListener('pointerdown', e => { const h = e.target.closest('.win .wh'); if (h && !e.target.closest('.x') && G.Touch.active()) h.parentElement.dataset.moved = '1'; }, true);
   },
 
   // ---------- 원래 함수 감싸기 ----------
@@ -49,9 +56,26 @@ G.Mobile = {
     G.Game.frame = function (ts) {
       // 세로 화면이면 게임을 잠시 멈춘다 (몬스터에게 맞지 않게)
       if (M.portrait && this.player && G.Touch.active()) { this.last = ts; M.tick(); return; }
+      // 2차-1 배터리 절약: 1초에 30번만 그린다. 건너뛴 프레임은 입력을 지우지 않아 버튼이 씹히지 않는다 (게임 속도는 dt 로 그대로)
+      if (G.Touch.opt.fps30 && G.Touch.active() && M.lastDraw && ts - M.lastDraw < 30) { M.skipNow = true; return; }
+      M.lastDraw = ts;
       frame.call(this, ts);
       M.tick();
     };
+    const endFrame = G.Input.endFrame;
+    G.Input.endFrame = function () { if (M.skipNow) { M.skipNow = false; return; } endFrame.apply(this, arguments); };
+    // 2차-1 창 키우기: 창을 열고 닫고 다시 그릴 때마다 배율 · 자리 맞추기
+    const ow = G.UI.openWin, cw = G.UI.closeWin, rw = G.UI.renderWin;
+    G.UI.openWin = function () { const r = ow.apply(this, arguments); M.layoutWins(); return r; };
+    G.UI.closeWin = function () { const r = cw.apply(this, arguments); M.layoutWins(); return r; };
+    G.UI.renderWin = function (name) {
+      const r = rw.apply(this, arguments);
+      // 휴대폰에서는 "더블클릭" 안내를 "두 번 탭"으로
+      if (G.Touch.active() && this.wins[name]) { const b = this.wins[name].querySelector('.wb'); if (b && b.innerHTML.includes('더블클릭')) b.innerHTML = b.innerHTML.replace(/더블클릭/g, '두 번 탭'); }
+      M.layoutWins(); return r;
+    };
+    const mt = G.UI.moveTip;
+    G.UI.moveTip = function (e) { if (G.Touch.active()) M.moveTip(e); else mt.apply(this, arguments); };
     const refresh = G.HUD.refresh;
     G.HUD.refresh = function () { refresh.apply(this, arguments); M.refreshButtons(); };
     const label = G.Keys.label;
@@ -121,6 +145,8 @@ G.Mobile = {
   apply() {
     document.body.classList.toggle('touch-on', G.Touch.active());
     this.layout();
+    this.layoutWins();
+    if (G.UI.tip && !G.Touch.active()) G.UI.tip.style.transform = '';
     this.releaseAll();
     if (G.Game.player) G.UI.dirty();
   },
@@ -240,6 +266,13 @@ G.Mobile = {
     const dlg = G.Dialog.isOpen();
     if (dlg && !this.dlgSeen) this.dlgAt = performance.now();
     this.dlgSeen = dlg;
+    // 오른쪽 위 퀘스트 안내: 커진 골드 · 버프 칸 아래로 (hud.js 가 정한 top 대신)
+    if (this.Z && G.UI.root) {
+      const bf = document.getElementById('buffs'), hz = this.HZ;
+      const top = bf && bf.children.length && bf.offsetParent ? 46 + bf.offsetHeight * hz + 8 : 10 + 30 * hz + 8;
+      const v = Math.round(top) + 'px';
+      if (v !== this.trkTop) { this.trkTop = v; G.UI.root.style.setProperty('--trk', v); }
+    }
     // 위쪽 창 버튼: 열린 창 표시
     if (inGame) for (const b of this.el.querySelectorAll('[data-w]')) b.classList.toggle('on', b.dataset.w !== 'menu' && U.isOpen(b.dataset.w));
     // 스킬 재사용 대기 (G.HUD.update 와 같은 규칙)
@@ -367,10 +400,12 @@ G.Mobile = {
       <div class="row"><b>크기</b>${opt('size', 's', '작게')}${opt('size', 'm', '보통')}${opt('size', 'l', '크게')}</div>
       <div class="row"><b>투명도</b>${opt('alpha', 's', '연하게')}${opt('alpha', 'm', '보통')}${opt('alpha', 'l', '진하게')}</div>
       <div class="row"><b>위치</b>${opt('swap', false, '이동 왼쪽 · 공격 오른쪽')}${opt('swap', true, '좌우 바꾸기 (왼손)')}</div>
+      <div class="row"><b>배터리 절약</b>${opt('fps30', false, '끔 (부드럽게)')}${opt('fps30', true, '켬 (30프레임)')}</div>
+      <div class="dim">배터리 절약을 켜면 화면을 1초에 30번만 그려서 휴대폰이 덜 뜨겁고 배터리가 오래 가요. 게임 속도는 그대로예요.</div>
       <div class="dim">"끔"으로 하면 블루투스 키보드 · 게임패드로 플레이할 수 있어요. 다시 켜려면 메뉴 → 📱 터치 버튼 설정</div>
       <div class="end"><button class="gold" data-m="close">닫기</button></div>`, a => {
       const [, k, v] = a.split(':');
-      o[k] = k === 'swap' ? v === 'true' : v;
+      o[k] = k === 'swap' || k === 'fps30' ? v === 'true' : v;
       G.Touch.save(); this.apply(); this.checkPortrait();
       this.touchSettings();
     });
@@ -379,6 +414,8 @@ G.Mobile = {
   // 처음 한 번: 휴대폰으로 하기 안내
   firstNotice() {
     const o = G.Touch.opt;
+    // 2차-1: 아이폰 · 아이패드 사파리(홈 화면 앱이 아닐 때)는 "크게 보는 방법"을 처음 한 번
+    if (this.showBigBtn() && !o.bigNoticed) { this.bigGuide(true); o.bigNoticed = true; o.noticed = true; G.Touch.save(); return; }
     if (!G.Touch.device || o.noticed) return;
     const ios = G.Touch.ios, home = !G.Touch.standalone;
     this.modal(`<h3>📱 휴대폰으로 플레이하기</h3><ul>
@@ -389,6 +426,84 @@ G.Mobile = {
       </ul><div class="end"><button class="gold" data-m="close">알겠어요</button></div>`, () => {});
     o.noticed = true; G.Touch.save();
   },
+  // ---------- 2차-1 ① 아이폰 크게 보는 방법 ----------
+  showBigBtn() { return G.Touch.device && G.Touch.ios && !G.Touch.standalone; },
+  bigGuide(first) {
+    // 사파리 버튼 모양 (코드로 그림)
+    const share = '<svg class="ico" viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="#5aa9ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10H6v10h12V10h-2" fill="none" stroke="#5aa9ff" stroke-width="2" stroke-linejoin="round"/></svg>';
+    const add = '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="#e8ecf6" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#e8ecf6" stroke-width="2" stroke-linecap="round"/></svg>';
+    const aa = '<span class="aa">가<small>가</small></span>';
+    this.modal(`<h3>📱 아이폰에서 크게 보는 방법</h3>
+      <div class="big-way rec"><div class="bw-h"><b>방법 1</b> 홈 화면에 추가 <span class="tagr">추천</span></div>
+        <ol><li>사파리 아래쪽(또는 위쪽)의 공유 버튼 ${share} 을 눌러요</li>
+          <li>목록을 올려서 ${add} <b>"홈 화면에 추가"</b> → 오른쪽 위 <b>"추가"</b></li>
+          <li>홈 화면에 생긴 <b>별 아이콘 "RPG 대모험"</b>으로 열어요</li></ol>
+        <div class="dim">주소창 없이 항상 크게 열리고, 세이브도 더 안전해요.</div></div>
+      <div class="big-way"><div class="bw-h"><b>방법 2</b> 지금만 잠깐 크게</div>
+        <ol><li>주소창 왼쪽의 ${aa} 버튼을 눌러요</li><li><b>"툴바 막대 가리기"</b>를 눌러요</li></ol>
+        <div class="dim">사파리를 닫았다 다시 열면 원래대로 돌아와요. 화면 위쪽을 탭하면 주소창이 다시 보여요.</div></div>
+      <div class="msg">💾 사파리에서 하던 세이브는 홈 화면 앱에서 보이지 않아요. 옮기려면 사파리에서 <b>💾 세이브 옮기기 → 글자 복사</b>, 홈 화면 앱에서 <b>글자 붙여넣기</b>. (처음부터 홈 화면 앱으로 시작하면 옮길 필요가 없어요)</div>
+      ${first ? '<div class="dim">이 안내는 타이틀 화면의 <b>📱 크게 보는 방법</b> 버튼으로 다시 볼 수 있어요. 소리가 안 나면 아이폰 옆의 무음 스위치를 확인해 주세요.</div>' : ''}
+      <div class="end"><button class="gold" data-m="close">알겠어요</button></div>`, () => {}, true);
+  },
+
+  // ---------- 2차-1 ④ 휴대폰 성능: 처음이면 스킬 이펙트 "보통" ----------
+  fxDefault() {
+    if (!G.Touch.device || G.Touch.opt.fxSet) return;
+    let raw = {};
+    try { raw = JSON.parse(localStorage.getItem(G.Settings.KEY) || '{}') || {}; } catch (e) { /* 없음 */ }
+    if (!('fx' in raw)) { G.Settings.fx = 'normal'; G.Settings.save(); }
+    G.Touch.opt.fxSet = true; G.Touch.save();
+  },
+
+  // ---------- 2차-1 ③ 창 키우기 ----------
+  //  목표: 창 글자가 실제 화면에서 PC 의 약 85% 크기. 배율 = 0.85 ÷ 게임 화면 배율 (1 ~ 1.9)
+  scaleVars() {
+    const sc = G.Game.scale || 1, R = G.UI.root;
+    this.Z = Math.max(1, Math.min(1.9, 0.85 / sc));
+    this.HZ = Math.max(1, Math.min(1.5, this.Z * 0.8));
+    // 위쪽 터치 창 버튼 줄 아래 (게임 좌표)
+    this.TOP = Math.min(100, Math.round(44 / sc));
+    if (!R) return;
+    R.style.setProperty('--mz', this.Z.toFixed(3));
+    R.style.setProperty('--hz', this.HZ.toFixed(3));
+    R.style.setProperty('--dz', Math.min(this.Z, 1264 / 800).toFixed(3));
+    R.style.setProperty('--tbar', this.TOP + 'px');
+  },
+  layoutWins() {
+    const U = G.UI, list = Object.values(U.wins || {});
+    if (!G.Touch.active()) {
+      for (const el of list) if (el.dataset.mz) { el.style.transform = ''; el.style.transformOrigin = ''; const b = el.querySelector('.wb'); if (b) b.style.maxHeight = ''; delete el.dataset.mz; }
+      return;
+    }
+    if (!list.length) return;
+    const Z = this.Z || 1, GAP = 10, T = this.TOP || 80;
+    const ws = list.map(el => el.offsetWidth);
+    const total = ws.reduce((a, b) => a + b, 0) + GAP * (list.length - 1);
+    const z = Math.max(0.6, Math.min(Z, 1264 / total));
+    let x = Math.max(8, (1280 - total * z) / 2);
+    list.forEach((el, i) => {
+      const b = el.querySelector('.wb'), head = el.querySelector('.wh');
+      const hh = head ? head.offsetHeight : 36;
+      if (b) b.style.maxHeight = Math.max(120, Math.floor((712 - T) / z - hh - 4)) + 'px';
+      el.style.transformOrigin = '0 0';
+      el.style.transform = `scale(${z.toFixed(3)})`;
+      el.dataset.mz = z.toFixed(3);
+      if (!el.dataset.moved) { el.style.left = Math.round(x) + 'px'; el.style.top = T + 'px'; }
+      x += (ws[i] + GAP) * z;
+    });
+  },
+  // 설명: 창과 같은 배율로 크게, 탭한 곳 근처에서 화면 밖으로 안 나가게
+  moveTip(e) {
+    const tip = G.UI.tip, rect = G.UI.root.getBoundingClientRect(), sc = G.Game.scale, z = this.Z || 1;
+    tip.style.transformOrigin = '0 0'; tip.style.transform = `scale(${z.toFixed(3)})`;
+    const w = tip.offsetWidth * z, h = tip.offsetHeight * z;
+    let x = (e.clientX - rect.left) / sc + 20, y = (e.clientY - rect.top) / sc - h / 2;
+    if (x + w > 1272) x = (e.clientX - rect.left) / sc - w - 20;
+    x = Math.max(8, Math.min(1272 - w, x)); y = Math.max(8, Math.min(712 - h, y));
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  },
+
   // 저장 공간을 지우지 말라고 브라우저에 요청 (휴대폰에서 한 번)
   persist() {
     try { if (G.Touch.device && navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => { if (!p) navigator.storage.persist(); }).catch(() => {}); } catch (e) { /* 지원 안 함 */ }
