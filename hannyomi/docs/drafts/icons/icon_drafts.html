@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>앱 아이콘 시안</title>
+<!-- 앱 아이콘 시안 4종 (모바일 1차 이후). 그림 파일 없이 코드(SVG)로 그린다. 글씨는 게임 타이틀과 같은 주아체(SIL OFL) -->
+<link rel="stylesheet" href="../../../css/fonts/jua.css">
+<style>
+  :root { --bg: #0b0d16; --fg: #e8ecf6; --dim: #9aa6c8; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+  .sheet { width: 1600px; padding: 36px 40px; box-sizing: border-box; }
+  h1 { font-family: 'Jua', sans-serif; font-weight: 400; font-size: 40px; margin: 0 0 6px; color: #ffe4a0; }
+  .sub { color: var(--dim); margin-bottom: 26px; font-size: 16px; }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .card { background: #121727; border: 1px solid #2f3854; border-radius: 18px; padding: 18px; }
+  .card.rec { border-color: #ffd54a; box-shadow: 0 0 0 2px #ffd54a55; }
+  .big { width: 100%; aspect-ratio: 1; border-radius: 22.5%; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+  .big svg, .sm svg { width: 100%; height: 100%; display: block; }
+  .name { font-family: 'Jua', sans-serif; font-size: 26px; margin: 14px 0 4px; }
+  .name b { color: #ffd54a; font-weight: 400; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #6b5214; color: #fff3c4; margin-left: 6px; vertical-align: middle; font-family: 'Malgun Gothic', sans-serif; }
+  .why { font-size: 14px; line-height: 1.55; color: #cfd6ee; min-height: 88px; }
+  .home { margin-top: 12px; display: flex; align-items: flex-end; gap: 14px; padding: 12px; border-radius: 12px;
+    background: linear-gradient(135deg, #3b5b8f, #7a4f8f); }
+  .home .ap { text-align: center; font-size: 11px; color: #fff; text-shadow: 0 1px 2px #000; }
+  .sm { border-radius: 22.5%; overflow: hidden; margin: 0 auto 4px; box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>앱 아이콘 시안 4종</h1>
+  <div class="sub">위: 크게 본 모양 · 아래: 휴대폰 홈 화면에 실제로 놓이는 크기 (60px · 44px). 모두 코드로 그림, 이미지 파일 없음</div>
+  <div class="row" id="row"></div>
+</div>
+<script>
+// ---------- 도구 ----------
+const star = (cx, cy, R, r, n = 5, rot = -90) => {
+  const p = [];
+  for (let i = 0; i < n * 2; i++) {
+    const a = (rot + i * 180 / n) * Math.PI / 180, rr = i % 2 ? r : R;
+    p.push((cx + Math.cos(a) * rr).toFixed(1) + ',' + (cy + Math.sin(a) * rr).toFixed(1));
+  }
+  return p.join(' ');
+};
+// 반짝이 (네 갈래 별)
+const spark = (x, y, s, c, o = 1) => `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s}Z" fill="${c}" opacity="${o}"/>`;
+// 배경 작은 별 (고정 난수)
+let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+const dots = (n, c = '#fff', top = 1024) => { let h = ''; for (let i = 0; i < n; i++) h += `<circle cx="${(rnd() * 1024).toFixed(0)}" cy="${(rnd() * top).toFixed(0)}" r="${(2 + rnd() * 4).toFixed(1)}" fill="${c}" opacity="${(0.25 + rnd() * 0.5).toFixed(2)}"/>`; return h; };
+// 일곱 별조각 색 (src/systems/chapter.js SHARD 와 같음): 바람 · 생명 · 대지 · 태양 · 얼음 · 하늘 · 공허
+const SHARD = ['#7de3f0', '#7de08a', '#d8a860', '#ffb040', '#a8e0ff', '#c0c8ff', '#c060ff'];
+const NIGHT = `<radialGradient id="night" cx="50%" cy="42%" r="70%"><stop offset="0" stop-color="#3a3478"/><stop offset=".55" stop-color="#1a1840"/><stop offset="1" stop-color="#07090f"/></radialGradient>`;
+const GOLD = id => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7c8"/><stop offset=".5" stop-color="#ffd36a"/><stop offset="1" stop-color="#ff9ac8"/></linearGradient>`;
+const GLOW = `<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+const svg = (defs, body) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs>${defs}</defs>${body}</svg>`;
+
+// ---------- A. 여덟 번째 별 ----------
+function iconA() {
+  seed = 11;
+  let shards = '';
+  for (let i = 0; i < 7; i++) {
+    const a = (-90 + i * 360 / 7) * Math.PI / 180, x = 512 + Math.cos(a) * 345, y = 530 + Math.sin(a) * 345;
+    // 별조각 = 길쭉한 마름모 결정
+    shards += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(i * 360 / 7).toFixed(1)})" filter="url(#glow)">
+      <path d="M0 -62 L30 0 L0 62 L-30 0Z" fill="${SHARD[i]}"/><path d="M0 -62 L30 0 L0 0Z" fill="#fff" opacity=".45"/></g>`;
+  }
+  return svg(NIGHT + GOLD('gA') + GLOW,
+    `<rect width="1024" height="1024" fill="url(#night)"/>${dots(40)}
+     <circle cx="512" cy="530" r="345" fill="none" stroke="#c0c8ff" stroke-opacity=".22" stroke-width="6" stroke-dasharray="4 22" stroke-linecap="round"/>
+     ${shards}
+     <circle cx="512" cy="530" r="210" fill="#ffd36a" opacity=".16" filter="url(#glow)"/>
+     <polygon points="${star(512, 540, 230, 100)}" fill="url(#gA)" stroke="#5a2a7a" stroke-width="16" stroke-linejoin="round" filter="url(#glow)"/>
+     <polygon points="${star(512, 540, 150, 64)}" fill="#fff7c8" opacity=".55"/>
+     ${spark(512, 540, 46, '#fff')}`);
+}
+// ---------- B. 손등의 별 문양 ----------
+function iconB() {
+  seed = 23;
+  let ticks = '';
+  for (let i = 0; i < 24; i++) {
+    const a = i * 15 * Math.PI / 180, r1 = i % 3 ? 372 : 352, r2 = 392;
+    ticks += `<line x1="${(512 + Math.cos(a) * r1).toFixed(1)}" y1="${(512 + Math.sin(a) * r1).toFixed(1)}" x2="${(512 + Math.cos(a) * r2).toFixed(1)}" y2="${(512 + Math.sin(a) * r2).toFixed(1)}" stroke="#ffd36a" stroke-width="${i % 3 ? 6 : 12}" stroke-linecap="round"/>`;
+  }
+  // 일곱 별조각 자리 = 원 위의 작은 점, 여덟 번째 = 가운데
+  let gems = '';
+  for (let i = 0; i < 7; i++) {
+    const a = (-90 + i * 360 / 7) * Math.PI / 180;
+    gems += `<circle cx="${(512 + Math.cos(a) * 300).toFixed(1)}" cy="${(512 + Math.sin(a) * 300).toFixed(1)}" r="22" fill="${SHARD[i]}" filter="url(#glow)"/>`;
+  }
+  return svg(`<radialGradient id="bB" cx="50%" cy="50%" r="65%"><stop offset="0" stop-color="#22305a"/><stop offset="1" stop-color="#080b18"/></radialGradient>` + GOLD('gB') + GLOW,
+    `<rect width="1024" height="1024" fill="url(#bB)"/>${dots(26)}
+     <circle cx="512" cy="512" r="392" fill="none" stroke="#ffd36a" stroke-width="10" opacity=".9"/>
+     ${ticks}
+     <circle cx="512" cy="512" r="300" fill="none" stroke="#ffd36a" stroke-width="4" stroke-opacity=".5"/>
+     ${gems}
+     <polygon points="${star(512, 512, 250, 92, 8, -90)}" fill="url(#gB)" stroke="#5a2a7a" stroke-width="12" stroke-linejoin="round" filter="url(#glow)"/>
+     <polygon points="${star(512, 512, 120, 50, 8, -67.5)}" fill="#fff7c8" opacity=".6"/>
+     ${spark(512, 512, 40, '#fff')}`);
+}
+// ---------- C. 등대와 별 ----------
+function iconC() {
+  seed = 5;
+  return svg(`<linearGradient id="skyC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2368"/><stop offset=".62" stop-color="#5a3a8a"/><stop offset=".62" stop-color="#1b2a5a"/><stop offset="1" stop-color="#0a1230"/></linearGradient>
+     <linearGradient id="beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff2a8" stop-opacity=".9"/><stop offset="1" stop-color="#fff2a8" stop-opacity="0"/></linearGradient>` + GOLD('gC') + GLOW,
+    `<rect width="1024" height="1024" fill="url(#skyC)"/>${dots(34, '#fff', 600)}
+     <polygon points="660,360 40,170 40,560" fill="url(#beam)" opacity=".75"/>
+     <polygon points="${star(300, 250, 120, 50)}" fill="url(#gC)" stroke="#5a2a7a" stroke-width="10" stroke-linejoin="round" filter="url(#glow)"/>
+     ${spark(300, 250, 26, '#fff')}
+     <path d="M560 860 L610 420 L710 420 L760 860Z" fill="#f4f0ea"/>
+     <path d="M584 650 L736 650 L744 720 L576 720Z" fill="#e0485a"/><path d="M600 500 L720 500 L727 560 L593 560Z" fill="#e0485a"/>
+     <rect x="596" y="330" width="128" height="94" rx="10" fill="#3a2a6a"/>
+     <rect x="612" y="342" width="96" height="70" rx="8" fill="#fff2a8" filter="url(#glow)"/>
+     <path d="M584 332 L660 266 L736 332Z" fill="#e0485a"/>
+     <rect x="520" y="850" width="280" height="40" rx="12" fill="#2a2a4a"/>
+     <path d="M0 900 Q128 870 256 900 T512 900 T768 900 T1024 900 V1024 H0Z" fill="#14204a"/>
+     <path d="M0 950 Q128 920 256 950 T512 950 T768 950 T1024 950 V1024 H0Z" fill="#0a1230"/>
+     <path d="M120 760 q40 -18 80 0 M300 800 q40 -18 80 0 M820 780 q40 -18 80 0" stroke="#c0c8ff" stroke-opacity=".5" stroke-width="8" fill="none" stroke-linecap="round"/>`);
+}
+// ---------- D. 연희의 별 (글자) ----------
+function iconD() {
+  seed = 41;
+  return svg(`<linearGradient id="bD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a2f8a"/><stop offset="1" stop-color="#1a1440"/></linearGradient>` + GOLD('gD') + GLOW,
+    `<rect width="1024" height="1024" fill="url(#bD)"/>${dots(30)}
+     <polygon points="${star(512, 560, 420, 210)}" fill="url(#gD)" stroke="#5a2a7a" stroke-width="26" stroke-linejoin="round" filter="url(#glow)"/>
+     <text x="512" y="640" text-anchor="middle" font-family="Jua" font-size="240" fill="#5a2a7a">연희</text>
+     ${spark(820, 210, 70, '#fff2a8')}${spark(210, 260, 36, '#fff', .8)}`);
+}
+
+const ICONS = [
+  ['A', '여덟 번째 별', iconA, true, '이야기의 한가운데: 주인공 = 여덟 번째 별조각. 가운데 금빛 별(주인공)을 일곱 별조각(바람·생명·대지·태양·얼음·하늘·공허, 게임 속 색 그대로)이 둘러싼다. 처음부터 엔딩까지 모으는 것이 이 별조각들이라, 플레이한 사람이면 바로 알아본다.'],
+  ['B', '손등의 별 문양', iconB, false, '주인공 손등에 새겨진 별 문양. 엘마가 알아보고, 장이 바뀔 때마다 빛나는 그 표식을 문장(紋章)처럼. 여덟 갈래 별 = 여덟 번째 별, 둘레 일곱 점 = 일곱 별조각. 깔끔하고 작은 크기에서도 또렷하다.'],
+  ['C', '등대와 별', iconC, false, '시작은 엘마의 꺼져 가던 등대를 되살리는 일, 끝(히든 엔딩)은 등대 불빛과 녹스의 등불이 나란히 켜지는 장면. 이야기의 처음과 끝을 잇는 상징. 분위기는 가장 좋지만 작은 크기에서는 그림이 복잡해 보일 수 있다.'],
+  ['D', '연희의 별', iconD, false, '게임 이름 "과금없이 즐기는 연희의 RPG 대모험"과 타이틀 글씨(주아체 · 금빛→분홍)를 그대로 옮긴 글자 아이콘. 홈 화면에서 이름처럼 바로 읽힌다. 대신 게임 속 이야기와의 연결은 가장 약하다.'],
+];
+let h = '';
+for (const [k, nm, f, rec, why] of ICONS) {
+  const s = f();
+  h += `<div class="card ${rec ? 'rec' : ''}"><div class="big">${s}</div>
+    <div class="name"><b>${k}</b> ${nm}${rec ? '<span class="tag">추천</span>' : ''}</div><div class="why">${why}</div>
+    <div class="home"><div class="ap"><div class="sm" style="width:60px;height:60px">${s}</div>RPG 대모험</div>
+    <div class="ap"><div class="sm" style="width:44px;height:44px">${s}</div>작게</div></div></div>`;
+}
+document.getElementById('row').innerHTML = h;
+</script>
+</body>
+</html>
