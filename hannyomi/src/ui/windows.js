@@ -249,8 +249,9 @@ G.Title = {
     if (this.mode === 'juke') { this.renderJuke(); return; }
     if (this.mode) { this.renderSlots(); return; }
     const any = this.used().length > 0, S = G.Settings;
-    G.UI.overlay(`<div class="overlay" style="${this.BG}">
-      <h1>한요미의 대모험</h1><h2>아르셀리아 연대기 · 1.9 빌드 (튜토리얼 ~ 엔딩, Lv.1~100)</h2>
+    // 2.0: 새 제목 (주아 글씨체) + 이야기 배경 (src/ui/titlebg.js)
+    G.UI.overlay(`<div class="overlay title-ov" style="${this.BG}"><canvas class="title-bg" width="1280" height="720"></canvas>
+      <div class="ttl"><div class="t1">과금없이 즐기는</div><div class="t2">연희의 RPG 대모험!<span class="st">✦</span></div><div class="t3">아르셀리아 연대기</div></div>
       ${any ? '<button class="btn gold" data-act="title" data-arg="continue">이어하기</button>' : ''}
       <button class="btn ${any ? '' : 'gold'}" data-act="title" data-arg="new">새로 시작</button>
       <button class="btn" data-act="title" data-arg="help">조작법 (F1)</button>
@@ -261,6 +262,7 @@ G.Title = {
         <button class="btn sm" data-act="title" data-arg="sfx">효과음: ${S.sfx ? '켬' : '끔'}</button>
       </div>
       <div class="dim" style="margin-top:18px;font-size:12px">${window.electronAPI ? '저장 위치: 문서/Hannyomi/save_A.json · save_B.json · save_C.json' : '브라우저 저장소에 저장됩니다 (슬롯 3개)'}</div></div>`);
+    G.TitleBG.start(document.querySelector('#overlay .title-bg'));
   },
   // 음악 감상: 28곡 + 장 전환 효과음 8개
   JUKE: [
@@ -269,7 +271,7 @@ G.Title = {
     ['사냥터', ['f_sprout', 'f_wind', 'f_elen', 'f_rag', 'f_sahrin', 'f_frost', 'f_aeros', 'f_nox']],
     ['보스', ['b_shellock', 'b_bark', 'b_morwen', 'b_grounder', 'b_parakan', 'b_kaien', 'b_eldrick']],
     ['최종 보스 녹스', [['nox1', '1페이즈'], ['nox2', '2페이즈'], ['nox3', '3페이즈'], ['nox4', '광폭화']]],
-    ['엔딩', ['end_seal', 'end_purify']],
+    ['엔딩', ['end_seal', 'end_purify', 'end_hidden']],
   ],
   renderJuke() {
     const cur = G.Music.cur && G.Music.cur.id;
@@ -287,7 +289,7 @@ G.Title = {
   card(s, mode) {
     const info = G.Save.info(this.saves[s]), esc = G.U.esc;
     const pickable = mode === 'new' || !!info;
-    let h = `<div class="slot-card ${info ? '' : 'empty'}"><div class="sl">슬롯 ${s}${info && info.cleared ? '<span class="clr">★ 엔딩 클리어</span>' : ''}</div>`;
+    let h = `<div class="slot-card ${info ? '' : 'empty'}"><div class="sl">슬롯 ${s}${info && info.cleared ? '<span class="clr">★ 엔딩 클리어</span>' : ''}${info && info.hidden ? '<span class="clr hid">★ 히든 엔딩 클리어</span>' : ''}</div>`;
     if (info) {
       h += `<div class="nm">${esc(info.name)}</div><div class="jb">Lv.${info.level} ${esc(info.job)}</div>
         <div class="ln">📍 ${esc(info.where)}</div><div class="ln">📖 ${esc(info.chapter)}</div>
@@ -316,10 +318,17 @@ G.Title = {
     if (a === 'new') { this.mode = 'new'; this.render(); }
     if (a === 'back') { if (this.mode === 'juke') G.Music.play('title'); this.mode = null; this.ask = null; this.render(); }
     if (a === 'juke') { this.mode = 'juke'; this.render(); }
-    if (a === 'story') {   // 1.7.7: 배경 설명 다시 보기 (가장 최근 슬롯의 캐릭터 모습으로)
-      const s = this.latest(), d = s && this.saves[s] && (this.saves[s].d || this.saves[s]);
-      G.Cutscene.play('intro', () => { G.Music.play('title'); this.render(); }, { look: d && d.look ? d.look : {} });
+    if (a === 'story') {   // 1.7.7: 배경 설명 다시 보기 · 2.0: 히든 엔딩을 본 슬롯이 있으면 히든 엔딩 영상도 고를 수 있다 (두 영상 모두 주인공 = 연희)
+      const hid = this.used().some(s => { const d = this.saves[s].d || this.saves[s]; return d && d.flags && d.flags.hiddenClear; });
+      if (!hid) { G.Cutscene.play('intro', () => { G.Music.play('title'); this.render(); }); return; }
+      G.UI.overlay(`<div class="overlay title-ov" style="${this.BG}"><canvas class="title-bg" width="1280" height="720"></canvas>
+        <div class="ttl"><div class="t3">이야기 다시 보기</div></div>
+        <button class="btn gold" data-act="title" data-arg="story:intro">배경 설명</button>
+        <button class="btn" data-act="title" data-arg="story:hidden">✦ 히든 엔딩 · 함께 빛나는 별</button>
+        <button class="btn" data-act="title" data-arg="back">뒤로</button></div>`);
+      G.TitleBG.start(document.querySelector('#overlay .title-bg'));
     }
+    if (a === 'story:intro' || a === 'story:hidden') G.Cutscene.play(a.slice(6), () => { G.Music.play('title'); this.render(); });
     if (a.startsWith('song:')) { G.Music.play(a.slice(5), 0.6); this.render(); }
     if (a.startsWith('fx:')) { const k = a.slice(3); if (k === 'fanfare') G.Music.fanfare(); else G.Music.resonance(k); }
     if (a === 'bgm') { S.bgm = !S.bgm; S.save(); G.Audio.applyVolume(); this.render(); }

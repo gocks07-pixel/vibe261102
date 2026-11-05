@@ -30,8 +30,7 @@ G.BossAI = class {
         if (p.start) { this.pending = { id: p.start, at: this.time + 1.2 }; this.next = 99; }   // 1.7.2: 아우렐리온 천공 비상
         if (ph === 2 && d.assist && !this.assist.heal) {
           this.assist.heal = true;
-          const p2 = w.player;
-          setTimeout(() => { w.shout('엘마: 포기하지 마세요! 별빛이 당신을 지켜요! (HP 50% 회복)'); p2.heal(Math.round(p2.st.maxHP * 0.5)); G.FX.pillar(p2.x, p2.y, '#fff0a0'); }, 1500);
+          G.Assist.elma(w);   // 2.0: 엘마가 직접 나타나 회복 (컷인 + 등장)
         }
         // 1.7.2: 6장에서 풀려난 아우렐리온이 녹스 3단계에 한 번 돕는다 (사슬 한 번 더 → 기둥 1개를 별빛 숨결로 부숨)
         if (ph === 2 && d.assist && !this.assist.sky && G.Quest.isDone('c6_07')) {
@@ -41,8 +40,8 @@ G.BossAI = class {
     }
     if (d.assist && !this.assist.bind && r <= 0.15) {
       this.assist.bind = true;
-      w.shout('카이엔: 지금이다! 내가 녀석을 붙잡고 있겠다! (3초 그로기)');
-      m.groggy = 3; this.cur = null; this.cleanup(w);
+      this.cur = null; this.cleanup(w);
+      G.Assist.kaien(w, m);   // 2.0: 카이엔이 달려와 사슬로 결박 (컷인 + 등장, 달려오는 0.7초 + 결박 3초)
     }
     if (d.enrage && !this.enraged && this.time >= d.enrage) {
       this.enraged = true; m.atk *= 2;
@@ -217,15 +216,11 @@ G.BossAI = class {
           for (let i = 0; i < n; i++) c.pillars.push(w.spawnMinion(pt.mon || 'void_pillar', w.map.width * (0.15 + 0.7 * i / Math.max(1, n - 1))));
         }
         // 1.7.2: 녹스 3단계 — 하늘이 갈라지며 아우렐리온의 별빛 숨결이 기둥 하나를 부순다
-        if (c.sky && !c.helped && c.t >= 2.2) {
+        // 2.0: 날아와 기둥 위에 멈춰 브레스를 직접 쏘고 퇴장 (컷인 + 등장, 기둥은 1.45초 뒤 부서짐)
+        if (c.sky && !c.helped && c.t >= 1.0) {
           c.helped = true;
           const tg = c.pillars.find(x => !x.dead);
-          w.flyby = { t: 0, dur: 2.6 };
-          if (tg) {
-            G.FX.add({ k: 'cut', x: tg.x - 40, y: 0, w: 80, h: G.GROUND_Y, life: 0.6, glow: true });
-            G.FX.flash(tg.x, tg.y - 70, 260, '#fff0b0', 0.4); G.FX.burst(tg.x, tg.y - 60, '#fff0b0', 30, 360); tg.die(w);
-          }
-          G.UI.banner('아우렐리온: 지금이다, 여덟 번째 별이여!', '별빛 숨결이 사슬 기둥 하나를 부쉈다!', 'shout'); w.shake(10);
+          if (tg) G.Assist.aurelion(w, tg);
         }
         const alive = c.pillars.filter(x => !x.dead).length;
         if (alive === 0) {

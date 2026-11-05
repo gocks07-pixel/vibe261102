@@ -124,6 +124,7 @@ G.Save = {
       time: data.time ? this.timeText(data.time) : '',
       cleared: !!(d.flags && d.flags.cleared),
       ending: d.ending,
+      hidden: !!(d.flags && d.flags.hiddenClear),
     };
   },
   timeText(t) {

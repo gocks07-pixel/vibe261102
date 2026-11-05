@@ -10,7 +10,7 @@ G.World = class {
     const map = G.MAPS[mapId], pl = this.player;
     // 1.7.2: 2단계 보스 체크포인트는 살아서 보스방을 나가면 사라진다 (쓰러져서 마을로 가면 유지)
     if (this.mapId && this.mapId !== mapId && this.game.ckpt === this.mapId && !this.game.reviving) this.game.ckpt = null;
-    this.flyby = null; this.noxEnd = null;
+    this.flyby = null; this.noxEnd = null; this.allies = []; this.cutins = [];
     this.map = map; this.mapId = mapId; this.platforms = map.platforms;
     this.monsters = []; this.projectiles = []; this.drops = []; this.teles = []; this.smoke = null;
     this.zone = null; this.pull = null; this.doom = null; this.half = null; this.bossT = 0; this.mzones = [];
@@ -268,6 +268,7 @@ G.World = class {
     if (this.smoke) { this.smoke.left -= dt; if (this.smoke.left <= 0) this.smoke = null; }
     this.updateBossFields(dt);
     G.MonSkill.updateWorld(dt, this);
+    G.Assist.update(dt, this);   // 2.0 녹스전 동료
     if (this.flyby) { this.flyby.t += dt; if (this.flyby.t >= this.flyby.dur) this.flyby = null; }
     if (this.noxEnd) { const e = this.noxEnd; e.t += dt; if (!e.lit && e.t > 1.2) { e.lit = true; G.Sound.play('lantern'); }   // 1.8 등불이 켜지는 소리
       if (!e.said && e.t > 2.6) { e.said = true; G.UI.banner('녹스', '…따뜻하구나. 이것이… 별빛인가.'); } }
@@ -442,6 +443,7 @@ G.World = class {
     }
     for (const dr of this.drops) dr.draw(ctx);
     for (const m of this.monsters) m.draw(ctx);
+    G.Assist.drawWorld(ctx, this);
     p.draw(ctx);
     this.nameTag(ctx, p.x, p.y + 6, p.d.name, '#ffffff');
     for (const pr of this.projectiles) pr.draw(ctx);
@@ -467,6 +469,7 @@ G.World = class {
     }
     G.Nav.draw(ctx, this);
     if (G.Settings.minimap) this.drawMinimap(ctx);
+    G.Assist.drawScreen(ctx, this);   // 2.0 동료 컷인 (미니맵 위)
     const boss = this.monsters.find(m => m.isBoss && !m.dead);
     if (boss) {
       const w = 600, x = 340, y = 52;

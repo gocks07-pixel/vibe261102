@@ -1,0 +1,206 @@
+<title>연희의 타이틀 화면 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&family=Gamja+Flower&family=Cute+Font&family=Noto+Sans+KR:wght@400;600;800&display=swap">
+<style>
+/* 타이틀 화면 시안: 위 = 실제 화면 비율(16:9) 미리보기, 아래 = 글씨체 4종 나란히. 게임과 같은 밤하늘 톤 단일 테마 */
+:root {
+  color-scheme: dark;
+  --night: #0d1124; --panel: #161c36; --line: #2c355c; --ink: #e9ecf8; --dim: #9aa3c7; --gold: #ffd36a; --pink: #ffb3d6;
+  --body: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  --title: 'Jua', 'Noto Sans KR', sans-serif;
+}
+body { background: var(--night); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 26px 48px; }
+h1 { font-size: 22px; margin: 0; color: var(--gold); font-weight: 800; text-wrap: balance; }
+.sub { color: var(--dim); margin: 4px 0 0; max-width: 66ch; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0 12px; }
+.bar span { color: var(--dim); font-size: 13px; margin-right: 2px; }
+.bar button { font-family: var(--body); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: #1e2546; color: var(--ink); font-weight: 600; cursor: pointer; }
+.bar button.on { background: #6b5214; border-color: var(--gold); }
+.bar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* 미리보기 화면 */
+.screen { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); container-type: inline-size; background: #0a0e22; }
+.screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ov { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding-top: 7cqw; gap: 0.9cqw; pointer-events: none; }
+.t1 { font-family: var(--title); font-size: 3.1cqw; color: #fff4d8; letter-spacing: 0.06em; text-shadow: 0 0.25cqw 0 #3a2a6a, 0 0 1.4cqw rgba(255,200,240,.6); transform: rotate(-2deg); }
+.t2 { font-family: var(--title); font-size: 7.2cqw; line-height: 1; letter-spacing: 0.02em; white-space: nowrap;
+  background: linear-gradient(#fff7c8 10%, #ffd36a 48%, #ff9ac8 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0.35cqw 0 #5a2a7a) drop-shadow(0 0 1.2cqw rgba(255,190,120,.55)); animation: bob 3.2s ease-in-out infinite; }
+.t2 .st { display: inline-block; color: #fff2a8; -webkit-text-fill-color: #fff2a8; animation: tw 1.6s ease-in-out infinite; font-size: 0.6em; vertical-align: 0.5em; margin-left: 0.15em; }
+.t3 { font-family: var(--body); font-size: 1.55cqw; color: #c8d0f0; letter-spacing: 0.2em; margin-top: 0.4cqw; }
+.btns { display: flex; flex-direction: column; gap: 0.8cqw; margin-top: 1.6cqw; align-items: center; }
+.btns div { font-family: var(--body); font-weight: 600; font-size: 1.45cqw; color: #f0f2ff; width: 16cqw; text-align: center; padding: 0.6cqw 0; border-radius: 0.6cqw; background: rgba(36,44,86,.86); border: 1px solid #4a5490; }
+.btns div.main { background: #6b5214; border-color: #c9a33a; }
+.btns div.test { background: #1d4a2a; border-color: #3f8a52; width: auto; padding-inline: 1.6cqw; white-space: nowrap; }
+@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-0.5cqw) } }
+@keyframes tw { 0%, 100% { opacity: 1; transform: scale(1) } 50% { opacity: .55; transform: scale(.8) } }
+@media (prefers-reduced-motion: reduce) { .t2, .t2 .st { animation: none } }
+.note { color: var(--dim); font-size: 13px; margin: 8px 0 0; }
+section { margin-top: 30px; }
+h2 { font-size: 13px; letter-spacing: 3px; color: var(--pink); margin: 0 0 10px; font-weight: 800; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
+.fc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 12px; cursor: pointer; text-align: left; color: var(--ink); font-family: var(--body); }
+.fc.on { border-color: var(--gold); }
+.fc:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.fc .s { font-size: 18px; color: #fff4d8; display: block; }
+.fc .b { font-size: 34px; line-height: 1.15; color: var(--gold); display: block; margin: 2px 0 8px; }
+.fc b { font-size: 14px; display: block; }
+.fc small { color: var(--dim); font-size: 12.5px; display: block; }
+ul.parts { margin: 8px 0 0; padding-left: 20px; color: var(--ink); max-width: 66ch; }
+ul.parts li { margin: 3px 0; }
+</style>
+<div class="wrap">
+  <h1>타이틀 화면 시안</h1>
+  <p class="sub">게임 제목을 "과금없이 즐기는 연희의 RPG 대모험!"으로 바꾸고, 배경을 이야기에 맞게 꾸민 시안이에요. 글씨체를 눌러서 바꿔 볼 수 있어요. 버튼은 모양만 보여 주는 그림이에요.</p>
+  <div class="bar" role="toolbar" aria-label="글씨체 선택"><span>글씨체</span>
+    <button type="button" data-f="Jua" class="on">주아</button><button type="button" data-f="Gaegu">개구</button>
+    <button type="button" data-f="Gamja Flower">감자꽃</button><button type="button" data-f="Cute Font">큐트폰트</button>
+  </div>
+  <div class="screen" id="screen">
+    <canvas id="bg" width="1280" height="720" aria-label="타이틀 배경: 별이 뜬 밤하늘, 일곱 별자리, 먼 등불, 새싹항 등대와 바다, 별을 올려다보는 연희"></canvas>
+    <div class="ov">
+      <div class="t1">과금없이 즐기는</div>
+      <div class="t2">연희의 RPG 대모험!<span class="st">✦</span></div>
+      <div class="t3">아르셀리아 연대기</div>
+      <div class="btns"><div class="main">이어하기</div><div>새로 시작</div><div class="test">🛠 테스트 모드 (Lv.100 4차 직업)</div><div>조작법 (F1)</div><div>♪ 음악 감상</div><div>✦ 이야기 다시 보기</div></div>
+    </div>
+  </div>
+  <p class="note">실제 게임 화면 비율(16:9) 그대로예요. 별이 반짝이고, 가끔 별조각이 떨어지고, 등대 불빛이 돌아가요.</p>
+  <ul class="parts">
+    <li>왼쪽 위 일곱 개의 별을 이은 별자리: 일곱 영웅</li>
+    <li>오른쪽 하늘의 은은한 등불: 녹스 (히든 엔딩 복선)</li>
+    <li>가끔 떨어지는 별조각: 이야기의 시작</li>
+    <li>새싹항 바다와 등대: 게임을 시작하는 곳</li>
+    <li>바닷가에서 별을 올려다보는 연희: 게임 속 연희 NPC와 같은 그리기 코드</li>
+  </ul>
+  <section>
+    <h2>글씨체 4종 (눌러서 위 화면에 적용)</h2>
+    <div class="grid" id="fonts"></div>
+  </section>
+</div>
+<script src="src/util.js"></script>
+<script src="src/data/formulas.js"></script>
+<script src="src/core/settings.js"></script>
+<script src="src/data/jobs.js"></script>
+<script src="src/data/looks.js"></script>
+<script src="src/data/skills.js"></script>
+<script src="src/data/jobs2.js"></script>
+<script src="src/data/options.js"></script>
+<script src="src/data/items.js"></script>
+<script src="src/data/sets.js"></script>
+<script src="src/data/sfx.js"></script>
+<script src="src/data/monsters.js"></script>
+<script src="src/data/bosses.js"></script>
+<script src="src/data/npcs.js"></script>
+<script src="src/data/quests.js"></script>
+<script src="src/data/maps.js"></script>
+<script src="src/data/world2.js"></script>
+<script src="src/data/story2.js"></script>
+<script src="src/data/story3.js"></script>
+<script src="src/data/rework.js"></script>
+<script src="src/data/songs.js"></script>
+<script src="src/render/icons.js"></script>
+<script src="src/render/icons2.js"></script>
+<script src="src/render/sprites.js"></script>
+<script src="src/render/outfit.js"></script>
+<script>
+(function () {
+  const FONTS = [['Jua', '주아', '동글동글하고 굵어서 제목에 잘 어울려요 (추천)'], ['Gaegu', '개구', '손으로 쓴 듯한 글씨'],
+                 ['Gamja Flower', '감자꽃', '아이가 쓴 듯한 삐뚤빼뚤한 글씨'], ['Cute Font', '큐트폰트', '가늘고 귀여운 글씨']];
+  const root = document.documentElement, grid = document.getElementById('fonts');
+  function setFont(f) {
+    root.style.setProperty('--title', `'${f}', 'Noto Sans KR', sans-serif`);
+    document.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === f));
+  }
+  for (const [f, ko, desc] of FONTS) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'fc'; b.dataset.f = f;
+    const s = document.createElement('span'); s.className = 's'; s.textContent = '과금없이 즐기는'; s.style.fontFamily = `'${f}', sans-serif`;
+    const big = document.createElement('span'); big.className = 'b'; big.textContent = '연희의 RPG 대모험!'; big.style.fontFamily = `'${f}', sans-serif`;
+    const n = document.createElement('b'); n.textContent = ko;
+    const sm = document.createElement('small'); sm.textContent = desc;
+    b.append(s, big, n, sm); grid.append(b);
+  }
+  document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => setFont(b.dataset.f)));
+  setFont('Jua');
+
+  // ---------------- 배경 (1280×720) ----------------
+  const cv = document.getElementById('bg'), c = cv.getContext('2d'), W = 1280, H = 720, SEA = 520;
+  const rnd = (s => () => (s = (s * 16807) % 2147483647) / 2147483647)(7);
+  const stars = Array.from({ length: 170 }, () => ({ x: rnd() * W, y: rnd() * SEA * 0.92, r: 0.6 + rnd() * 1.6, p: rnd() * 6, s: 0.6 + rnd() * 1.8 }));
+  const CON = [[120, 120], [190, 92], [262, 118], [318, 86], [386, 112], [352, 172], [270, 190]];   // 일곱 영웅 별자리
+  const look = Object.assign({ skin: '#ffe0c2', gender: 'f' }, (G.NPCS.yeonhee_rag || {}).look);
+  let fall = null, nextFall = 1.5;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function glow(x, y, r, col, a) {
+    const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.globalAlpha = a; c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); c.globalAlpha = 1;
+  }
+  function star4(x, y, r, col) {
+    c.fillStyle = col; c.beginPath();
+    for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 ? r * 0.3 : r; c.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+    c.closePath(); c.fill();
+  }
+  function draw(t) {
+    // 하늘
+    const sky = c.createLinearGradient(0, 0, 0, SEA); sky.addColorStop(0, '#070a1e'); sky.addColorStop(0.55, '#151a44'); sky.addColorStop(1, '#3a2f62');
+    c.fillStyle = sky; c.fillRect(0, 0, W, SEA);
+    glow(W * 0.5, SEA, 520, 'rgba(255,170,200,.35)', 0.5);   // 수평선 빛
+    for (const s of stars) { const a = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * s.s + s.p)); c.globalAlpha = a; c.fillStyle = '#eef2ff'; c.beginPath(); c.arc(s.x, s.y, s.r, 0, 7); c.fill(); }
+    c.globalAlpha = 1;
+    // 일곱 영웅 별자리
+    c.strokeStyle = 'rgba(190,215,255,.35)'; c.lineWidth = 1.4; c.setLineDash([4, 6]); c.beginPath();
+    CON.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke(); c.setLineDash([]);
+    CON.forEach(([x, y], i) => { const k = 0.8 + 0.2 * Math.sin(t * 1.4 + i); glow(x, y, 16, 'rgba(200,225,255,.9)', 0.45 * k); star4(x, y, 6 * k, '#f4f8ff'); });
+    // 녹스의 등불 (먼 하늘)
+    const lx = 1060, ly = 150 + Math.sin(t * 0.8) * 5, fl = 0.85 + 0.15 * Math.sin(t * 3.1);
+    glow(lx, ly, 90, 'rgba(255,200,110,.75)', 0.45 * fl);
+    c.fillStyle = '#2a1a3a'; c.fillRect(lx - 1, ly - 22, 2, 9);
+    c.fillStyle = 'rgba(255,214,140,.92)'; c.beginPath(); c.ellipse(lx, ly, 8, 11, 0, 0, 7); c.fill();
+    c.strokeStyle = '#5a3a2a'; c.lineWidth = 1.5; c.stroke();
+    // 떨어지는 별조각
+    if (!reduce) {
+      nextFall -= 1 / 60;
+      if (!fall && nextFall <= 0) fall = { x: 520 + rnd() * 600, y: 30, k: 0 };
+      if (fall) {
+        fall.k += 1 / 60; const x = fall.x - fall.k * 340, y = fall.y + fall.k * 190, a = Math.max(0, 1 - fall.k / 1.3);
+        const tr = c.createLinearGradient(x, y, x + 120, y - 67); tr.addColorStop(0, `rgba(255,240,190,${a})`); tr.addColorStop(1, 'rgba(255,240,190,0)');
+        c.strokeStyle = tr; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 120, y - 67); c.stroke();
+        glow(x, y, 18, 'rgba(255,240,190,1)', a * 0.8); star4(x, y, 5, `rgba(255,250,220,${a})`);
+        if (fall.k > 1.3) { fall = null; nextFall = 4 + rnd() * 4; }
+      }
+    }
+    // 바다
+    const sea = c.createLinearGradient(0, SEA, 0, H); sea.addColorStop(0, '#1e2f62'); sea.addColorStop(1, '#0a1230');
+    c.fillStyle = sea; c.fillRect(0, SEA, W, H - SEA);
+    for (let i = 0; i < 26; i++) {
+      const y = SEA + 10 + (i % 7) * 20 + (i % 3) * 3, x = (i * 173 + t * 14 * (1 + i % 3)) % (W + 120) - 60;
+      c.strokeStyle = `rgba(190,215,255,${0.12 + (i % 4) * 0.05})`; c.lineWidth = 1.5; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 40 + (i % 5) * 8, y); c.stroke();
+    }
+    c.globalAlpha = 0.3; c.fillStyle = '#ffd6a0'; for (let i = 0; i < 6; i++) c.fillRect(lx - 14 + Math.sin(t * 2 + i) * 6, SEA + 14 + i * 14, 28 - i * 3, 2); c.globalAlpha = 1;   // 등불 물그림자
+    // 등대 (왼쪽 곶)
+    c.fillStyle = '#141a33'; c.beginPath(); c.moveTo(0, SEA - 30); c.quadraticCurveTo(120, SEA - 62, 250, SEA - 10); c.lineTo(290, SEA + 40); c.lineTo(0, SEA + 60); c.closePath(); c.fill();
+    const hx = 130, hy = SEA - 50;
+    const beam = Math.sin(t * 0.9);
+    { // 등대 불빛: 램프에서 퍼지는 부드러운 빛줄기가 천천히 좌우로 돈다
+      const bx = hx, by = hy - 131, dx = 560 * beam, a = 0.1 + 0.16 * Math.abs(beam);
+      const bg = c.createLinearGradient(bx, by, bx + dx, by - 40); bg.addColorStop(0, `rgba(255,242,190,${a * 2})`); bg.addColorStop(1, 'rgba(255,242,190,0)');
+      c.fillStyle = bg; c.beginPath(); c.moveTo(bx, by - 3); c.lineTo(bx + dx, by - 70); c.lineTo(bx + dx, by + 10); c.lineTo(bx, by + 3); c.closePath(); c.fill();
+    }
+    c.fillStyle = '#e8e0d0'; c.beginPath(); c.moveTo(hx - 22, hy); c.lineTo(hx + 22, hy); c.lineTo(hx + 13, hy - 120); c.lineTo(hx - 13, hy - 120); c.closePath(); c.fill();
+    c.fillStyle = '#c0503f'; for (const k of [30, 74]) { c.beginPath(); c.moveTo(hx - 20 + k / 120 * 9, hy - k); c.lineTo(hx + 20 - k / 120 * 9, hy - k); c.lineTo(hx + 19 - (k + 16) / 120 * 9, hy - k - 16); c.lineTo(hx - 19 + (k + 16) / 120 * 9, hy - k - 16); c.closePath(); c.fill(); }
+    c.fillStyle = '#2a2a3a'; c.fillRect(hx - 15, hy - 140, 30, 20);
+    glow(hx, hy - 130, 40, 'rgba(255,236,160,1)', 0.7); c.fillStyle = '#fff4c0'; c.fillRect(hx - 9, hy - 138, 18, 14);
+    c.fillStyle = '#5a3a2a'; c.beginPath(); c.moveTo(hx - 18, hy - 140); c.lineTo(hx + 18, hy - 140); c.lineTo(hx, hy - 160); c.closePath(); c.fill();
+    // 모래사장 + 연희
+    const sand = c.createLinearGradient(0, 640, 0, H); sand.addColorStop(0, '#c9b089'); sand.addColorStop(1, '#a88e6a');
+    c.fillStyle = sand; c.beginPath(); c.moveTo(780, H); c.quadraticCurveTo(900, 628, 1280, 636); c.lineTo(1280, H); c.closePath(); c.fill();
+    for (const [x, y] of [[990, 690], [1160, 676], [1220, 702]]) { c.fillStyle = '#f4d8e4'; c.beginPath(); c.ellipse(x, y, 5, 3, 0.4, 0, 7); c.fill(); }   // 조개
+    try { G.Draw.humanoid(c, { x: 1080, y: 676, dir: 1, t, moving: false, air: false, atk: -1, look, scale: 2.1, weapon: null }); }
+    catch (e) { console.error(e); }
+    // 연희 머리 위 작은 별 (올려다보는 별)
+    glow(1150, 470, 26, 'rgba(255,240,200,.9)', 0.5 + 0.2 * Math.sin(t * 2)); star4(1150, 470, 8, '#fffbe6');
+  }
+  function frame(now) { draw(now / 1000); if (!reduce) requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+})();
+</script>

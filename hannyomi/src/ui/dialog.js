@@ -18,6 +18,7 @@ G.Dialog = {
       label: `${e.q.type === 'main' ? '★ [메인]' : '◆ [서브]'} ${e.q.name}${e.mode === 'end' ? ' (완료 가능)' : e.mode === 'progress' ? ' (진행 중)' : ''}`,
       fn: () => this.quest(e),
     }));
+    if (npcId === 'elma_nox') opts.unshift(...G.Hidden.elmaOpts(this));   // 2.0 별조각의 기억 / 속삭임
     if (pick) opts.unshift({ label: `✦ 영웅의 갑옷 고르기 (남은 ${p.d.flags.heroPick}개)`, fn: () => { this.close(); G.UI.openWin('heroset'); } });
     if (n.shop) opts.push({ label: '🛒 상점 열기', fn: () => { this.close(); G.UI.openShop(npcId); } });
     if (n.shop && n.shop.some(id => G.ITEMS[id] && G.ITEMS[id].cat === 'equip')) opts.push({ label: '🔨 장비 단련 (골드로 단련 효과 다시 굴리기)', fn: () => { this.close(); G.UI.setTarget('smith', null); } });
@@ -39,7 +40,9 @@ G.Dialog = {
       const prog = q.obj.map(o => '• ' + G.Quest.objText(q, o)).join('\n');
       this.show({ text: (q.dlg.progress || '아직 끝나지 않은 것 같은데?') + (prog ? '\n' + prog : ''), title: q.name, opts: [{ label: '확인', fn: () => this.close() }] });
     } else if (q.choice) {   // 엔딩 선택
-      this.seq(q.dlg.end, q, q.choice.map(c => ({ label: c.label, fn: () => { if (G.Quest.complete(q.id)) { this.close(); G.Ending.play(c.ending); } } })));
+      // 2.0: 히든 엔딩 조건을 다 채우면 금색 세 번째 버튼, 못 채웠으면 엘마가 귀띔
+      const lines = G.Hidden.ready() ? q.dlg.end : [G.Hidden.WHISPER].concat(q.dlg.end);
+      this.seq(lines, q, G.Hidden.choices(q).map(c => ({ label: c.label, gold: c.gold, fn: () => { if (G.Quest.complete(q.id)) { this.close(); G.Ending.play(c.ending); } } })));
     } else {
       this.seq(q.dlg.end, q, [{ label: '완료', fn: () => { if (G.Quest.complete(q.id)) this.close(); } }]);
     }
@@ -88,7 +91,7 @@ G.Dialog = {
       <div class="wb"><canvas class="por" width="96" height="120"></canvas>
       <div class="txt"><div class="who">${who}</div><div class="line ${me ? 'me' : ''}">${G.U.esc(text)}</div>
       ${reward ? `<div class="rew">보상: ${G.U.esc(reward)}</div>` : ''}
-      <div class="opts ${list ? 'list' : ''}">${opts.map((o, i) => `<button class="btn ${i === 0 && !list ? 'gold' : ''}" data-act="dlg" data-arg="${i}">${G.U.esc(o.label)}</button>`).join('')}</div></div></div>`;
+      <div class="opts ${list ? 'list' : ''}">${opts.map((o, i) => `<button class="btn ${(i === 0 && !list) || o.gold ? 'gold' : ''}${o.gold ? ' hid-gold' : ''}" data-act="dlg" data-arg="${i}">${G.U.esc(o.label)}</button>`).join('')}</div></div></div>`;
     const c = this.el.querySelector('canvas').getContext('2d');
     const g = c.createLinearGradient(0, 0, 0, 120); g.addColorStop(0, '#2a3456'); g.addColorStop(1, '#0e1220');
     c.fillStyle = g; c.fillRect(0, 0, 96, 120);

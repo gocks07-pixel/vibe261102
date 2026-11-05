@@ -85,6 +85,7 @@ G.Quest = {
     G.UI.dirty();
     G.Game.save(true);
     G.Chapter.onQuest(id);
+    G.Hidden.onQuestDone(id);   // 2.0 히든 엔딩 조건 공명
     return true;
   },
 

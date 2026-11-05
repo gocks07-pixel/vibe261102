@@ -25,7 +25,10 @@
     echo: () => Object.assign({ skin: '#cfe6ff' }, G.NPCS.astra.look),
   };
   const person = (c, who, x, y, s = 1.4, dir = 1, extra = {}) => {
-    if (who === 'hero') { G.Draw.humanoid(c, Object.assign({ x, y, dir, t: 1, atk: -1, scale: s }, G.Cutscene.hero(), extra)); return; }
+    if (who === 'hero') {   // 2.0: 장면마다 눈 지정 (기본 또렷한 눈, "다시, 하늘을"만 웃는 눈)
+      const h = G.Cutscene.hero(), look = Object.assign({}, h.look, { eye: G.Cutscene.eye || 'round' });
+      G.Draw.humanoid(c, Object.assign({ x, y, dir, t: 1, atk: -1, scale: s }, h, { look }, extra)); return;
+    }
     const look = typeof LOOK[who] === 'function' ? LOOK[who]() : LOOK[who];
     G.Draw.humanoid(c, Object.assign({ x, y, dir, t: 1, look, atk: -1, scale: s }, extra));
   };
@@ -180,7 +183,10 @@
 //  G.Cutscene.play(kind, done, opt)  kind: intro | seal | purify | hidden
 //  장면마다 천천히 확대 + 별 반짝임 + 페이드, 화면 아래 멘트. 아무 키·클릭 = 다음 장면, Esc = 건너뛰기
 G.Cutscene = {
-  MUSIC: { intro: 'title', seal: 'end_seal', purify: 'end_purify', hidden: 'end_purify' },
+  MUSIC: { intro: 'title', seal: 'end_seal', purify: 'end_purify', hidden: 'end_hidden' },
+  EYE: { '다시, 하늘을': 'smile' },   // 2.0: 장면 제목 → 주인공 눈 (없으면 또렷한 눈)
+  YEONHEE: ['intro', 'hidden'],       // 2.0: 이 영상들의 주인공은 연희
+  eye: 'round',
   DUR: 7.5, FADE: 0.9,
   heroOpt: null,
   hero() { return this.heroOpt || (G.Game.player ? G.Game.player.look() : { look: G.LOOKS.toDraw(G.LOOKS.normalize({})) }); },
@@ -189,7 +195,8 @@ G.Cutscene = {
     const list = G.SCENES[kind];
     if (!list) { if (done) done(); return; }
     this.stop();
-    this.heroOpt = opt.look ? { look: G.LOOKS.toDraw(G.LOOKS.normalize(opt.look)) } : null;
+    this.heroOpt = this.YEONHEE.includes(kind) ? { look: Object.assign({ skin: '#ffe0c2' }, G.NPCS.yeonhee_rag.look) }
+      : opt.look ? { look: G.LOOKS.toDraw(G.LOOKS.normalize(opt.look)) } : null;
     if (this.MUSIC[kind]) G.Music.play(this.MUSIC[kind], 1.5);
     G.UI.overlay(`<div class="overlay cutscene"><canvas id="cutCv" width="1280" height="720"></canvas>
       <div class="cut-cap" id="cutCap"></div><div class="cut-hint">아무 키: 다음 · Esc: 건너뛰기</div></div>`);
@@ -206,6 +213,7 @@ G.Cutscene = {
   showCap() {
     const c = this.cur, el = document.getElementById('cutCap'); if (!el) return;
     const [title, text] = c.list[c.i];
+    this.eye = this.EYE[title] || 'round';
     el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
     el.innerHTML = `<b>${G.U.esc(title)}</b>${G.U.esc(text)}`;
   },

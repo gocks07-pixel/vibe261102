@@ -367,16 +367,26 @@
         { drum: 'shaker', pat: 'o x o x o x o x', vol: 0.45 },
       ],
     },
+    end_hidden: {   // 2.0 히든 · 함께 빛나는 별: 메인 테마를 오르골 + 현악으로 따뜻하게
+      key: 'D', mode: 'major', bpm: 76, sub: 2, prog: THEME_PROG,
+      parts: [
+        { mel: THEME, inst: 'musicbox', oct: 5, vol: 1 },
+        { mel: THEME, inst: 'strings', oct: 4, vol: 0.4, from: 8 },
+        { gen: 'pad', inst: 'strings', oct: 3, vol: 0.75 },
+        { gen: 'arp', pat: '1 5 3 5 1 5 3 5', inst: 'harp', oct: 4, vol: 0.32 },
+        { gen: 'bass', pat: 'R - - - F - - -', inst: 'bass', oct: 2, vol: 0.5 },
+      ],
+    },
   };
   // 곡마다 체감 음량을 맞추는 배율 (오프라인 렌더링으로 측정한 평균 음량 기준)
   // 1.8: 라그하르트 · 프로스트벨 · 아에로스 · 눈보라는 악기를 바꾼 뒤 음량을 다시 맞춤 (전후 RMS 측정)
-  G.SONG_GAIN = {title: 0.67, tutorial: 0.92, t_sprout: 1.08, t_wind: 0.55, t_elen: 0.61, t_rag: 1.62, t_sahrin: 0.97, t_frost: 0.76, t_aeros: 0.66, t_nox: 0.55, f_sprout: 1.38, f_wind: 1.25, f_elen: 0.61, f_rag: 1.38, f_sahrin: 0.81, f_frost: 1.04, f_aeros: 0.71, f_nox: 1.28, b_shellock: 1.34, b_bark: 1.43, b_morwen: 1.01, b_grounder: 1.24, b_parakan: 0.69, b_kaien: 1.52, b_eldrick: 0.65, nox1: 1.6, nox2: 1.36, nox3: 1.17, nox4: 1.01, end_seal: 0.6, end_purify: 0.71};
+  G.SONG_GAIN = {title: 0.67, tutorial: 0.92, t_sprout: 1.08, t_wind: 0.55, t_elen: 0.61, t_rag: 1.62, t_sahrin: 0.97, t_frost: 0.76, t_aeros: 0.66, t_nox: 0.55, f_sprout: 1.38, f_wind: 1.25, f_elen: 0.61, f_rag: 1.38, f_sahrin: 0.81, f_frost: 1.04, f_aeros: 0.71, f_nox: 1.28, b_shellock: 1.34, b_bark: 1.43, b_morwen: 1.01, b_grounder: 1.24, b_parakan: 0.69, b_kaien: 1.52, b_eldrick: 0.65, nox1: 1.6, nox2: 1.36, nox3: 1.17, nox4: 1.01, end_seal: 0.6, end_purify: 0.71, end_hidden: 0.97};
   // 곡 제목 (설정 화면 / 확인용)
   G.SONG_NAMES = {
     title: '별조각의 계승자', tutorial: '꿈속의 해변',
     t_sprout: '새싹항', t_wind: '바람결 마을', t_elen: '엘렌하임', t_rag: '라그하르트', t_sahrin: '사하린', t_frost: '프로스트벨', t_aeros: '아에로스', t_nox: '녹스게이트',
     f_sprout: '새싹항 섬', f_wind: '바람결 지방', f_elen: '은빛숲', f_rag: '광산 지대', f_sahrin: '모래바다', f_frost: '눈보라', f_aeros: '하늘섬', f_nox: '공허',
     b_shellock: '쉘로크', b_bark: '붉은손 바르크', b_morwen: '모르웬', b_grounder: '그라운더 MK-7', b_parakan: '파라칸', b_kaien: '카이엔', b_eldrick: '엘드리크',
-    nox1: '녹스', end_seal: '희생 · 영원한 별', end_purify: '구원 · 새로운 별',
+    nox1: '녹스', end_seal: '희생 · 영원한 별', end_purify: '구원 · 새로운 별', end_hidden: '히든 · 함께 빛나는 별',
   };
 })();

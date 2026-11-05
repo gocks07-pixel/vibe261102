@@ -19,7 +19,7 @@ function migrate() {
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280, height: 720, useContentSize: true, minWidth: 960, minHeight: 540,
-    backgroundColor: '#07090f', autoHideMenuBar: true, title: '한요미의 대모험',
+    backgroundColor: '#07090f', autoHideMenuBar: true, title: 'RPG 대모험_HC',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
   win.setMenuBarVisibility(false);

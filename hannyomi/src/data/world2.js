@@ -256,7 +256,7 @@
   N('elma_nox', '엘마', '영웅의 후손', G.NPCS.elma.look, { greet: ['당신과 함께라면 무섭지 않아요.'] });
   N('kaien_nox', '카이엔', '동료', G.NPCS.kaien.look, { greet: ['이번엔 등 뒤를 맡겨도 좋다.'] });
   // 1.7.12 연희: 별 이야기를 모으는 소녀 (라그하르트 → 녹스게이트). pin = 별 머리핀 색 (world.js에서 그림)
-  const YEONHEE = { hair: '#a8744a', top: '#8ec8f0', bottom: '#5a8ab8', style: 'long', eyeColor: '#6a4a3a' };
+  const YEONHEE = { hair: '#a8744a', top: '#8ec8f0', bottom: '#5a8ab8', style: 'long', gender: 'f', eyeColor: '#6a4a3a' };   // 2.0 여자 (치마 + 속눈썹)
   N('yeonhee_rag', '연희', '별 이야기를 모으는 소녀', YEONHEE, { pin: '#ffd84a',
     greet: ['세상엔 아직 아무도 모르는 별 이야기가 잔뜩 있대요!', '광부 아저씨들한테 옛날이야기를 듣고 있었어요. 별조각 이야기는 언제 들어도 두근거려요!'] });
   N('yeonhee_nox', '연희', '별 이야기를 모으는 소녀', YEONHEE, { pin: '#ffd84a',
