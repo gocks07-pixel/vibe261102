@@ -16,3 +16,7 @@ __pycache__/
 
 # S&P 500 분석 결과물 (sp500_analysis.py 실행 시 생성)
 sp500_output/
+
+# 배포판 만들기 도구 (hannyomi/tools) 설치 파일
+hannyomi/tools/node_modules/
+hannyomi/tools/package-lock.json

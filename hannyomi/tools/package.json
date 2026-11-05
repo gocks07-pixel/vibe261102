@@ -1,0 +1,8 @@
+{
+  "name": "hannyomi-web-build",
+  "private": true,
+  "description": "배포판(웹) 만들기 도구 — 게임에는 들어가지 않는다. 사용: npm install → node build_web.js <출력 폴더>",
+  "devDependencies": {
+    "terser": "5.36.0"
+  }
+}

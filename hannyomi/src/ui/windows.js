@@ -264,7 +264,7 @@ G.Title = {
         <button class="btn sm" data-act="title" data-arg="sfx">효과음: ${S.sfx ? '켬' : '끔'}</button>
       </div>
       <div class="dim" style="margin-top:18px;font-size:12px">${window.electronAPI ? `저장 위치: 문서/RPG Adventure/${G.IS_DEV ? 'Save Data (DEV)' : 'Save Data'}` : '브라우저 저장소에 저장됩니다 (슬롯 3개)'}</div>
-      <div class="ver">v${G.VERSION}${G.IS_DEV ? ' DEV' : ''}${G.IS_MOBILE ? ' 모바일' : ''}</div></div>`);
+      <div class="ver">v${G.VERSION}${G.IS_DEV ? ' DEV' : ''}${G.IS_MOBILE ? ' 모바일' : ''} · © 2026 HC</div></div>`);
     G.TitleBG.start(document.querySelector('#overlay .title-bg'));
   },
   // 음악 감상: 28곡 + 장 전환 효과음 8개

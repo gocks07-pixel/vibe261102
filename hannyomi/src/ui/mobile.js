@@ -504,6 +504,42 @@ G.Mobile = {
     tip.style.left = x + 'px'; tip.style.top = y + 'px';
   },
 
+  // ---------- 2차-2 인터넷 없이 실행 · 새 버전 안내 (배포판에서만: tools/build_web.js 가 src/webbuild.js 로 G.WEB_BUILD 를 넣는다) ----------
+  sw() {
+    if (!G.WEB_BUILD || window.electronAPI || !('serviceWorker' in navigator) || !window.isSecureContext) return;
+    const SW = navigator.serviceWorker;
+    let reloading = false;
+    SW.addEventListener('controllerchange', () => { if (this.swSkip && !reloading) { reloading = true; location.reload(); } });
+    SW.register('sw.js').then(reg => {
+      this.swReg = reg;
+      // 게임을 시작하기 전(타이틀)에 이미 새 버전이 받아져 있으면 바로 바꾼다 = "다음 실행 때 자동으로"
+      if (reg.waiting && SW.controller && !G.Game.player) { this.swSkip = true; reg.waiting.postMessage('skip'); return; }
+      if (reg.waiting && SW.controller) this.updateBar();
+      reg.addEventListener('updatefound', () => {
+        const w = reg.installing;
+        if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && SW.controller) this.updateBar(); });
+      });
+      // 앱으로 돌아올 때마다 새 버전이 있는지 확인
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => { /* 지원 안 함 · 실패해도 게임은 그대로 */ });
+  },
+  updateBar() {
+    if (document.getElementById('mob-update')) return;
+    const el = document.createElement('div');
+    el.id = 'mob-update';
+    el.innerHTML = '✨ 새 버전이 준비됐어요 <button data-u="now" class="gold">지금 바꾸기</button><button data-u="later">나중에</button>';
+    el.addEventListener('click', async e => {
+      const b = e.target.closest('[data-u]');
+      if (!b) return;
+      if (b.dataset.u === 'later') { el.remove(); return; }
+      b.disabled = true; b.textContent = '저장 중…';
+      if (G.Game.player) await G.Game.save(true);   // 바꾸기 전에 저장
+      const w = this.swReg && this.swReg.waiting;
+      if (w) { this.swSkip = true; w.postMessage('skip'); } else location.reload();
+    });
+    document.body.appendChild(el);
+  },
+
   // 저장 공간을 지우지 말라고 브라우저에 요청 (휴대폰에서 한 번)
   persist() {
     try { if (G.Touch.device && navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => { if (!p) navigator.storage.persist(); }).catch(() => {}); } catch (e) { /* 지원 안 함 */ }
@@ -606,4 +642,5 @@ window.addEventListener('load', () => setTimeout(() => {
   G.Mobile.init();
   G.Mobile.firstNotice();
   G.Mobile.persist();
+  G.Mobile.sw();
 }, 0));

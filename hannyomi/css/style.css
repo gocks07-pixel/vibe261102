@@ -314,6 +314,7 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
   background: linear-gradient(#fff7c8 10%, #ffd36a 48%, #ff9ac8 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 4px 0 #5a2a7a) drop-shadow(0 0 14px rgba(255,190,120,.55)); animation: ttlBob 3.2s ease-in-out infinite; }
 .ttl .t2 .st { display: inline-block; color: #fff2a8; -webkit-text-fill-color: #fff2a8; font-size: .6em; vertical-align: .5em; margin-left: .15em; animation: ttlTw 1.6s ease-in-out infinite; }
+.credits .cr-copy { font-size: 12px; color: #9aa6c8; }
 .overlay.title-ov > .ver { position: absolute; right: 16px; bottom: 10px; font-size: 12px; color: #8a94b8; letter-spacing: 1px; }
 @keyframes ttlBob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
 @keyframes ttlTw { 0%, 100% { opacity: 1; transform: scale(1) } 50% { opacity: .55; transform: scale(.8) } }

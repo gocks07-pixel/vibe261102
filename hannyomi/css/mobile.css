@@ -115,3 +115,9 @@ body.touch-on .win .wb { -webkit-overflow-scrolling: touch; overscroll-behavior:
 #mob-modal .tagr { font-size: 11px; padding: 1px 7px; border-radius: 9px; background: #6b5214; color: #fff3c4; margin-left: 4px; }
 /* 상점 + 인벤토리를 나란히 놓을 때 더 크게 보이도록 휴대폰에서는 상점 창을 조금 좁게 */
 body.touch-on #win-shop { width: 370px !important; }
+
+/* 2차-2 새 버전 안내 (배포판에서만 나온다) */
+#mob-update { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 10px); transform: translateX(-50%); z-index: 1600; display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 12px; background: #121727f2; border: 1px solid #c9a33a; color: #fff3c4; font: 700 14px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.5); white-space: nowrap; }
+#mob-update button { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 1px solid #4a5578; background: #1f2740; color: #e8ecf6; }
+#mob-update button.gold { background: #6b5214; border-color: #ffd54a; color: #fff3c4; }
