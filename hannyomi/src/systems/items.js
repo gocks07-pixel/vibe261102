@@ -15,6 +15,17 @@ G.Items = {
     return it;
   },
 
+  // 2.1.1: 내 직업 스탯 우대 — 힘·민첩·지혜·감각 줄 중 직업에 쓸모없는 2개(주스탯·부스탯이 아닌 것)는 확률 절반
+  //  직업 전용 장비(무기 · 세트)는 그 장비의 직업, 공용 장비는 지금 캐릭터의 직업 기준. 캐릭터가 없으면 같은 확률
+  jobW(t, stat) {
+    const base = String(stat).replace(/p$/, '');
+    if (!G.STATS4.includes(base)) return 1;
+    const p = G.Game && G.Game.player;
+    const fam = t.job && t.job !== 'any' ? t.job : p ? G.familyOf(p.d.job) : null;
+    const J = fam && G.JOBS[fam];
+    if (!J) return 1;
+    return base === J.main || base === J.sub ? 1 : 0.5;
+  },
   rollAdd(t, boss) {
     let lines = G.U.weighted(G.ADD_LINES);
     if (boss) lines = Math.min(4, lines + 1);
@@ -23,7 +34,7 @@ G.Items = {
     for (let i = 0; i < lines; i++) {
       const cand = pool.filter(o => !used.has(o.stat));
       if (!cand.length) break;
-      const o = G.U.weighted(cand.map(o => [o, t.slot === 'weapon' && o.wWeapon ? o.wWeapon : (o.w || 1)]));
+      const o = G.U.weighted(cand.map(o => [o, (t.slot === 'weapon' && o.wWeapon ? o.wWeapon : (o.w || 1)) * this.jobW(t, o.stat)]));
       used.add(o.stat);
       let stage = G.U.weighted(G.ADD_STAGE);
       if (boss) stage = Math.min(5, stage + 1);
@@ -39,7 +50,7 @@ G.Items = {
     const lines = [];
     for (let i = 0; i < 3; i++) {
       const g = (i === 0 || Math.random() < G.POT_LINE_SAME[i]) ? grade : Math.max(1, grade - 1);
-      const o = G.U.weighted(this.potPool(t, g).map(o => [o, o.w || 1]));
+      const o = G.U.weighted(this.potPool(t, g).map(o => [o, (o.w || 1) * this.jobW(t, o.stat)]));
       lines.push({ stat: o.stat, val: o.v(t.lv), g });
     }
     return lines;
@@ -115,7 +126,7 @@ G.Items = {
   resonate(it, i) {
     const t = G.ITEMS[it.tid], before = it.pot[i];
     const g = before ? before.g : it.grade;
-    const o = G.U.weighted(this.potPool(t, g).map(o => [o, o.w || 1]));
+    const o = G.U.weighted(this.potPool(t, g).map(o => [o, (o.w || 1) * this.jobW(t, o.stat)]));
     it.pot[i] = { stat: o.stat, val: o.v(t.lv), g };
     it.res = (it.res || 0) + 1;
     const need = this.resNeed(it);
