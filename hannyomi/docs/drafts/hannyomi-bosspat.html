@@ -1,0 +1,293 @@
+<title>보스 새 패턴 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;600;800&display=swap">
+<style>
+/* 2.1 보스 밸런스 시안: 보스별 새 패턴 16개 · 그로기 기믹 4종 · 녹스 종말의 별 개선 · 비 스킬 조준. 카드마다 4.5초 반복 애니메이션 (밤하늘 톤 단일 테마) */
+:root {
+  color-scheme: dark;
+  --night: #0d1124; --panel: #161c36; --line: #2c355c; --ink: #e9ecf8; --dim: #9aa3c7; --gold: #ffd36a; --red: #ff7a7a; --mint: #8fe0a8;
+  --body: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; --title: 'Jua', 'Noto Sans KR', sans-serif;
+}
+body { background: var(--night); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 26px 48px; }
+h1 { font-family: var(--title); font-weight: 400; font-size: 30px; margin: 0; color: var(--gold); text-wrap: balance; }
+.sub { color: var(--dim); margin: 4px 0 0; max-width: 72ch; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0 0; }
+.bar button { font-family: var(--body); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: #1e2546; color: var(--ink); font-weight: 600; cursor: pointer; }
+.bar button.on { background: #6b5214; border-color: var(--gold); }
+.bar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+section { margin-top: 30px; }
+h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; font-weight: 800; }
+.lead { color: var(--dim); font-size: 13.5px; margin: 0 0 12px; max-width: 80ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-width: 0; }
+.card canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; }
+.card .t { padding: 8px 12px 11px; }
+.card b { display: block; font-size: 14.5px; }
+.card b em { font-style: normal; font-size: 11.5px; padding: 1px 7px; border-radius: 6px; margin-left: 6px; background: #3a2e10; color: var(--gold); vertical-align: 1px; font-weight: 600; }
+.card b em.g { background: #183a26; color: var(--mint); }
+.card small { color: var(--dim); font-size: 12.5px; display: block; }
+</style>
+<div class="wrap">
+  <h1>보스 새 패턴 시안</h1>
+  <p class="sub">2.1 보스 밸런스 계획서의 그림 시안이에요. 체력 70%·40%에서 열리는 새 패턴 16개, 성공하면 크게 때릴 수 있는 그로기 기믹 4종, 녹스 "종말의 별" 개선, 비 스킬 보스 조준을 4.5초씩 반복해서 보여 줘요. 보스와 캐릭터는 게임과 같은 그리기 코드예요.</p>
+  <div class="bar" role="toolbar" aria-label="재생"><button type="button" id="pause">일시정지</button><button type="button" id="slow">느리게</button></div>
+  <main id="book"></main>
+</div>
+<script src="src/util.js"></script>
+<script src="src/data/formulas.js"></script>
+<script src="src/core/settings.js"></script>
+<script src="src/data/jobs.js"></script>
+<script src="src/data/looks.js"></script>
+<script src="src/data/skills.js"></script>
+<script src="src/data/jobs2.js"></script>
+<script src="src/data/options.js"></script>
+<script src="src/data/items.js"></script>
+<script src="src/data/sets.js"></script>
+<script src="src/data/sfx.js"></script>
+<script src="src/data/monsters.js"></script>
+<script src="src/data/bosses.js"></script>
+<script src="src/data/npcs.js"></script>
+<script src="src/data/quests.js"></script>
+<script src="src/data/maps.js"></script>
+<script src="src/data/world2.js"></script>
+<script src="src/data/story2.js"></script>
+<script src="src/data/story3.js"></script>
+<script src="src/data/rework.js"></script>
+<script src="src/data/songs.js"></script>
+<script src="src/render/icons.js"></script>
+<script src="src/render/icons2.js"></script>
+<script src="src/render/sprites.js"></script>
+<script src="src/render/outfit.js"></script>
+<script src="src/render/monsters2.js"></script>
+<script src="src/render/monsters3.js"></script>
+<script src="src/render/monsters4.js"></script>
+<script src="src/render/nox.js"></script>
+<script>
+(function () {
+  G.Game = G.Game || { player: null, world: null };   // 보스 그림 코드가 플레이어 위치를 참고하므로 빈 값
+  const PI = Math.PI, W = 480, H = 270, GY = 232, L = 4.5;
+  const ease = k => 1 - Math.pow(1 - Math.min(1, Math.max(0, k)), 3);
+  const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+  const win = (t, a, b) => t >= a && t < b;
+  const HERO = { look: G.LOOKS.toDraw(Object.assign(G.LOOKS.def('f'), { hairStyle: 'pony', hairColor: '#5a3a22', outfit: 'traveler' })), weapon: 'sword', wcolor: '#c9d1dc' };
+  const BG = { shellock: ['#0e1830', '#1f3150'], bark: ['#1a2a1a', '#2c3a22'], morwen: ['#0e2218', '#1d3a26'], grounder: ['#1a1410', '#33261a'], parakan: ['#3a2410', '#6a4a20'],
+    kaien_boss: ['#0e1a2e', '#2a4060'], aurelion: ['#141436', '#2c2c60'], eldrick: ['#140c28', '#2a1a48'], nox: ['#07051a', '#241038'] };
+  function glow(c, x, y, r, col, a) { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.save(); c.globalAlpha *= a; c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); c.restore(); }
+  function star(c, x, y, r, col) { c.fillStyle = col; c.beginPath(); for (let i = 0; i < 8; i++) { const a = -PI / 2 + i * PI / 4, rr = i % 2 ? r * 0.3 : r; c.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } c.closePath(); c.fill(); }
+  function stage(c, id) {
+    const [a, b] = BG[id] || BG.nox; const g = c.createLinearGradient(0, 0, 0, GY); g.addColorStop(0, a); g.addColorStop(1, b);
+    c.fillStyle = g; c.fillRect(0, 0, W, GY); c.fillStyle = '#0a0a14'; c.fillRect(0, GY, W, H - GY); c.fillStyle = 'rgba(255,255,255,.15)'; c.fillRect(0, GY, W, 2);
+  }
+  function boss(c, id, x, t, o = {}) {
+    const d = G.MONSTERS[id], m = { x: 0, y: 0, w: d.w, h: d.h, dir: o.dir || -1, d, id, hp: 1, maxHp: 1, dead: false, deadT: 0, hurtT: o.hurt ? 0.1 : 0, atkAnim: o.atk != null ? o.atk : -1, aggro: 0, moving: !!o.moving,
+      status: {}, boss: { phase: o.phase || 0, guarding: !!o.guard, raise: o.raise || 0, cur: null }, isBoss: true, groggy: o.groggy ? 1 : 0, kb: 0, vx: 0, purified: id === 'aurelion', soarY: 0 };
+    const s = (o.scale || 1) * Math.min(1, 118 / d.h);
+    c.save(); c.translate(x, o.y || GY); if (o.rot) c.rotate(o.rot); c.scale(s, s); if (o.alpha != null) c.globalAlpha *= o.alpha;
+    try { G.Draw.monster(c, m, t); } catch (e) { console.error(id, e.message); }
+    c.restore();
+    if (o.groggy) for (let i = 0; i < 4; i++) { const a = t * 4 + i * PI / 2; star(c, x + Math.cos(a) * 26, (o.y || GY) - d.h * s - 12 + Math.sin(a) * 6, 6, '#ffe680'); }
+  }
+  function hero(c, x, t, o = {}) {
+    G.Draw.humanoid(c, Object.assign({ x, y: (o.y || GY) - (o.jump || 0), dir: o.dir || 1, t, atk: o.atk != null ? o.atk : -1, atkKind: 'melee', moving: !!o.moving, air: (o.jump || 0) > 2, scale: o.scale || 1.15 }, HERO, o.extra || {}));
+  }
+  function warn(c, x, w, a, col = '255,60,60') { c.fillStyle = `rgba(${col},${0.18 + 0.18 * Math.sin(a * 18)})`; c.fillRect(x - w / 2, 0, w, GY); c.strokeStyle = `rgba(${col},.8)`; c.lineWidth = 2; c.strokeRect(x - w / 2, 2, w, GY - 2); }
+  function warnCircle(c, x, y, r, a, col = '255,60,60') { c.beginPath(); c.ellipse(x, y, r, r * 0.3, 0, 0, 7); c.fillStyle = `rgba(${col},${0.2 + 0.15 * Math.sin(a * 18)})`; c.fill(); c.strokeStyle = `rgba(${col},.9)`; c.lineWidth = 2; c.stroke(); }
+  function boom(c, x, y, r, k, col) { glow(c, x, y, r * (0.6 + k), col, 1 - k); for (let i = 0; i < 10; i++) { const a = i * 0.63, rr = r * k * 1.3; c.fillStyle = col; c.globalAlpha = 1 - k; c.fillRect(x + Math.cos(a) * rr, y + Math.sin(a) * rr * 0.6, 3, 3); c.globalAlpha = 1; } }
+  function label(c, text, col = '#ffe08a') { c.font = 'bold 15px "Noto Sans KR", sans-serif'; c.textAlign = 'center'; c.lineWidth = 4; c.strokeStyle = 'rgba(0,0,0,.75)'; c.strokeText(text, W / 2, 30); c.fillStyle = col; c.fillText(text, W / 2, 30); c.textAlign = 'left'; }
+  function tag(c, text, x, y, col = '#ffe680') { c.font = 'bold 13px "Noto Sans KR", sans-serif'; c.textAlign = 'center'; c.lineWidth = 4; c.strokeStyle = 'rgba(0,0,0,.8)'; c.strokeText(text, x, y); c.fillStyle = col; c.fillText(text, x, y); c.textAlign = 'left'; }
+  const jumpAt = (t, a) => win(t, a, a + 0.6) ? Math.sin((t - a) / 0.6 * PI) * 70 : 0;
+
+  // ---------------- 새 패턴 16개 ----------------
+  const P = [
+    ['shellock', '쉘로크 · 껍데기 굴리기', '70%', '껍데기 속으로 숨어 굴러온다. 점프로 넘기!', (c, t) => {
+      stage(c, 'shellock'); const run = win(t, 1.0, 2.6), k = (t - 1.0) / 1.6;
+      if (t < 1.0) { boss(c, 'shellock', 380, t, { guard: true }); c.strokeStyle = 'rgba(255,90,90,.9)'; c.lineWidth = 4; c.beginPath(); c.moveTo(340, GY - 20); c.lineTo(120, GY - 20); c.lineTo(136, GY - 30); c.moveTo(120, GY - 20); c.lineTo(136, GY - 10); c.stroke(); }
+      else if (run) boss(c, 'shellock', 380 - k * 360, t, { guard: true, rot: -k * PI * 4 }); else boss(c, 'shellock', 380, t, { guard: true });
+      hero(c, 150, t, { jump: jumpAt(t, 1.55) }); label(c, '껍데기 굴리기!');
+    }],
+    ['shellock', '쉘로크 · 밀물', '40%', '바닥 왼쪽 절반이 물에 잠긴다. 발판 위로 피하기!', (c, t) => {
+      stage(c, 'shellock'); c.fillStyle = '#4a5a7a'; c.fillRect(150, GY - 70, 120, 8);
+      const rise = cl((t - 0.8) / 0.8, 0, 1) * (t > 3.6 ? cl(1 - (t - 3.6) / 0.6, 0, 1) : 1);
+      if (t < 0.8) warn(c, 120, 240, t, '80,160,255');
+      boss(c, 'shellock', 390, t);
+      const hy = t > 0.7 ? GY - 62 : GY; hero(c, t < 0.7 ? 120 : 200, t, { y: hy, jump: win(t, 0.4, 0.8) ? 30 : 0 });
+      if (rise > 0) { c.fillStyle = `rgba(60,140,230,${0.55 * rise})`; c.fillRect(0, GY - 46 * rise, 240, 46 * rise + 4); for (let i = 0; i < 6; i++) { c.strokeStyle = 'rgba(200,230,255,.6)'; c.beginPath(); c.arc(i * 42 + (t * 30 % 42), GY - 46 * rise, 10, PI, 0); c.stroke(); } }
+      label(c, '밀물이 들어온다!');
+    }],
+    ['bark', '바르크 · 덫 설치', '70%', '바닥 세 곳에 덫. 밟으면 2초 동안 묶인다.', (c, t) => {
+      stage(c, 'bark'); boss(c, 'bark', 400, t, { atk: win(t, 0.2, 0.7) ? (t - 0.2) / 0.5 : -1 });
+      const xs = [110, 210, 310];
+      for (const x of xs) { if (t < 1.2) warnCircle(c, x, GY, 30, t); else { const k = cl((t - 1.2) / 0.25, 0, 1); c.strokeStyle = '#b0b0b8'; c.lineWidth = 3; for (let i = -3; i <= 3; i++) { c.beginPath(); c.moveTo(x + i * 7, GY); c.lineTo(x + i * 7 + (i % 2) * 3, GY - 18 * k); c.stroke(); } } }
+      hero(c, 160, t, { moving: t < 1.2 }); label(c, '덫을 피해 서기!');
+    }],
+    ['bark', '바르크 · 부하 궁수 일제 사격', '40%', '위쪽 발판의 부하 궁수들이 화살 비를 쏜다. 표시된 곳 밖으로!', (c, t) => {
+      stage(c, 'bark'); c.fillStyle = '#3a2a1a'; c.fillRect(250, 70, 200, 8);
+      for (const x of [280, 340, 400]) G.Draw.humanoid(c, { x, y: 70, dir: -1, t, atk: win(t, 1.0, 1.4) ? 0.5 : -1, atkKind: 'proj', scale: 0.8, look: { skin: '#e8c098', hair: '#2a1a10', top: '#7a2a1a', bottom: '#3a2a1a', style: 'short' }, weapon: 'bow', wcolor: '#8a5a2a', mask: '#1a1a22' });
+      boss(c, 'bark', 420, t);
+      if (t < 1.2) { warn(c, 130, 90, t); warn(c, 300, 90, t); }
+      if (win(t, 1.2, 2.2)) for (let i = 0; i < 16; i++) { const x = (i % 2 ? 130 : 300) - 40 + (i * 23 % 80), y = ((t - 1.2) * 300 + i * 37) % (GY - 40) + 30; c.strokeStyle = '#d8c8a0'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, y); c.lineTo(x - 4, y - 14); c.stroke(); }
+      hero(c, 215, t); label(c, '화살 비!');
+    }],
+    ['morwen', '모르웬 · 포자 구름', '70%', '독 포자 구름 두 개가 6초 동안 남는다. 구름 밖에서 싸우기.', (c, t) => {
+      stage(c, 'morwen'); boss(c, 'morwen', 390, t);
+      for (const x of [140, 280]) { const k = cl((t - 0.6) / 0.6, 0, 1); for (let i = 0; i < 6; i++) glow(c, x + Math.sin(t * 2 + i) * 20 - 25 + i * 10, GY - 30 - (i % 3) * 14, 26 * k, 'rgba(140,220,90,.9)', 0.5 * k); }
+      hero(c, 210, t, { atk: (t * 1.4) % 1 }); label(c, '포자 구름!', '#b8f08a');
+    }],
+    ['morwen', '모르웬 · 가시 덩굴 파도', '40%', '바닥을 타고 가시 덩굴이 밀려온다. 점프로 넘기!', (c, t) => {
+      stage(c, 'morwen'); boss(c, 'morwen', 400, t, { atk: win(t, 0.6, 1.0) ? 0.6 : -1 });
+      const x0 = 360 - cl((t - 0.9) / 1.6, 0, 1) * 380;
+      if (t > 0.9 && t < 2.6) for (let i = 0; i < 5; i++) { const x = x0 + i * 12; c.fillStyle = '#4a8a3a'; c.beginPath(); c.moveTo(x - 8, GY); c.lineTo(x, GY - 26 - (i % 2) * 8); c.lineTo(x + 8, GY); c.fill(); }
+      hero(c, 160, t, { jump: jumpAt(t, 1.55) }); label(c, '가시 덩굴!', '#b8f08a');
+    }],
+    ['grounder', '그라운더 · 회전 레이저', '70%', '높이가 다른 레이저 두 줄. 아래 줄은 점프, 위 줄은 숙이기(가만히).', (c, t) => {
+      stage(c, 'grounder'); boss(c, 'grounder', 400, t);
+      for (const [y, d0] of [[GY - 18, 0.8], [GY - 90, 2.2]]) { if (t < d0) { c.strokeStyle = `rgba(255,60,60,${0.4 + 0.3 * Math.sin(t * 20)})`; c.lineWidth = 2; c.setLineDash([8, 6]); c.beginPath(); c.moveTo(0, y); c.lineTo(360, y); c.stroke(); c.setLineDash([]); } else if (t < d0 + 0.5) { c.fillStyle = 'rgba(255,90,90,.85)'; c.fillRect(0, y - 5, 360, 10); glow(c, 360, y, 30, 'rgba(255,200,200,1)', 0.8); } }
+      hero(c, 170, t, { jump: jumpAt(t, 0.72) }); label(c, '레이저!', '#ff9a9a');
+    }],
+    ['grounder', '그라운더 · 미사일 폭격', '40%', '경고 다섯 곳에 미사일이 떨어진다.', (c, t) => {
+      stage(c, 'grounder'); boss(c, 'grounder', 410, t, { raise: 0.5 });
+      const xs = [60, 130, 200, 270, 330];
+      xs.forEach((x, i) => { const hit = 1.3 + i * 0.18; if (t < hit) { warnCircle(c, x, GY, 26, t); const k = cl((t - 0.5) / (hit - 0.5), 0, 1); if (k > 0) { const px = 380 + (x - 380) * k, py = 60 - Math.sin(k * PI) * 40 + (GY - 60) * k * k; c.fillStyle = '#c0c0c8'; c.fillRect(px - 3, py - 8, 6, 14); glow(c, px, py + 8, 8, 'rgba(255,160,60,1)', 0.9); } } else if (t < hit + 0.5) boom(c, x, GY - 10, 30, (t - hit) / 0.5, '#ffb060'); });
+      hero(c, 165, t, { moving: t < 1.2, extra: {} }); label(c, '미사일 폭격!', '#ffb060');
+    }],
+    ['parakan', '파라칸 · 모래 회오리', '70%', '모래 회오리가 좌우로 오간다. 타이밍 맞춰 피하기.', (c, t) => {
+      stage(c, 'parakan'); boss(c, 'parakan', 410, t);
+      const x = 240 + Math.sin(t * 1.4) * 180;
+      for (let i = 0; i < 8; i++) { c.strokeStyle = `rgba(230,200,140,${0.7 - i * 0.06})`; c.lineWidth = 3; c.beginPath(); c.ellipse(x + Math.sin(t * 9 + i) * 4, GY - 10 - i * 14, 10 + i * 4, 4 + i, 0, 0, 7); c.stroke(); }
+      hero(c, x > 240 ? 120 : 330, t, { moving: true, dir: x > 240 ? -1 : 1 }); label(c, '모래 회오리!', '#f0d080');
+    }],
+    ['parakan', '파라칸 · 왕의 분노', '40%', '파라칸 주변이 크게 폭발한다. 멀리 달아나기!', (c, t) => {
+      stage(c, 'parakan'); const k = cl((t - 1.6) / 0.6, 0, 1);
+      if (t < 1.6) warnCircle(c, 330, GY, 150, t); boss(c, 'parakan', 330, t, { raise: 1 });
+      if (t >= 1.6 && t < 2.2) boom(c, 330, GY - 40, 160, k, '#ffcf60');
+      hero(c, t < 1.4 ? 260 - t * 110 : 105, t, { moving: t < 1.4, dir: -1 }); label(c, '왕의 분노!', '#ffcf60');
+    }],
+    ['kaien_boss', '카이엔 · 서리 창 낙하', '70%', '하늘에서 얼음 창 네 개. 경고 사이 빈칸으로!', (c, t) => {
+      stage(c, 'kaien_boss'); boss(c, 'kaien_boss', 410, t);
+      [70, 150, 230, 310].forEach((x, i) => { const hit = 1.2 + i * 0.12; if (t < hit) { warn(c, x, 40, t, '120,200,255'); const y = (t - 0.6) / (hit - 0.6) * GY; if (y > 0) { c.fillStyle = '#d8f0ff'; c.beginPath(); c.moveTo(x, y + 20); c.lineTo(x - 6, y - 20); c.lineTo(x + 6, y - 20); c.fill(); } } else if (t < hit + 0.8) { c.fillStyle = '#bfe6ff'; c.beginPath(); c.moveTo(x, GY - 40); c.lineTo(x - 8, GY); c.lineTo(x + 8, GY); c.fill(); boom(c, x, GY - 8, 20, cl((t - hit) / 0.4, 0, 1), '#d8f0ff'); } });
+      hero(c, 190, t); label(c, '서리 창!', '#bfe6ff');
+    }],
+    ['kaien_boss', '카이엔 · 그림자 난무', '40%', '세 번 순간이동하며 벤다. 남는 잔상 위치를 보고 피하기.', (c, t) => {
+      stage(c, 'kaien_boss'); const pos = [330, 110, 260, 400], i = cl(Math.floor((t - 0.4) / 0.6), 0, 3);
+      for (let j = 0; j < i; j++) boss(c, 'kaien_boss', pos[j], t, { alpha: 0.25 });
+      boss(c, 'kaien_boss', pos[i], t, { atk: 0.5, dir: pos[i] > 190 ? -1 : 1 });
+      if (t > 0.4 && t < 2.4) { c.strokeStyle = 'rgba(160,120,255,.9)'; c.lineWidth = 4; c.beginPath(); c.arc(pos[i] + (pos[i] > 190 ? -40 : 40), GY - 40, 40, -PI / 2, PI / 2); c.stroke(); }
+      hero(c, 190, t, { jump: jumpAt(t, 1.05) }); label(c, '그림자 난무!', '#c8a8ff');
+    }],
+    ['aurelion', '아우렐리온 · 성광 폭발', '70%', '몸 주변으로 빛이 터진다. 표시된 원 밖으로!', (c, t) => {
+      stage(c, 'aurelion'); if (t < 1.5) warnCircle(c, 340, GY, 120, t, '255,240,160'); boss(c, 'aurelion', 340, t, { scale: 1.1 });
+      if (win(t, 1.5, 2.2)) { boom(c, 340, GY - 60, 150, (t - 1.5) / 0.7, '#fff6c8'); for (let i = 0; i < 12; i++) { const a = i * PI / 6, r = (t - 1.5) * 260; star(c, 340 + Math.cos(a) * r, GY - 60 + Math.sin(a) * r * 0.5, 6, 'rgba(255,250,220,.9)'); } }
+      hero(c, t < 1.2 ? 230 - t * 80 : 135, t, { moving: t < 1.2, dir: -1 }); label(c, '성광 폭발!', '#fff6c8');
+    }],
+    ['eldrick', '엘드리크 · 별빛 감옥', '40%', '양쪽 끝부터 어둠이 좁혀 온다. 가운데 안전지대에서 싸우기.', (c, t) => {
+      stage(c, 'eldrick'); const k = cl((t - 0.5) / 2.0, 0, 1) * (t > 3.8 ? cl(1 - (t - 3.8) / 0.5, 0, 1) : 1), wd = 170 * k;
+      c.fillStyle = 'rgba(40,10,70,.8)'; c.fillRect(0, 0, wd, GY); c.fillRect(W - wd, 0, wd, GY);
+      c.strokeStyle = '#c890ff'; c.lineWidth = 3; c.beginPath(); c.moveTo(wd, 0); c.lineTo(wd, GY); c.moveTo(W - wd, 0); c.lineTo(W - wd, GY); c.stroke();
+      for (let i = 0; i < 8; i++) { star(c, wd - 6, 20 + i * 26, 4, '#e0c8ff'); star(c, W - wd + 6, 20 + i * 26, 4, '#e0c8ff'); }
+      boss(c, 'eldrick', 300, t); hero(c, t < 1 ? 80 + t * 120 : 200, t, { moving: t < 1 }); label(c, '별빛 감옥!', '#e0c8ff');
+    }],
+    ['nox', '녹스 · 공허의 파도', '2페이즈', '높이가 다른 파도 두 개. 낮은 파도는 점프, 높은 파도는 가만히.', (c, t) => {
+      stage(c, 'nox'); boss(c, 'nox', 410, t, { phase: 1 });
+      for (const [y, s0, hgt] of [[GY, 0.8, 30], [GY - 70, 2.0, 26]]) { const x = 360 - (t - s0) * 260; if (t > s0 && x > -40) { c.fillStyle = 'rgba(140,90,230,.75)'; c.beginPath(); c.moveTo(x - 24, y); c.quadraticCurveTo(x, y - hgt * 2, x + 24, y); c.fill(); glow(c, x, y - hgt, 24, 'rgba(190,140,255,1)', 0.6); } }
+      hero(c, 150, t, { jump: jumpAt(t, 1.45) }); label(c, '공허의 파도!', '#c8a8ff');
+    }],
+    ['nox', '녹스 · 잊힌 별', '3페이즈', '천천히 따라오는 어두운 별 세 개. 닿기 전에 부수거나 피해 다니기.', (c, t) => {
+      stage(c, 'nox'); boss(c, 'nox', 410, t, { phase: 2 });
+      const hx = 140 + Math.sin(t * 1.3) * 60;
+      for (let i = 0; i < 3; i++) { const k = cl((t - 0.5) / 3.5, 0, 1), sx = 380 - i * 20, sy = 60 + i * 30, x = sx + (hx - sx) * k * (0.6 + i * 0.12), y = sy + (GY - 50 - sy) * k * (0.6 + i * 0.12) + Math.sin(t * 3 + i) * 8;
+        glow(c, x, y, 24, 'rgba(160,80,255,1)', 0.6); c.fillStyle = '#1a0a2a'; c.beginPath(); c.arc(x, y, 10, 0, 7); c.fill(); star(c, x, y, 6, '#c890ff'); }
+      hero(c, hx, t, { moving: true, dir: Math.cos(t * 1.3) > 0 ? 1 : -1 }); label(c, '잊힌 별!', '#c8a8ff');
+    }],
+  ];
+
+  // ---------------- 그로기 기믹 4종 ----------------
+  const GIM = [
+    ['shellock', '쉘로크 · 약점 세 번', '"껍데기 숨기" 중 등껍질의 빛나는 약점을 3번 때리면 뒤집혀 그로기 (6초 동안 피해 ×1.75)', (c, t) => {
+      stage(c, 'shellock'); const hits = cl(Math.floor((t - 0.6) / 0.5), 0, 3), flip = t > 2.3;
+      if (!flip) { boss(c, 'shellock', 330, t, { guard: true }); const w0 = 0.6 + 0.4 * Math.sin(t * 8); glow(c, 312, GY - 40, 18, 'rgba(255,230,120,1)', w0); for (let i = 0; i < hits; i++) star(c, 290 + i * 18, GY - 92, 6, '#ffe680'); }
+      else { boss(c, 'shellock', 330, t, { rot: PI * 0.92, y: GY - 34, groggy: true }); tag(c, '그로기! 피해 ×1.75', 330, 60); }
+      hero(c, 250, t, { atk: !flip ? ((t - 0.6) % 0.5) / 0.5 : -1 }); label(c, flip ? '뒤집혔다!' : `약점 ${hits}/3`);
+    }],
+    ['bark', '바르크 · 연막 속 진짜 찾기', '연막 속 바르크 3명 중 눈이 빛나는 진짜를 때리면 연막이 걷히고 그로기', (c, t) => {
+      stage(c, 'bark'); const found = t > 2.2;
+      if (!found) { glow(c, 290, GY - 60, 170, 'rgba(120,120,130,1)', 0.75); [210, 290, 370].forEach((x, i) => { boss(c, 'bark', x, t, { alpha: 0.55 }); if (i === 1) { c.fillStyle = '#ff4040'; c.fillRect(x - 10, GY - 92, 4, 3); c.fillRect(x - 2, GY - 92, 4, 3); glow(c, x - 4, GY - 90, 10, 'rgba(255,60,60,1)', 0.8); } }); }
+      else { boss(c, 'bark', 290, t, { groggy: true }); tag(c, '그로기! 피해 ×1.75', 290, 60); }
+      hero(c, 200, t, { atk: win(t, 1.6, 2.2) ? (t - 1.6) / 0.6 : -1, moving: t < 1.4 }); label(c, found ? '진짜를 찾았다!' : '눈이 빛나는 쪽이 진짜!');
+    }],
+    ['grounder', '그라운더 · 냉각 밸브', '과열되면 등의 냉각 밸브 2개가 빨갛게 빛난다. 둘 다 부수면 다운', (c, t) => {
+      stage(c, 'grounder'); const broken = cl(Math.floor((t - 0.8) / 0.7), 0, 2), down = t > 2.3;
+      boss(c, 'grounder', 320, t, { rot: down ? -0.12 : 0, y: down ? GY + 6 : GY, groggy: down });
+      if (!down) { glow(c, 320, GY - 80, 90, 'rgba(255,80,40,1)', 0.25 + 0.1 * Math.sin(t * 9)); [[350, GY - 100], [356, GY - 66]].forEach(([x, y], i) => { if (i >= broken) { glow(c, x, y, 14, 'rgba(255,60,60,1)', 0.9); c.fillStyle = '#ff5a3a'; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); } else { for (let k = 0; k < 4; k++) glow(c, x + 8 + k * 6, y - k * 10 - (t * 30 % 20), 10, 'rgba(230,230,240,1)', 0.5); } }); }
+      else { for (let k = 0; k < 6; k++) glow(c, 330 + k * 8, GY - 120 - k * 12, 16, 'rgba(230,230,240,1)', 0.5); tag(c, '다운! 피해 ×1.75', 320, 50); }
+      hero(c, 410, t, { dir: -1, atk: !down ? ((t - 0.8) % 0.7) / 0.7 : -1 }); label(c, down ? '과열 다운!' : `밸브 ${broken}/2`, '#ff9a6a');
+    }],
+    ['kaien_boss', '카이엔 · 진짜 카이엔', '분신 중 파란 목도리가 흔들리는 진짜를 때리면 분신이 사라지고 그로기', (c, t) => {
+      stage(c, 'kaien_boss'); const found = t > 2.0;
+      [200, 300, 400].forEach((x, i) => { if (found && i !== 0) return; boss(c, 'kaien_boss', x, t, { alpha: found ? 1 : (i === 0 ? 1 : 0.6), groggy: found && i === 0 });
+        if (i === 0 && !found) { c.strokeStyle = '#5ab0ff'; c.lineWidth = 3; c.beginPath(); c.moveTo(x + 4, GY - 66); c.quadraticCurveTo(x + 18, GY - 70 + Math.sin(t * 12) * 6, x + 28, GY - 62 + Math.sin(t * 12 + 1) * 8); c.stroke(); } });
+      if (found) tag(c, '그로기! 피해 ×1.75', 200, 60);
+      hero(c, 120, t, { atk: win(t, 1.4, 2.0) ? (t - 1.4) / 0.6 : -1 }); label(c, found ? '진짜를 맞혔다!' : '목도리가 흔들리는 쪽!', '#bfe6ff');
+    }],
+  ];
+
+  // ---------------- 개선 2가지 ----------------
+  const FIX = [
+    ['nox', '녹스 · 종말의 별 (개선)', '예고 6초 · 머리 위 보호막 방향 화살표와 남은 초 · 실패해도 즉사 대신 최대 HP 70% 피해', (c, t) => {
+      stage(c, 'nox'); const T = t * 1.6, left = Math.max(0, 6 - T);
+      boss(c, 'nox', 420, t, { phase: 2 });
+      const zx = 90; glow(c, zx, GY - 30, 60, 'rgba(255,240,170,1)', 0.5); c.strokeStyle = '#fff4b0'; c.lineWidth = 2; c.beginPath(); c.ellipse(zx, GY - 30, 46, 50, 0, 0, 7); c.stroke();
+      const hx = T < 2 ? 280 : T < 4.2 ? 280 - (T - 2) / 2.2 * 190 : zx; hero(c, hx, t, { moving: T >= 2 && T < 4.2, dir: -1 });
+      if (left > 0) { tag(c, String(Math.ceil(left)), hx, GY - 112, '#ffe680'); c.fillStyle = '#ffe680'; c.beginPath(); c.moveTo(hx - 34, GY - 98); c.lineTo(hx - 18, GY - 108); c.lineTo(hx - 18, GY - 88); c.fill(); c.fillRect(hx - 18, GY - 101, 22, 6);
+        for (let i = 0; i < 3; i++) { const y = (T * 80 + i * 60) % 200; glow(c, 300 + i * 40, y, 14, 'rgba(255,240,200,1)', 0.7); } }
+      else { c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(0, 0, W, H); tag(c, '보호막이 막아냈다!', W / 2, 70, '#fff4b0'); tag(c, '(밖이었다면: 최대 HP 70% 피해)', W / 2, 92, '#ffb0b0'); }
+      label(c, '종말의 별! 보호막 안으로', '#fff4b0');
+    }],
+    ['parakan', '비 스킬 보스 조준 (마법사 · 궁수 · 전사)', '왼쪽: 지금 (앞쪽 넓게 흩어짐) / 오른쪽: 바꾼 뒤 (보스 위치 중심, 폭 절반). 데미지 숫자는 그대로', (c, t) => {
+      stage(c, 'parakan');
+      c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(W / 2 - 1, 0, 2, GY);
+      for (const [ox, aim] of [[0, false], [W / 2, true]]) {
+        const bx = ox + 190; boss(c, 'parakan', bx, t, { scale: 0.8 }); G.Draw.humanoid(c, Object.assign({ x: ox + 40, y: GY, dir: 1, t, atk: 0.4, atkKind: 'proj', scale: 0.9 }, { look: HERO.look, weapon: 'wand', wcolor: '#ff7a40' }));
+        for (let i = 0; i < 12; i++) { const s = (i * 0.37 + t * 1.4) % 1, cx = aim ? bx : ox + 150, spread = aim ? 50 : 170, x = cx - spread / 2 + ((i * 47) % 100) / 100 * spread, y = s * GY;
+          c.fillStyle = '#ff9a40'; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); glow(c, x, y, 10, 'rgba(255,160,60,1)', 0.6); if (s > 0.92) boom(c, x, GY - 6, 14, (s - 0.92) / 0.08, '#ffb060'); }
+        tag(c, aim ? '바꾼 뒤: 보스 조준' : '지금: 넓게 흩어짐', ox + 120, 56, aim ? '#8fe0a8' : '#ffb0b0');
+      }
+    }],
+  ];
+
+  // ---------------- 페이지 ----------------
+  const book = document.getElementById('book'), views = [];
+  function sect(title, lead, list, kind) {
+    const s = document.createElement('section'), h = document.createElement('h2'), p = document.createElement('p'), g = document.createElement('div');
+    h.textContent = title; p.className = 'lead'; p.textContent = lead; g.className = 'grid'; s.append(h, p, g); book.append(s);
+    for (const it of list) {
+      const [id, name, a, b, draw] = it.length === 5 ? it : [it[0], it[1], null, it[2], it[3]];
+      const card = document.createElement('div'); card.className = 'card';
+      const cv = document.createElement('canvas'); cv.width = W * 2; cv.height = H * 2; cv.setAttribute('aria-label', name);
+      const tx = document.createElement('div'); tx.className = 't';
+      const bb = document.createElement('b'); bb.textContent = name; if (a || kind) { const em = document.createElement('em'); em.textContent = a ? '체력 ' + a : kind; if (!a) em.className = 'g'; if (a && !a.endsWith('%')) em.textContent = a; bb.append(em); }
+      const sm = document.createElement('small'); sm.textContent = b; tx.append(bb, sm); card.append(cv, tx); g.append(card);
+      views.push({ cv, draw, off: views.length * 0.37 });
+    }
+  }
+  sect('새 패턴 16개 (페이즈마다 1개씩 열림)', '보스 체력 70%와 40%에서 페이즈가 바뀌며 새 패턴이 하나씩 열려요. 직전에 쓴 패턴 2개는 다시 고르지 않아서 같은 패턴이 연달아 나오지 않아요.', P);
+  sect('그로기 기믹 4종 (신규)', '기믹을 성공하면 6초 동안 보스가 받는 피해가 1.75배가 돼요. 기존 기믹(기둥 · 잔영 · 별조각 · 근위대 · 보호막)도 똑같이 적용돼요.', GIM, '그로기');
+  sect('개선', '녹스 종말의 별은 덜 억울하게, 비 형태 스킬은 보스를 조준하게 바꿔요.', FIX, '개선');
+
+  let paused = false, slow = false, t0 = performance.now(), last = performance.now(), acc = 0;
+  const pb = document.getElementById('pause'), sb = document.getElementById('slow');
+  pb.addEventListener('click', () => { paused = !paused; pb.textContent = paused ? '재생' : '일시정지'; pb.classList.toggle('on', paused); });
+  sb.addEventListener('click', () => { slow = !slow; sb.classList.toggle('on', slow); });
+  function frame(now) {
+    const dt = (now - last) / 1000; last = now; if (!paused) acc += dt * (slow ? 0.4 : 1);
+    for (const v of views) {
+      const r = v.cv.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) continue;
+      const c = v.cv.getContext('2d'); c.setTransform(2, 0, 0, 2, 0, 0); c.clearRect(0, 0, W, H);
+      try { v.draw(c, (acc + v.off) % L); } catch (e) { console.error(e); }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  window.__setT = x => { acc = x; paused = true; };
+})();
+</script>
