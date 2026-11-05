@@ -11,12 +11,12 @@
 - 모든 모듈은 전역 `G` 아래에 등록 (`src/util.js`가 `window.G` 생성)
 - `src/data/` 게임 데이터 (공식, 직업, 스킬, 아이템, 몬스터, 보스 패턴, NPC, 퀘스트, 맵)
   - `jobs2.js` 2~4차 전직과 스킬, `world2.js` 2장~종장 맵·몬스터·장비·NPC, `story2.js` 2장~종장 퀘스트와 엔딩
-- `src/core/` 입력, 키 설정, 효과음(`audio.js`), 배경음악 엔진(`music.js`), 세이브(슬롯 A/B/C), 설정
+- `src/core/` 입력, 키 설정, 효과음(`audio.js` 기본 · `sound.js` 스킬·전투 1.8), 배경음악 엔진(`music.js`), 세이브(슬롯 A/B/C), 설정
   - `src/data/songs.js` 배경음악 28곡 악보, `src/systems/chapter.js` 챕터 이름과 장 전환 연출
   - `src/systems/storage.js` 창고·순간이동 주문서, `src/ui/windows3.js` 그 창들, `src/data/story3.js` 1.5 서브 퀘스트
 - `src/render/` 아이콘(SVG 생성, 스킬 전용 문양은 `icons2.js`), 캐릭터·몬스터 그리기, 배경
   - `monsters2.js`(1.6, 32종) · `monsters3.js`(1.7, 38종 + 1.7.2 아우렐리온) · `monsters4.js`(1.7.8 라그하르트 5종, 옛 그림 대신) 몬스터 전용 그림·움직임 (`G.MonArt[몬스터 id]`). 71종 모두 등록됨. 새 몬스터는 여기에 등록 (안 하면 `sprites.js`의 공용 모양)
-- `src/systems/` 아이템·스탯·퀘스트·전투·튜토리얼·길 안내, `monskill.js` 몬스터 스킬 (1.7.5·1.7.6, 공통 틀 8개 + `G.MONSKILL[몬스터 id]` 데이터 54종)
+- `src/systems/` 아이템·스탯·퀘스트·전투·튜토리얼·길 안내, `monskill.js` 몬스터 스킬 (1.7.5·1.7.6, 공통 틀 8개 + `G.MONSKILL[몬스터 id]` 데이터 54종), `skillx.js` 직업 스킬 동작·연출 (1.7.10~)
 - `src/entity/` 플레이어, 몬스터, 보스 AI, 투사체, 드롭, 이펙트
 - `src/ui/` HUD, 창들, 대화, 지도, 캐릭터 만들기, 엔딩, `cutscene.js` 이야기 영상(1.7.7) (최종 보스 체험 모드는 1.6에서 제거)
 - `electron/` 창 생성과 세이브 파일 입출력
@@ -33,7 +33,7 @@
 - **전체 이야기 기준 문서: `docs/STORY.md`** (배경 → 프롤로그~종장 → 녹스 → 엔딩 3종). 대사·퀘스트를 고칠 때 이 문서와 맞춘다
 - 게임 제목은 1.7.4부터 **"한요미의 대모험"** (보이는 제목만 변경. 내부 이름 `hannyomi-adventure`·`Hannyomi`·저장 폴더·`hny_*` 키는 세이브 호환을 위해 그대로)
 - 빌드 1.4: `docs/BUILD_1.4_PLAN.md` — 구현 완료, 곡 피드백까지 끝 (2026-11-03)
-- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 완료 → **다음: 직업 스킬 수정 제안(1.7.10~1.7.11, `docs/SKILL_REWORK.md`, 확정 전) → 1.8 스킬 효과음** (몬스터 스킬 소리 포함) → 1.9 복장·장비 모양 → 2.0 히든 엔딩 → EXE 빌드)
+- 1.4 이후 완성까지의 순서: `docs/ROADMAP.md` (곡 피드백 끝 → 직접 플레이·버그 수정 → 1.5 → 1.6 → 1.6.1 → 1.7 → 1.7.1 → 1.7.2 → 1.7.3 → 1.7.4 → 1.7.5 → 1.7.6 → 1.7.7 → 1.7.8 → 1.7.9 → 1.7.10 → 1.7.11 → 1.7.12 → 1.8 완료 → 1.9 완료 → **다음: 2.0 히든 엔딩** → EXE 빌드)
 - 빌드 1.5: `docs/BUILD_1.5_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v3 (`G.Save.VERSION`, 변환은 `G.Save.upgrade`)
 - 빌드 1.6: `docs/BUILD_1.6_PLAN.md` — 구현 완료 (2026-11-04)
 - 빌드 1.6.1: `docs/BUILD_1.6.1_PLAN.md` — 구현 완료 (2026-11-04). 세이브 형식 v4
@@ -48,4 +48,9 @@
 - 빌드 1.7.7: `docs/BUILD_1.7.7_PLAN.md` — 구현 완료 (2026-11-04). 녹스 `src/render/nox.js`, 이야기 영상 `src/ui/cutscene.js` (히든 엔딩 장면은 준비만, 2.0에서 연결)
 - 빌드 1.7.8: `docs/BUILD_1.7.8_PLAN.md` — 구현 완료 (2026-11-04). 라그하르트 5종 새 그림 `src/render/monsters4.js` (폐광 바위웜·용광로 도롱뇽·용암 웅덩이·광석 거인·그라운더 MK-7)
 - 빌드 1.7.9: `docs/BUILD_1.7.9_PLAN.md` — 구현 완료 (2026-11-04). 스킬 아이콘 `src/render/icons2.js`(`G.SKILL_GLYPH[스킬 id]`, 새 스킬은 여기에 문양 추가), 버프 칸 `G.HUD.buffBar`
+- 빌드 1.7.10: `docs/BUILD_1.7.10_PLAN.md` — 구현 완료 (2026-11-04). 전사·궁수 스킬 동작·연출 `src/systems/skillx.js` (`G.SKILL_X[스킬 id]`, 피해 수치는 jobs2.js 그대로)
+- 빌드 1.7.11: `docs/BUILD_1.7.11_PLAN.md` — 구현 완료 (2026-11-04). 마법사·도적도 `skillx.js` (화상·빙결·튕기기·표식·독 쌓기·돌아오는 표창)
+- 빌드 1.7.12: `docs/BUILD_1.7.12_PLAN.md` — 구현 완료 (2026-11-04). 연희(사용자 조카 이름, 특별히 신경 쓸 것) NPC · 퀘스트 `c3_s5` · 고르기 창 `G.Win.heroset` · 연희의 별 부적
+- 빌드 1.8: `docs/BUILD_1.8_PLAN.md` (아래쪽 "실제 구현") — 구현 완료 (2026-11-05). 효과음 `src/core/sound.js` (`G.Sound`), 새 스킬은 `SKILL_SOUND`나 `BY_PROJ`/`BY_FX`로 소리 지정
+- 빌드 1.9: `docs/BUILD_1.9_PLAN.md` — 구현 완료 (2026-11-05). 복장·장비 모양 `src/render/outfit.js` (`G.Outfit.draw`가 사람형 캐릭터를 그림, 장비 id → 디자인 묶음 `styleOf`, 새 장비 묶음은 `S`·`WSTYLE`에 추가). 확인 페이지 `hannyomi-wardrobe.html`
 - 빌드 계획서 (사용자가 "1.x 진행해 줘"라고 하면 진행): `docs/BUILD_1.8_PLAN.md`, `docs/BUILD_1.9_PLAN.md`, `docs/BUILD_2.0_PLAN.md`

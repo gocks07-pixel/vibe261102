@@ -38,7 +38,8 @@ G.Quest = {
 
   accept(id) {
     const q = G.QUESTS[id];
-    this.p.d.quests[id] = { s: 'active', k: {}, m: {} };
+    const s = this.p.d.quests[id] = { s: 'active', k: {}, m: {} };
+    if (q.eliteRecord) for (const o of q.obj) if (o.t === 'kill' && this.p.d.flags['elite:' + o.mon]) s.k[o.mon] = o.n;   // 1.7.12 받기 전에 잡은 정예도 인정
     G.UI.log(`[퀘스트 수락] ${q.name}`, '#ffe08a');
     G.Audio.play('quest');
     G.UI.dirty();
@@ -75,6 +76,7 @@ G.Quest = {
     }
     if (q.gold) p.d.gold += q.gold;
     if (q.act && q.act.flag) p.d.flags[q.act.flag] = true;
+    if (q.heroPick) { p.d.flags.heroPick = (p.d.flags.heroPick || 0) + q.heroPick; setTimeout(() => G.UI.openWin('heroset'), 500); }   // 1.7.12 세트 2개 고르기
     if (q.act && q.act.job) p.changeJob(q.act.job);
     G.UI.log(`[퀘스트 완료] ${q.name} — ${this.rewardText(q)}`, '#7dff9a');
     G.UI.banner('퀘스트 완료', q.name);
@@ -88,6 +90,7 @@ G.Quest = {
 
   onKill(monId) {
     let changed = false;
+    if (G.MONSTERS[monId] && G.MONSTERS[monId].kind === 'elite' && !this.p.d.flags['elite:' + monId]) this.p.d.flags['elite:' + monId] = 1;   // 1.7.12 정예 처치 기록
     for (const id in this.p.d.quests) {
       const s = this.p.d.quests[id];
       if (s.s !== 'active') continue;
@@ -145,6 +148,7 @@ G.Quest = {
     for (const q of Object.values(G.QUESTS)) {
       if (q.end === npcId && this.isActive(q.id)) out.push({ q, mode: this.ready(q) ? 'end' : 'progress' });
       else if (q.start === npcId && this.available(q)) out.push({ q, mode: 'start' });
+      else if (q.start === npcId && q.end !== npcId && this.isActive(q.id)) out.push({ q, mode: 'progress' });   // 1.7.12 맡긴 NPC에게도 진행 상황 (연희)
     }
     const rank = { end: 0, start: 1, progress: 2 };
     out.sort((a, b) => rank[a.mode] - rank[b.mode] || (a.q.type === 'main' ? -1 : 1));

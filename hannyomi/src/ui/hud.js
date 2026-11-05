@@ -116,6 +116,7 @@ G.HUD = {
   buffBar(p) {
     const E = this.el, list = [];
     for (const id in p.buffs) list.push({ key: 'buff:' + id, bad: false, left: p.buffs[id].left, max: p.buffs[id].max, name: p.buffs[id].name, icon: () => G.Icons.skill(G.SKILLS[id]) });
+    if (p.cheerCd > 0) list.push({ key: 'cheer', bad: false, left: p.cheerCd, max: 180, name: '연희의 응원 (재사용 대기)', icon: () => G.Icons.item(G.ITEMS.yeonhee_charm) });   // 1.7.12
     for (const [k, left] of this.DEBUFFS(p)) list.push({ key: 'debuff:' + k, bad: true, left, name: G.DEBUFF_ICON[k].name, icon: () => G.Icons.debuff(k) });
     const nodes = this.bnodes || (this.bnodes = {}), seen = {};
     for (const b of list) {

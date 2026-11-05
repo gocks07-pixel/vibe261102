@@ -48,6 +48,7 @@ G.MonSkill = {
       case 'blink': G.FX.burst(m.x, m.y - m.h / 2, d.color || '#888', 14, 160); break;
       case 'zone': {
         const at = d.at === 'self' ? m.x : p.x, gy = this.groundY(w, at, d.at === 'self' ? m.y : p.y);
+        G.Sound.near('mZone', at);
         c.zone = this.addZone(w, { x: at, y: gy, r: d.r || 70, kind: d.kind || 'poison', warn: c.warn, dur: d.dur || 3.5, dmg: m.atk * c.mul * (d.dps || 0.2), slow: !!d.slow, src: m });
         break;
       }
@@ -74,7 +75,7 @@ G.MonSkill = {
     switch (d.t) {
       case 'dash': {   // 웅크림 + 번쩍 + 바람 줄 → 돌진 (나는 몬스터는 급강하)
         if (!warnDone) { if (Math.random() < 0.5) G.FX.wind(m.x - m.dir * m.w * 0.4, m.y - m.h * 0.5, m.dir); return false; }
-        if (!c.go) { c.go = true; c.left = d.dist || 240; c.ty = p.y - 30; }
+        if (!c.go) { c.go = true; c.left = d.dist || 240; c.ty = p.y - 30; G.Sound.near('mDash', m.x); }
         const sp = (d.speed || 560) * dt;
         m.moving = true; m.atkAnim = 0.5;
         m.x += m.dir * sp; c.left -= sp;
@@ -91,7 +92,7 @@ G.MonSkill = {
           return false;
         }
         if (!c.hit) {
-          c.hit = true; m.atkAnim = 0.75;
+          c.hit = true; m.atkAnim = 0.75; G.Sound.near('mSlam', m.x);
           const r = d.r || 90;
           if (Math.abs(p.x - m.x) < r + 20 && Math.abs(p.y - m.y) < 50) hit(d.dmg || 1.5, d.slow ? { slow: 1.5 } : {});
           G.FX.shock(m.x, m.y - 10, r * 1.2, d.color || '#e0d0b0'); w.shake(4);
@@ -101,7 +102,7 @@ G.MonSkill = {
       case 'volley': {   // 번쩍 → 부채꼴 3발
         if (!warnDone) return false;
         if (!c.fired) {
-          c.fired = true; m.atkAnim = 0;
+          c.fired = true; m.atkAnim = 0; G.Sound.near('mVolley', m.x);
           const n = d.n || 3, sx = m.x + m.dir * m.w * 0.3, sy = m.y - m.h * 0.55, base = Math.atan2((p.y - 32) - sy, p.x - sx);
           for (let i = 0; i < n; i++) {
             const a = base + (i - (n - 1) / 2) * (d.spread || 0.22);
@@ -113,7 +114,7 @@ G.MonSkill = {
       case 'zone': return warnDone;   // 장판은 깔리고 나면 몬스터는 다시 움직인다 (장판은 world에서 따로 진행)
       case 'leap': {   // 웅크림 + 착지 그림자 → 포물선 도약 → 착지 충격
         if (!warnDone) return false;
-        if (!c.go) { c.go = true; c.x0 = m.x; c.y0 = m.y; c.k = 0; }
+        if (!c.go) { c.go = true; c.x0 = m.x; c.y0 = m.y; c.k = 0; G.Sound.near('mLeap', m.x); }   // 뛰어오름 → 0.45초 뒤 착지 소리
         c.k = Math.min(1, c.k + dt / 0.45);
         m.x = c.x0 + (c.tx - c.x0) * c.k; m.y = c.y0 - Math.sin(c.k * Math.PI) * (d.h || 90);
         m.atkAnim = 0.5;
@@ -127,13 +128,14 @@ G.MonSkill = {
       }
       case 'buff': {   // 빛 오라 → 잠깐 강화
         if (!warnDone) { if (Math.random() < 0.6) G.FX.rise(m.x, m.y - 6, d.color || '#ffd070', 1); return false; }
+        G.Sound.near('mBuff', m.x);
         m.buff = { t: d.dur || 4, atk: d.atk || 1.3, spd: d.spd || 1.4, def: d.def || 1, color: d.color || '#ffd070' };
         G.FX.ring(m.x, m.y - m.h / 2, m.w, m.buff.color);
         return true;
       }
       case 'blink': {   // 연기 속에 사라짐 → 플레이어 옆·등 뒤에 나타남
         if (!c.gone && c.t >= 0.25) {
-          c.gone = true; m.hideT = 0.45;
+          c.gone = true; m.hideT = 0.45; G.Sound.near('mBlink', m.x);
           const side = d.behind ? -p.dir : (Math.sign(m.x - p.x) || 1);
           c.tx = G.U.clamp(p.x + side * 70, m.minX, m.maxX);
         }
@@ -148,6 +150,7 @@ G.MonSkill = {
         for (const z of c.spots) {
           if (!z.fell && c.t >= c.warn + z.at) {
             z.fell = true;
+            if (!c.snd) { c.snd = true; G.Sound.near('mDrop', z.x); }
             G.FX.add({ k: 'drop', obj: d.obj || 'rock', x: z.x, y: z.y, life: 0.45 });
             setTimeout(() => {
               if (w.player === p && Math.abs(p.x - z.x) < 44 && Math.abs(p.y - z.y) < 60) p.hurt(raw * (d.dmg || 1.1), z.x, { src: m });

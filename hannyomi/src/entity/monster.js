@@ -52,7 +52,7 @@ G.Monster = class {
       if (this.poison.tick <= 0) {
         this.poison.tick = 1; this.poison.left--;
         const dmg = Math.max(1, Math.round(this.poison.dps));
-        this.hp -= dmg; G.FX.dmg(this.x, this.y - this.h - 4, dmg, 'poison');
+        this.hp -= dmg; G.FX.dmg(this.x, this.y - this.h - 4, dmg, this.poison.burn ? 'burn' : 'poison');   // 1.7.11 화상은 주황 숫자
         if (this.poison.left <= 0) this.poison = null;
         if (this.hp <= 0) { this.die(w); return; }
       }

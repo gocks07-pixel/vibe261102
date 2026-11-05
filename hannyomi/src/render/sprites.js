@@ -86,9 +86,10 @@ G.Draw = (function () {
     const blink = (Math.floor((t || 0) * 10) % 37) === 0;
     if (blink) { ctx.fillStyle = ec; ctx.fillRect(5, -49, 3, 1.5); ctx.fillRect(10, -49, 3, 1.5); }
     else if (kind === 'big') {
-      ell(ctx, 6, -50, 2.7, 3.5, '#fff'); ell(ctx, 11.6, -50, 2.7, 3.5, '#fff');
-      ell(ctx, 6.5, -49.6, 2, 2.7, ec); ell(ctx, 12.1, -49.6, 2, 2.7, ec);
-      ell(ctx, 7.1, -51, 0.9, 0.9, '#fff'); ell(ctx, 12.7, -51, 0.9, 0.9, '#fff');
+      // 1.9: 너무 크고 반짝이던 눈을 조금 작고 차분하게 (흰자 줄이고 하이라이트 1개만 작게)
+      ell(ctx, 6.1, -50, 2.2, 2.9, '#fff'); ell(ctx, 11.5, -50, 2.2, 2.9, '#fff');
+      ell(ctx, 6.5, -49.7, 1.7, 2.3, ec); ell(ctx, 11.9, -49.7, 1.7, 2.3, ec);
+      ell(ctx, 7, -50.8, 0.55, 0.55, 'rgba(255,255,255,.85)'); ell(ctx, 12.4, -50.8, 0.55, 0.55, 'rgba(255,255,255,.85)');
     } else if (kind === 'smile') {
       ctx.strokeStyle = ec; ctx.lineWidth = 1.7;
       ctx.beginPath(); ctx.arc(6.3, -48.5, 2.3, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
@@ -105,7 +106,9 @@ G.Draw = (function () {
   }
 
   // o: {x, y, dir, t, moving, air, atk(0~1 또는 -1), atkKind, look, weapon, wcolor, scale, alpha, hurt, mask, cape, hatColor}
-  function humanoid(ctx, o) {
+  // 1.9: 복장·장비 모양은 src/render/outfit.js (G.Outfit.draw) 가 그린다. 없으면 예전 모양
+  function humanoid(ctx, o) { if (G.Outfit) G.Outfit.draw(ctx, o); else humanoidBase(ctx, o); }
+  function humanoidBase(ctx, o) {
     const s = o.scale || 1, lk = o.look;
     ctx.save(); ctx.translate(o.x, o.y); ctx.scale(o.dir * s, s);
     if (o.alpha != null) ctx.globalAlpha = o.alpha;
@@ -421,5 +424,5 @@ G.Draw = (function () {
     ctx.restore();
   }
 
-  return { humanoid, monster, ell, rrect, MON };   // MON: 1.7에서 기존 전용 모양(녹스·카이엔 등)을 감싸 다듬을 때 사용
+  return { humanoid, humanoidBase, monster, ell, rrect, MON, hairBack, hair, face, weapon, shadow };   // MON: 1.7에서 기존 전용 모양(녹스·카이엔 등)을 감싸 다듬을 때 사용
 })();

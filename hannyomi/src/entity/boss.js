@@ -91,6 +91,7 @@ G.BossAI = class {
   }
   start(pt, w) {
     this.cur = { pt, t: 0 }; this.last = pt.id; this.cool[pt.id] = pt.cd;
+    G.Sound.near(G.Sound.BOSS[pt.type] || 'bWarn', this.m.x, { vol: 0.8 });   // 1.8 보스 패턴 소리
     if (pt.shout) w.shout(pt.shout);
     this.m.warnT = pt.warn || 0.6;
   }

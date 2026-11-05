@@ -9,6 +9,9 @@ G.Projectile = class {
     this.t += dt;
     this.x += this.vx * dt; this.y += this.vy * dt;
     this.dist += Math.hypot(this.vx, this.vy) * dt;
+    if (this.returnAt && !this.returned && this.dist >= this.returnAt) {   // 1.7.11 돌아오는 표창: 반쯤 가서 되돌아오며 한 번 더 맞힘
+      this.returned = true; this.vx *= -1; this.vy *= -1; this.hits.clear(); this.pierce = Math.max(this.pierce, 1) + 1; this.range = this.returnAt * 2.1;
+    }
     this.life -= dt;
     if (this.bounce) {   // 화면 안을 튕겨 다님 (어둠 구체)
       if (this.x < 20 || this.x > w.map.width - 20) { this.vx *= -1; this.x = G.U.clamp(this.x, 20, w.map.width - 20); }
@@ -23,6 +26,7 @@ G.Projectile = class {
       this.dead = true;
       G.FX.burst(this.x, this.groundY, this.color || '#ccc', 6, 160);
       if (this.color) G.FX.flash(this.x, this.groundY - 6, 26, this.color);
+      const land = G.SkillX && G.SkillX.LAND[this.kind]; if (land) land(this);
       return;
     }
     const hb = { x: this.x - this.r, y: this.y - this.r, w: this.r * 2, h: this.r * 2 };
@@ -44,6 +48,8 @@ G.Projectile = class {
   draw(ctx) {
     const a = Math.atan2(this.vy, this.vx);
     ctx.save(); ctx.translate(this.x, this.y);
+    const own = G.SkillX && G.SkillX.PROJ[this.kind];   // 1.7.10: 스킬 전용 투사체 그림
+    if (own) { own(ctx, this, a); ctx.restore(); return; }
     switch (this.kind) {
       case 'arrow':
         ctx.rotate(a);

@@ -92,18 +92,18 @@
   U('scroll_70', '용기의 주문서 (옛 아이템)', 'scroll', '#ffd54a', 1600, {}, '1.6.1부터 별빛 각인서로 바뀌었다. 세이브를 불러오면 각인서 2장으로 바뀐다.');
   U('scroll_30', '도박의 주문서 (옛 아이템)', 'scroll', '#ff6a6a', 3000, {}, '1.6.1부터 별빛 각인서로 바뀌었다. 세이브를 불러오면 각인서 3장으로 바뀐다.');
 
-  // ---------- 별조각 계승자 세트 (Lv.100, 녹스 드롭 · 테스트 모드 장비) ----------
+  // ---------- 별조각 계승자 세트 (Lv.90 — 1.7.12에서 100 → 90, 녹스 드롭 · 연희의 선물 보상 · 테스트 모드 장비. 장신구는 Lv.100 그대로) ----------
   const T = { set: 'starheir', noDrop: true };
-  W('trial_sword', '별조각 대검', 'sword', 'warrior', 100, '#ffe06a', { STR: 20 }, T);
-  W('trial_bow', '별조각 장궁', 'bow', 'archer', 100, '#ffe06a', { DEX: 20 }, T);
-  W('trial_wand', '별조각 지팡이', 'wand', 'mage', 100, '#ffe06a', { INT: 25 }, T);
-  W('trial_dagger', '별조각 단검', 'dagger', 'thief', 100, '#ffe06a', { LUK: 20 }, T);
-  A('trial_hat', '별조각 왕관', 'hat', 100, '#f0d060', { allStat: 15 }, T);
-  A('trial_top', '별조각 갑주', 'top', 100, '#f0d060', { allStat: 15 }, T);
-  A('trial_bottom', '별조각 각반', 'bottom', 100, '#c8a840', { allStat: 15 }, T);
-  A('trial_shoes', '별조각 장화', 'shoes', 100, '#c8a840', { allStat: 12 }, T);
-  A('trial_gloves', '별조각 장갑', 'gloves', 100, '#f0d060', { allStat: 12, atk: 8 }, T);
-  A('trial_cape', '별조각 망토', 'cape', 100, '#8a5ad0', { allStat: 12 }, T);
+  W('trial_sword', '별조각 대검', 'sword', 'warrior', 90, '#ffe06a', { STR: 20 }, T);
+  W('trial_bow', '별조각 장궁', 'bow', 'archer', 90, '#ffe06a', { DEX: 20 }, T);
+  W('trial_wand', '별조각 지팡이', 'wand', 'mage', 90, '#ffe06a', { INT: 25 }, T);
+  W('trial_dagger', '별조각 단검', 'dagger', 'thief', 90, '#ffe06a', { LUK: 20 }, T);
+  A('trial_hat', '별조각 왕관', 'hat', 90, '#f0d060', { allStat: 15 }, T);
+  A('trial_top', '별조각 갑주', 'top', 90, '#f0d060', { allStat: 15 }, T);
+  A('trial_bottom', '별조각 각반', 'bottom', 90, '#c8a840', { allStat: 15 }, T);
+  A('trial_shoes', '별조각 장화', 'shoes', 90, '#c8a840', { allStat: 12 }, T);
+  A('trial_gloves', '별조각 장갑', 'gloves', 90, '#f0d060', { allStat: 12, atk: 8 }, T);
+  A('trial_cape', '별조각 망토', 'cape', 90, '#8a5ad0', { allStat: 12 }, T);
   AC('trial_earring', '계승자의 귀걸이', 'earring', 100, '#ffe06a', { allStat: 15, atk: 5 }, { noDrop: true });
   AC('trial_ring', '계승자의 반지', 'ring', 100, '#ffe06a', { allStat: 15, atk: 5 }, { noDrop: true });
   AC('trial_pendant', '계승자의 펜던트', 'pendant', 100, '#ffe06a', { allStat: 15, HP: 800 }, { noDrop: true });

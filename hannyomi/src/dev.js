@@ -112,6 +112,7 @@ G.Dev = {
     else if (a === 'yes') { const s = this.ask; this.ask = null; this.start(s); }
     else if (a === 'tp') { G.UI.closeWin('menu'); G.UI.openWin('devtp'); }
     else if (a.startsWith('go:')) { G.UI.closeWin('devtp'); G.Game.changeMap(a.slice(3), null); }
+    else if (a === 'elites') { const p = G.Game.player; for (const id in G.MONSTERS) if (G.MONSTERS[id].kind === 'elite') { p.d.flags['elite:' + id] = 1; const q = p.d.quests.c3_s5; if (q && q.s === 'active') q.k[id] = 1; } G.UI.log('[테스트] 정예 6종 처치 기록을 채웠습니다.', '#9affc0'); G.UI.dirty(); }
     else if (a === 'intro') { G.UI.closeWin('devtp'); G.Cutscene.play('intro', () => G.Music.playMap(G.Game.world.mapId, 2)); }
     else if (a.startsWith('end:')) { G.UI.closeWin('devtp'); G.Ending.play(a.slice(4), true); }   // 미리보기: 세이브에 기록 안 함
   },
@@ -133,6 +134,7 @@ G.Win.devtp = {
       <button class="btn sm" data-act="dev" data-arg="end:seal">희생 · 영원한 별</button>
       <button class="btn sm" data-act="dev" data-arg="end:purify">구원 · 새로운 별</button>
       <button class="btn sm" data-act="dev" data-arg="intro">배경 설명 영상</button>
+      <button class="btn sm" data-act="dev" data-arg="elites">정예 처치 기록 채우기 (연희의 선물)</button>
       <span class="dim" style="font-size:11px;align-self:center">미리보기라 세이브에 기록되지 않아요</span></div></div>`;
     const pj = G.Game.player && G.Game.player.d.job;
     h += `<div class="dev-row"><b style="color:#9affc0">🧙 직업만 바꾸기</b><div>`;

@@ -123,6 +123,7 @@ G.UI = {
       case 'sto': G.Win.storage.act(arg); break;
       case 'reso': G.Win.cube.act(arg); break;
       case 'tele': G.Teleport.go(arg); break;
+      case 'hero': G.Win.heroset.act(arg); break;
       case 'snd': G.Win.sound.act(arg); break;
       case 'saveas': G.Win.saveas.act(arg); break;
       case 'title': G.Title.act(arg); break;
@@ -235,6 +236,7 @@ G.UI = {
     const p = G.Game.player, it = p.d.inv[tab][idx], t = it && G.ITEMS[it.tid];
     if (!it) return;
     if (t.quest) { this.log('퀘스트 아이템은 판매할 수 없습니다.', '#ff7a7a'); return; }
+    if (t.gift) { this.log('연희의 선물은 판매할 수 없습니다.', '#ff9ad0'); return; }
     if ((it.grade || 0) >= 2 && !ok) {
       this.ask(`<b style="color:${G.GRADES[it.grade].color}">${G.GRADES[it.grade].name}</b> 등급 <b>${G.U.esc(t.name)}</b>을(를) 판매할까요?`, '판매',
         () => { if (p.d.inv[tab][idx] === it) this.sell(tab, idx, true); });
@@ -369,6 +371,7 @@ G.Tip = {
     if (kind === 'set') return this.set(a);
     if (kind === 'buff') return this.buff(p, a);
     if (kind === 'debuff') return this.debuff(p, a);
+    if (kind === 'cheer') return `<div class="tn" style="color:#ffc8e8">연희의 응원</div><div class="tg dim">재사용 대기 ${Math.ceil(p.cheerCd || 0)}초</div><div class="sec">연희의 별 부적이 다시 지켜 줄 준비를 하고 있어요.</div>`;
     if (kind === 'map') return this.map(a);
     return '';
   },
@@ -445,8 +448,10 @@ G.Tip = {
     } else {
       h += `<div class="sec dim">별자리 각인 없음 (공명석으로 깨울 수 있음)</div>`;
     }
+    if (t.cheer) h += `<div class="sec"><h5 style="color:#ffc8e8">특수 효과 · 연희의 응원</h5><div style="color:#ffe0f0">쓰러질 만큼 큰 피해를 받으면 한 번 HP 1로 버팁니다. (재사용 3분)</div></div>`;
+    if (t.desc) h += `<div class="sec" style="color:#e8d8f0;white-space:pre-wrap">${G.U.esc(t.desc)}</div>`;
     h += this.setBlock(t);
-    h += `<div class="sec dim">판매가 ${G.U.fmt(G.Items.sellPrice(it))} G</div>`;
+    h += t.gift ? '<div class="sec" style="color:#ffc8e8">연희의 선물 · 판매 불가</div>' : `<div class="sec dim">판매가 ${G.U.fmt(G.Items.sellPrice(it))} G</div>`;
     return h;
   },
   tpl(t) {

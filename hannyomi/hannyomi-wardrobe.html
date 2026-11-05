@@ -1,0 +1,187 @@
+<title>한요미 옷장</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;600;800&display=swap">
+<style>
+/* 1.9 확인용: 복장 4종 · 장비 세트 모양을 게임과 같은 그리기 코드로 (밤하늘 톤, 단일 테마) */
+:root {
+  color-scheme: dark;
+  --night: #0d1124; --panel: #161c36; --line: #2c355c; --ink: #e9ecf8; --dim: #9aa3c7; --gold: #ffd36a; --leaf: #8fe0a8;
+  --display: 'Gowun Batang', 'Batang', serif; --body: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+}
+body { background: var(--night); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 48px; }
+h1 { font-family: var(--display); color: var(--gold); font-size: clamp(28px, 5vw, 40px); margin: 0; letter-spacing: 2px; text-wrap: balance; }
+.sub { color: var(--dim); margin: 6px 0 0; max-width: 66ch; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(13,17,36,.95); border-bottom: 1px solid var(--line); margin: 18px 0 8px; padding-block: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--night); }
+.bar span { color: var(--dim); font-size: 13px; margin-right: 4px; }
+.bar button { font-family: var(--body); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: #1e2546; color: var(--ink); font-weight: 600; cursor: pointer; }
+.bar button.on { background: #6b5214; border-color: var(--gold); }
+.bar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+section { margin-top: 26px; }
+h2 { font-size: 13px; letter-spacing: 3px; color: var(--leaf); margin: 0 0 10px; font-weight: 800; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 10px; }
+.grid.small { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.card canvas { display: block; width: 100%; height: auto; background: linear-gradient(#26305a, #1a2142 74%, #2a2a3a 74%, #222232); }
+.card .t { padding: 8px 12px 11px; }
+.card b { display: block; font-size: 15px; }
+.card b em { font-style: normal; color: var(--gold); font-size: 12px; margin-left: 6px; font-weight: 600; }
+.card small { color: var(--dim); font-size: 12.5px; display: block; }
+</style>
+<div class="wrap">
+  <h1>한요미 옷장</h1>
+  <p class="sub">1.9 빌드 확인용. 캐릭터 만들기 복장 4종과 장비 세트를 게임과 똑같은 그리기 코드로 입혀 봤어요. 장비는 색뿐 아니라 투구·갑옷·장화·장갑·망토·무기 모양이 세트마다 달라요.</p>
+  <div class="bar" role="toolbar" aria-label="동작 선택"><span>동작</span>
+    <button type="button" data-mode="idle" class="on">가만히</button><button type="button" data-mode="walk">걷기</button>
+    <button type="button" data-mode="atk">공격</button><button type="button" data-mode="turn">돌아보기</button>
+  </div>
+  <main id="book"></main>
+</div>
+<script src="src/util.js"></script>
+<script src="src/data/formulas.js"></script>
+<script src="src/core/settings.js"></script>
+<script src="src/data/jobs.js"></script>
+<script src="src/data/looks.js"></script>
+<script src="src/data/skills.js"></script>
+<script src="src/data/jobs2.js"></script>
+<script src="src/data/options.js"></script>
+<script src="src/data/items.js"></script>
+<script src="src/data/sets.js"></script>
+<script src="src/data/sfx.js"></script>
+<script src="src/data/monsters.js"></script>
+<script src="src/data/bosses.js"></script>
+<script src="src/data/npcs.js"></script>
+<script src="src/data/quests.js"></script>
+<script src="src/data/maps.js"></script>
+<script src="src/data/world2.js"></script>
+<script src="src/data/story2.js"></script>
+<script src="src/data/story3.js"></script>
+<script src="src/data/rework.js"></script>
+<script src="src/data/songs.js"></script>
+<script src="src/render/icons.js"></script>
+<script src="src/render/icons2.js"></script>
+<script src="src/render/sprites.js"></script>
+<script src="src/render/outfit.js"></script>
+<script>
+(function () {
+  const book = document.getElementById('book'), cards = [];
+  let mode = 'idle';
+  const FAM = [['warrior', 'sword'], ['archer', 'bow'], ['mage', 'wand'], ['thief', 'dagger']];
+  const base = (g, o) => G.LOOKS.toDraw(Object.assign(G.LOOKS.def(g), o));
+  const LOOK = [
+    base('m', { hairStyle: 'short', hairColor: '#2a1a12', skin: '#ffe0c2' }),
+    base('f', { hairStyle: 'long', hairColor: '#a8743a', eye: 'big', eyeColor: '#3a5ac0', skin: '#ffe0c2' }),
+    base('m', { hairStyle: 'spiky', hairColor: '#c0402a', eye: 'sharp', skin: '#f5cfa8' }),
+    base('f', { hairStyle: 'twin', hairColor: '#e8e8f0', eye: 'smile', eyeColor: '#8a3ab0', skin: '#e0a878' }),
+  ];
+  function section(title, small) {
+    const s = document.createElement('section'), h = document.createElement('h2'), g = document.createElement('div');
+    h.textContent = title; g.className = 'grid' + (small ? ' small' : ''); s.append(h, g); book.append(s); return g;
+  }
+  function card(grid, name, tag, desc, w, h, draw) {
+    const c = document.createElement('div'); c.className = 'card';
+    const cv = document.createElement('canvas'); cv.width = w * 2; cv.height = h * 2;
+    const t = document.createElement('div'); t.className = 't';
+    const b = document.createElement('b'); b.textContent = name;
+    if (tag) { const em = document.createElement('em'); em.textContent = tag; b.append(em); }
+    const sm = document.createElement('small'); sm.textContent = desc;
+    t.append(b, sm); c.append(cv, t); grid.append(c);
+    cards.push({ cv, w, h, draw });
+  }
+  function pose(t, i) {
+    const o = { t: t + i * 0.37, moving: false, air: false, atk: -1, atkKind: 'melee', dir: 1 };
+    if (mode === 'walk') o.moving = true;
+    if (mode === 'atk') { const k = ((t * 1.1 + i * 0.25) % 1.4); o.atk = k < 1 ? k : -1; }
+    if (mode === 'turn') o.dir = Math.sin(t * 0.9 + i) > 0 ? 1 : -1;
+    return o;
+  }
+  // 1. 복장 4종
+  const g1 = section('캐릭터 만들기 복장 4종 (남 · 여)');
+  const DESC = { sailor: '세일러 칼라 · 줄무늬 · 넓은 바지 (여: 주름치마)', traveler: '짧은 어깨 망토 · 허리 가방 벨트 · 긴 부츠',
+                 apprentice: '발목까지 오는 로브 · 넓은 소매 · 허리끈', casual: '후드티 · 반바지 · 운동화' };
+  for (const [id, name] of G.LOOKS.outfit) {
+    card(g1, name, '', DESC[id], 330, 150, (ctx, t) => {
+      [['m', 'short', '#2a1a12'], ['f', 'pony', '#5a3a22']].forEach(([gd, st, hc], i) => {
+        const look = G.LOOKS.toDraw(Object.assign(G.LOOKS.def(gd), { outfit: id, hairStyle: st, hairColor: hc }));
+        G.Draw.humanoid(ctx, Object.assign(pose(t, i), { x: 100 + i * 130, y: 132, look, scale: 1.55, weapon: 'stick', wcolor: '#a0703c' }));
+      });
+    });
+  }
+  // 2. 장비 세트
+  const SETS = [
+    ['가죽 장비', 'Lv.3~5', '챙 모자 · 가죽 조끼 · 장화 · 장갑', ['leather_hat', 'leather_vest', 'leather_pants', 'leather_boots', 'leather_gloves'], fam => ({ warrior: 'sword_iron', archer: 'bow_hunter', mage: 'wand_novice', thief: 'dagger_twin' })[fam]],
+    ['새싹 모험가 세트', 'Lv.10', '새싹이 돋은 모자 · 잎사귀 문양 · 말린 앞코 신발', ['sprout_hat', 'sprout_top', 'sprout_bottom', 'sprout_shoes', 'traveler_cape', 'traveler_gloves'], fam => ({ warrior: 'sword_steel', archer: 'bow_wind', mage: 'wand_crystal', thief: 'dagger_shadow' })[fam]],
+    ['엘렌 숲지기 세트', 'Lv.20', '깃털 꽂은 뾰족 모자 · 금테 잎사귀 · 붉은손 무기', ['elen_hat', 'elen_top', 'elen_bottom', 'elen_shoes', 'elen_gloves'], fam => ({ warrior: 'sword_red', archer: 'bow_red', mage: 'wand_red', thief: 'dagger_red' })[fam]],
+    ['미스릴 장비', 'Lv.30', '코 가리개 투구 · 판금 갑옷 · 긴 망토', 30],
+    ['라그 강철 세트', 'Lv.40', '이마 고글 리벳 투구 · 톱니 문양 · 톱니 무기', 40],
+    ['사막 장비', 'Lv.50', '터번 · 대각선 띠 · 펑퍼짐한 바지 · 샌들 · 곡도', 50],
+    ['사하린 왕조 세트', 'Lv.55', '태양 볏 머리띠 · 넓은 목깃 · 앞판 치마', 55],
+    ['파라오 장비', 'Lv.60', '줄무늬 머릿수건 · 태양 지팡이 · 갈고리검', 60],
+    ['서리용 세트', 'Lv.70', '뿔 투구 · 눈꽃 문양 · 얼음 밑단 망토 · 수정 무기', 70],
+    ['폭풍 장비', 'Lv.80', '번개 볏 투구 · 번개 문양 · 번개 칼날', 80],
+    ['천공 세트', 'Lv.85', '날개 머리띠 · 깃털 망토 · 날개 장화 · 날개 무기', 85],
+    ['공허 수호자 장비', 'Lv.90', '가시 투구 · 찢어진 망토 · 보랏빛 무기', 90],
+    ['별조각 계승자 세트', 'Lv.90', '별 세 개 왕관 · 별무늬 망토 · 빛나는 별 무기', ['trial_hat', 'trial_top', 'trial_bottom', 'trial_shoes', 'trial_gloves', 'trial_cape'], fam => 'trial_' + ({ warrior: 'sword', archer: 'bow', mage: 'wand', thief: 'dagger' })[fam]],
+  ];
+  const g2 = section('장비 세트 (전사 · 궁수 · 마법사 · 도적 무기)');
+  for (const [name, tag, desc, pieces, wfn] of SETS) {
+    let ids = pieces, wf = wfn;
+    if (typeof pieces === 'number') {
+      const lv = pieces;
+      ids = ['hat', 'top', 'bottom', 'shoes', 'gloves', 'cape'].map(s => `ar${lv}_${s}`).filter(id => G.ITEMS[id]);
+      wf = fam => [lv, lv + 5, lv - 5].map(l => `wp${l}_${fam}`).find(id => G.ITEMS[id]);
+    }
+    card(g2, name, tag, desc, 400, 150, (ctx, t) => {
+      FAM.forEach(([fam], i) => {
+        const wid = wf(fam), w = G.ITEMS[wid], eq = {};
+        for (const id of ids.concat(wid ? [wid] : [])) eq[G.ITEMS[id].slot] = { tid: id };
+        const it = s => eq[s] ? G.ITEMS[eq[s].tid] : null;
+        const L = LOOK[i];
+        const look = Object.assign({}, L, { top: it('top') ? it('top').color : L.top, bottom: it('bottom') ? it('bottom').color : L.bottom });
+        G.Draw.humanoid(ctx, Object.assign(pose(t, i), {
+          x: 55 + i * 97, y: 134, look, scale: 1.3, gear: G.Outfit.gearOf(eq),
+          hatColor: it('hat') ? it('hat').color : null, cape: it('cape') ? it('cape').color : null,
+          weapon: w ? w.type : null, wcolor: w ? w.color : null, atkKind: w && (w.type === 'bow' || w.type === 'wand') ? 'proj' : 'melee',
+        }));
+      });
+    });
+  }
+  // 3. 눈 모양
+  const g3 = section('눈 모양 (초롱초롱한 눈을 조금 차분하게)', true);
+  // 예전(1.8까지) 초롱초롱한 눈: 비교용으로 그 모양 그대로 다시 그린다
+  function oldFace(ctx, lk) {
+    const e = (x, y, rx, ry, f) => { ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fillStyle = f; ctx.fill(); }, ec = lk.eyeColor;
+    e(6, -50, 2.7, 3.5, '#fff'); e(11.6, -50, 2.7, 3.5, '#fff'); e(6.5, -49.6, 2, 2.7, ec); e(12.1, -49.6, 2, 2.7, ec);
+    e(7.1, -51, 0.9, 0.9, '#fff'); e(12.7, -51, 0.9, 0.9, '#fff');
+    ctx.strokeStyle = '#2a1a1a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(4, -53.6); ctx.lineTo(8.4, -54.2); ctx.moveTo(9.6, -54.2); ctx.lineTo(14, -53.6); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,120,120,.35)'; ctx.fillRect(4, -45, 4, 2); ctx.fillRect(11, -45, 3, 2);
+  }
+  function head(ctx, eye, old) {
+    const look = G.LOOKS.toDraw(Object.assign(G.LOOKS.def('f'), { eye, eyeColor: '#3a5ac0', hairStyle: 'long', hairColor: '#5a3a22' }));
+    const keep = G.Draw.face; if (old) G.Draw.face = oldFace;
+    ctx.save(); ctx.translate(122, 188); ctx.scale(2.7, 2.7);
+    try { G.Draw.humanoid(ctx, { x: 0, y: 0, dir: 1, t: 0.55, atk: -1, look }); } finally { G.Draw.face = keep; }
+    ctx.restore();
+  }
+  for (const [label, desc, old] of [['초롱초롱한 눈 · 예전', '흰자가 크고 반짝임이 커서 튀었던 모양', true], ['초롱초롱한 눈 · 1.9', '조금 작게, 반짝임은 작은 점 하나', false]])
+    card(g3, label, '', desc, 250, 150, ctx => head(ctx, 'big', old));
+  for (const [id, name] of G.LOOKS.eye.filter(e => e[0] !== 'big'))
+    card(g3, name, '', '바뀌지 않음', 250, 150, ctx => head(ctx, id, false));
+  document.querySelectorAll('.bar button').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode; document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+  const t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    for (const c of cards) {
+      const r = c.cv.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) continue;
+      const ctx = c.cv.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0); ctx.clearRect(0, 0, c.w, c.h);
+      try { c.draw(ctx, t); } catch (e) { console.error(e); }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>

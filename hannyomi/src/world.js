@@ -269,7 +269,8 @@ G.World = class {
     this.updateBossFields(dt);
     G.MonSkill.updateWorld(dt, this);
     if (this.flyby) { this.flyby.t += dt; if (this.flyby.t >= this.flyby.dur) this.flyby = null; }
-    if (this.noxEnd) { const e = this.noxEnd; e.t += dt; if (!e.said && e.t > 2.6) { e.said = true; G.UI.banner('녹스', '…따뜻하구나. 이것이… 별빛인가.'); } }
+    if (this.noxEnd) { const e = this.noxEnd; e.t += dt; if (!e.lit && e.t > 1.2) { e.lit = true; G.Sound.play('lantern'); }   // 1.8 등불이 켜지는 소리
+      if (!e.said && e.t > 2.6) { e.said = true; G.UI.banner('녹스', '…따뜻하구나. 이것이… 별빛인가.'); } }
     for (const n of this.npcs) { n.t += dt; if (Math.abs(p.x - n.x) < 300) n.dir = Math.sign(p.x - n.x) || n.dir; }
     const target = G.U.clamp(p.x - 640, 0, Math.max(0, this.map.width - 1280));
     this.cam += (target - this.cam) * Math.min(1, dt * 8);
@@ -420,6 +421,11 @@ G.World = class {
     }
     for (const n of this.npcs) {
       G.Draw.humanoid(ctx, { x: n.x, y: n.y, dir: n.dir, t: n.t, look: Object.assign({ skin: '#ffe0c2' }, n.def.look), atk: -1 });
+      if (n.def.pin) {   // 1.7.12 연희의 별 머리핀
+        const px = n.x - (n.dir || 1) * 7, py = n.y - 76; ctx.fillStyle = n.def.pin; ctx.strokeStyle = '#a07a10'; ctx.lineWidth = 1; ctx.beginPath();
+        for (let i = 0; i < 10; i++) { const r = i % 2 ? 2.4 : 5.6, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(px + Math.cos(a) * r, py + Math.sin(a) * r); }
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }
       this.nameTag(ctx, n.x, n.y + 6, n.def.name, '#ffe08a', n.def.title);
       const mk = G.Quest.marker(n.id);
       if (mk) {

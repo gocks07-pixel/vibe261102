@@ -250,7 +250,7 @@ G.Title = {
     if (this.mode) { this.renderSlots(); return; }
     const any = this.used().length > 0, S = G.Settings;
     G.UI.overlay(`<div class="overlay" style="${this.BG}">
-      <h1>한요미의 대모험</h1><h2>아르셀리아 연대기 · 1.7.9 빌드 (튜토리얼 ~ 엔딩, Lv.1~100)</h2>
+      <h1>한요미의 대모험</h1><h2>아르셀리아 연대기 · 1.9 빌드 (튜토리얼 ~ 엔딩, Lv.1~100)</h2>
       ${any ? '<button class="btn gold" data-act="title" data-arg="continue">이어하기</button>' : ''}
       <button class="btn ${any ? '' : 'gold'}" data-act="title" data-arg="new">새로 시작</button>
       <button class="btn" data-act="title" data-arg="help">조작법 (F1)</button>

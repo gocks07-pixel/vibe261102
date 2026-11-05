@@ -79,9 +79,10 @@ G.FX = {
       ctx.save();
       if (f.glow) ctx.globalCompositeOperation = 'lighter';
       switch (f.k) {
+        case 'fn': f.draw(ctx, f, k); break;   // 1.7.10: 스킬 전용 연출 (skillx.js)
         case 'num': {
           const crit = f.type === 'crit', size = crit ? 28 : 20;
-          const col = { hit: '#ffb43b', crit: '#ff4d5a', hurt: '#c48bff', heal: '#6dff8a', mp: '#6ab8ff', poison: '#9be35a' }[f.type] || '#fff';
+          const col = { hit: '#ffb43b', crit: '#ff4d5a', hurt: '#c48bff', heal: '#6dff8a', mp: '#6ab8ff', poison: '#9be35a', burn: '#ff8a3a' }[f.type] || '#fff';
           ctx.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
           ctx.font = `900 ${size}px "Malgun Gothic", sans-serif`; ctx.textAlign = 'center';
           const s = (f.type === 'heal' ? '+' : '') + G.U.fmt(f.val);

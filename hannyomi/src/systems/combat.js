@@ -11,6 +11,7 @@ G.Combat = {
     dmg *= G.F.dmgPenalty(p.d.level, m.lv);
     if (m.guard) dmg *= 1 - m.guard;
     if (m.vuln > 0) dmg *= 2;
+    if (m.markUntil > Date.now()) dmg *= 1 + (m.markMul || 0.2);   // 1.7.11 표식 (급소 찌르기 등)
     const crit = Math.random() * 100 < s.crit;
     if (crit) dmg *= 1 + s.critDmg / 100;
     dmg = Math.max(1, Math.round(dmg));
@@ -23,7 +24,7 @@ G.Combat = {
       if (G.Settings.fx === 'high') G.Game.world.shake(3);
     }
     G.Game.hitstop = Math.max(G.Game.hitstop, crit ? 0.06 : 0.03);
-    G.Audio.play(crit ? 'crit' : 'hit');
+    G.Sound.hit(color, crit);   // 1.8 속성별 타격음 (몰리면 줄임)
     if (s.poison && !m.dead && Math.random() * 100 < s.poison) {
       m.poison = { dps: s.maxDmg * 0.3, left: 4, tick: 1 };
       G.FX.burst(cx, cy, '#a8f060', 8, 140);

@@ -52,8 +52,10 @@ G.Player = class {
     if (this.lock > 0) this.lock -= dt;
     if (this.atkT >= 0) { this.atkT += dt / 0.35; if (this.atkT > 1) this.atkT = -1; }
     if (this.slowT > 0) this.slowT -= dt;
+    if (this.cheerCd > 0) this.cheerCd -= dt;   // 1.7.12 연희의 응원 재사용
     if (this.dropT > 0) this.dropT -= dt;
     for (const k in this.cd) if (this.cd[k] > 0) this.cd[k] -= dt;
+    G.SkillX.update(dt, w);   // 1.7.10: 조준선 뒤 발사 · 지연 폭발 · 바닥 장판
     let buffChanged = false;
     for (const id in this.buffs) {
       this.buffs[id].left -= dt;
@@ -217,11 +219,12 @@ G.Player = class {
     const box = { x: this.x - 40, y: this.y - 80, w: 80, h: 90 };
     for (const m of w.monsters) {
       if (m.dead || ds.hit.has(m) || ds.hit.size >= ds.targets) continue;
-      if (G.U.overlap(box, m.box)) { ds.hit.add(m); for (let i = 0; i < (ds.hits || 1); i++) G.Combat.hit(this, m, ds.pct, i, ds.color); }
+      if (G.U.overlap(box, m.box)) { ds.hit.add(m); for (let i = 0; i < (ds.hits || 1); i++) G.Combat.hit(this, m, ds.pct, i, ds.color); if (ds.xh) ds.xh(m); }
     }
     this.ghostT -= dt;
     if (this.ghostT <= 0) { this.ghostT = 0.02; G.FX.ghost(this.drawOpts(1), ds.color); }
     G.FX.burst(this.x - this.dir * 20, this.y - 30, ds.color, 2, 80);
+    if (ds.trail) for (let i = 0; i < 2; i++) G.FX.add({ k: 'p', x: this.x - this.dir * G.U.rand(10, 40), y: this.y - G.U.rand(2, 14), vx: 0, vy: -90, grav: -40, color: ds.trail, r: G.U.rand(3, 6), life: 0.5, glow: true });
     if (ds.left <= 0 || this.x <= 15 || this.x >= w.map.width - 15) {
       this.dash = null;
       G.FX.flash(this.x, this.y - 35, 60, ds.color); w.shake(4);
@@ -232,10 +235,10 @@ G.Player = class {
   frontRect(wd, ht) {
     return { x: this.dir > 0 ? this.x - 12 : this.x - wd + 12, y: this.y - ht, w: wd, h: ht + 6 };
   }
-  hitArea(w, rect, targets, pct, hits = 1, color) {
+  hitArea(w, rect, targets, pct, hits = 1, color, after) {
     const list = w.monsters.filter(m => !m.dead && G.U.overlap(rect, m.box))
       .sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, targets);
-    for (const m of list) for (let i = 0; i < hits; i++) G.Combat.hit(this, m, pct, i, color);
+    for (const m of list) { for (let i = 0; i < hits; i++) G.Combat.hit(this, m, pct, i, color); if (after) after(m); }
     return list.length;
   }
   shoot(w, o) {
@@ -269,7 +272,7 @@ G.Player = class {
     const mp = Math.ceil(sk.mp(lv) * (1 - (save ? save.v : 0) / 100));
     if (this.mp < mp) { if (!held) { G.UI.log('MP가 부족합니다.', '#7ab8ff'); G.Audio.play('error'); } return; }
     this.mp -= mp; this.cd[id] = sk.cd || 0; this.lock = (sk.lock || 0.42) * (1 - this.st.aspd / 100);
-    G.Audio.play('skill');
+    { const X0 = G.SKILL_X[id]; if (sk.type === 'attack' && X0 && X0.aim) G.Sound.play('aim'); else G.Sound.skill(sk); }   // 1.8 스킬마다 다른 소리 (조준 스킬은 조준음 → 쏠 때 소리)
     G.Tutorial.ev('skill');
     const el = G.FX.EL[sk.icon.el] || '#fff';
     if (sk.type === 'attack') this.doAttack(sk, lv, w, el);
@@ -304,21 +307,26 @@ G.Player = class {
     G.FX.flash(this.x, this.y - 35, 60, el); G.FX.ring(this.x, this.y - 30, 60, el); G.FX.burst(this.x, this.y - 30, el, 14);
   }
 
-  doAttack(sk, lv, w, el) {
+  doAttack(sk, lv, w, el, fromPre) {
     const a = sk.atk, pct = a.pct(lv);
+    // 1.7.10: 스킬별 동작·연출 (src/systems/skillx.js)
+    const X = G.SKILL_X[sk.id];
+    if (X && X.aim && !fromPre && G.SkillX.pre(this, sk, lv, w, el)) return;
+    const xh = X ? G.SkillX.hitFn(this, X, el, w, pct) : null, kind = (X && X.proj) || a.proj;
+    this.sx = this.x;
     this.atkT = 0;
     this.atkKind = ['melee', 'aoe', 'dash'].includes(a.kind) ? 'melee' : 'proj';
-    const onHit = (m, i) => G.Combat.hit(this, m, pct, i || 0, el);
+    const onHit = (m, i) => { G.Combat.hit(this, m, pct, i || 0, el); if (xh) xh(m); };
     switch (a.kind) {
       case 'melee': {
-        this.hitArea(w, this.frontRect(a.w, a.h), a.targets, pct, a.hits, el);
+        this.hitArea(w, this.frontRect(a.w, a.h), a.targets, pct, a.hits, el, xh);
         G.FX.slash(this.x + this.dir * a.w * 0.4, this.y - 40, this.dir, a.w * 1.2, a.h * 1.1, el);
         G.FX.flash(this.x + this.dir * a.w * 0.5, this.y - 40, 50, el);
         if (a.hits > 1) setTimeout(() => G.FX.slash(this.x + this.dir * a.w * 0.4, this.y - 34, -this.dir, a.w * 1.1, a.h * 0.9, el), 90);
         break;
       }
       case 'aoe': {
-        this.hitArea(w, { x: this.x - a.w / 2, y: this.y - a.h, w: a.w, h: a.h + 6 }, a.targets, pct, a.hits, el);
+        this.hitArea(w, { x: this.x - a.w / 2, y: this.y - a.h, w: a.w, h: a.h + 6 }, a.targets, pct, a.hits, el, xh);
         if (a.fx === 'whirl') G.FX.whirl(this.x, this.y - 35, a.w / 2, el);
         else G.FX.shock(this.x, this.y - 30, a.w / 2, el);
         G.FX.ring(this.x, this.y - 4, a.w / 2, el, 0.5);
@@ -329,8 +337,8 @@ G.Player = class {
         for (let i = 0; i < a.count; i++) {
           const off = i - (a.count - 1) / 2, ang = off * (a.spread || 0);
           this.shoot(w, {
-            kind: a.proj, y: this.y - 36 + off * (a.stagger || 0), vx: Math.cos(ang) * a.speed * this.dir, vy: Math.sin(ang) * a.speed,
-            range: a.range, pierce: a.pierce || 1, r: a.proj === 'orb' ? 12 : 8, color: el, onHit,
+            kind, y: this.y - 36 + off * (a.stagger || 0), vx: Math.cos(ang) * a.speed * this.dir, vy: Math.sin(ang) * a.speed,
+            range: a.range, pierce: a.pierce || 1, r: a.proj === 'orb' ? 12 : 8, color: el, onHit, returnAt: X && X.ret ? a.range * 0.5 : 0,
           });
         }
         G.FX.flash(this.x + this.dir * 26, this.y - 36, 30, el);
@@ -342,7 +350,7 @@ G.Player = class {
           const gy = w.groundBelow(tx, this.y - 60);
           G.FX.beam(tx - this.dir * 50, gy - 460, gy, el);
           w.projectiles.push(new G.Projectile({
-            x: tx - this.dir * 90, y: this.y - 420 - G.U.rand(0, 140), vx: this.dir * 160, vy: 950, kind: a.proj || 'arrow', r: a.proj === 'orb' ? 14 : 8,
+            x: tx - this.dir * 90, y: this.y - 420 - G.U.rand(0, 140), vx: this.dir * 160, vy: 950, kind: kind || 'arrow', r: a.proj === 'orb' ? 14 : 8,
             owner: 'player', range: 1200, groundY: gy, color: el, onHit,
           }));
         }
@@ -350,7 +358,7 @@ G.Player = class {
         break;
       }
       case 'dash': {
-        this.dash = { left: a.dist, speed: 1300, pct, targets: a.targets, hits: a.hits, hit: new Set(), color: el };
+        this.dash = { left: a.dist, speed: 1300, pct, targets: a.targets, hits: a.hits, hit: new Set(), color: el, xh, trail: X && X.trail };
         if (a.invuln) this.invuln = Math.max(this.invuln, a.dist / 1300 + 0.15);
         G.FX.flash(this.x, this.y - 35, 55, el);
         break;
@@ -358,11 +366,12 @@ G.Player = class {
       case 'back': {
         G.FX.ghost(this.drawOpts(1), el); G.FX.burst(this.x, this.y - 20, el, 8);
         this.x = G.U.clamp(this.x - this.dir * a.dist, 15, w.map.width - 15);
-        this.shoot(w, { kind: a.proj, vx: this.dir * a.speed, range: a.range, pierce: a.pierce, color: el, onHit });
+        this.shoot(w, { kind, vx: this.dir * a.speed, range: a.range, pierce: a.pierce, color: el, onHit });
         G.FX.flash(this.x + this.dir * 26, this.y - 36, 36, el);
         break;
       }
     }
+    if (X) G.SkillX.after(this, sk, X, pct, w, el, a);
   }
 
   // 회복 (치유 효율 / 절망 반영). quiet: 숫자 표시 안 함
@@ -424,6 +433,14 @@ G.Player = class {
 
   die() {
     if (this.dead) return;
+    // 1.7.12 연희의 별 부적: 한 번 HP 1로 버팀 (재사용 3분)
+    const pd = this.d.eq.pendant;
+    if (pd && G.ITEMS[pd.tid] && G.ITEMS[pd.tid].cheer && !(this.cheerCd > 0)) {
+      this.hp = 1; this.cheerCd = 180; this.invuln = Math.max(this.invuln, 1.5); this.poison = null;
+      G.FX.text(this.x, this.y - 110, '힘내요!', '#ffc8e8', 22, 1.6); G.Sound.play('cheer'); G.FX.stars(this.x, this.y - 60, 14); G.FX.ring(this.x, this.y - 35, 70, '#ffc8e8', 0.8);
+      G.UI.log('연희의 응원! 별 부적이 쓰러지지 않게 지켜 줬어요. (재사용 3분)', '#ffc8e8');
+      return;
+    }
     this.dead = true; this.hp = 0; this.poison = null; this.dash = null; this.adash = 0;
     const lose = this.d.level >= G.F.MAX_LEVEL ? 0 : Math.min(this.d.exp, Math.round(G.F.expToNext(this.d.level) * G.F.deathExpLoss));
     this.d.exp -= lose;
@@ -576,6 +593,7 @@ G.Player = class {
       look: G.LOOKS.toDraw(this.d.look, top && top.lv > 0 ? top.color : null, bot && bot.lv > 0 ? bot.color : null),
       hatColor: it('hat') ? it('hat').color : null, cape: it('cape') ? it('cape').color : null,
       weapon: eq.weapon ? G.ITEMS[eq.weapon.tid].type : null, wcolor: it('weapon') ? it('weapon').color : null,
+      gear: G.Outfit ? G.Outfit.gearOf(eq) : null,   // 1.9: 부위별 장비 모양
     };
   }
   drawOpts(alpha) {
@@ -598,6 +616,7 @@ G.Player = class {
       ctx.beginPath(); ctx.ellipse(this.x, this.y, 42 * pulse, 12 * pulse, 0, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
+    G.SkillX.aura(ctx, this);   // 1.7.10: 각성 버프의 모습 (등 뒤의 대검 · 날개 등)
     const alpha = this.dead ? 0.35 : (this.invuln > 0 && Math.floor(this.t * 20) % 2 ? 0.45 : (this.dash ? 0.6 : 1));
     G.Draw.humanoid(ctx, this.drawOpts(alpha));
     if (this.barrier > 0 && !this.dead) {

@@ -26,6 +26,9 @@
     AC(`ac${lv}_pendant`, `${pre} 펜던트`, 'pendant', lv, color, { allStat: s, HP: lv * 8 });
     AC(`ac${lv}_belt`, `${pre} 벨트`, 'belt', lv, color, { allStat: s, HP: lv * 8 });
   }
+  // 1.7.12 연희의 별 부적: "연희의 선물" 보상 (판매 불가, 특수 효과 연희의 응원 = player.die에서 한 번 버팀)
+  AC('yeonhee_charm', '연희의 별 부적', 'pendant', 90, '#ffc8e8', { allStat: 12, HPp: 10 }, { noDrop: true, gift: true, cheer: true,
+    desc: '별 이야기를 좋아하는 소녀 연희가 직접 만든 부적. 위험할 때 한 번 지켜 준다.' });
   // 별조각 계승자 세트는 녹스가 떨어뜨린다
   for (const id of Object.keys(G.ITEMS)) if (id.startsWith('trial_')) G.ITEMS[id].noDrop = true;
 
@@ -252,6 +255,12 @@
   // 녹스게이트
   N('elma_nox', '엘마', '영웅의 후손', G.NPCS.elma.look, { greet: ['당신과 함께라면 무섭지 않아요.'] });
   N('kaien_nox', '카이엔', '동료', G.NPCS.kaien.look, { greet: ['이번엔 등 뒤를 맡겨도 좋다.'] });
+  // 1.7.12 연희: 별 이야기를 모으는 소녀 (라그하르트 → 녹스게이트). pin = 별 머리핀 색 (world.js에서 그림)
+  const YEONHEE = { hair: '#a8744a', top: '#8ec8f0', bottom: '#5a8ab8', style: 'long', eyeColor: '#6a4a3a' };
+  N('yeonhee_rag', '연희', '별 이야기를 모으는 소녀', YEONHEE, { pin: '#ffd84a',
+    greet: ['세상엔 아직 아무도 모르는 별 이야기가 잔뜩 있대요!', '광부 아저씨들한테 옛날이야기를 듣고 있었어요. 별조각 이야기는 언제 들어도 두근거려요!'] });
+  N('yeonhee_nox', '연희', '별 이야기를 모으는 소녀', YEONHEE, { pin: '#ffd84a',
+    greet: ['여기까지 왔네요! 아스트라 님이 기다리고 계세요.', '무섭지 않냐고요? 조금요. 그래도 이야기의 끝은 꼭 보고 싶어요!'] });
   N('astra', '아스트라', '첫 번째 영웅의 잔영', { hair: '#e8f4ff', top: '#7ab8ff', bottom: '#3a5aa0', style: 'long', eye: 'sharp', eyeColor: '#bfe6ff' }, { greet: ['우리가 끝내지 못한 일을, 네가 끝내 다오.'] });
   N('nox_shop', '그림자 상인', '보급 담당', { hair: '#3a2a5a', top: '#2a2a3a', bottom: '#14141e', style: 'short', hat: '#1a1a2a' }, { shop: potShop(2) });
 
@@ -307,7 +316,7 @@
   field('firefly_swamp', '반딧불 늪', 'Lv.26~29', 'mushroom', 'elenheim', 2, 'swamp_toad', 'firefly_spirit', 'spider_cave', 'heart_of_tree', { eastPortal: 'in', eastLabel: '고목의 심장 (보스)' });
   boss('heart_of_tree', '고목의 심장', '보스 · Lv.30', 'forest', 'elenheim', 'morwen', 'firefly_swamp');
   // 3장: 광산도시 라그하르트
-  town('raghart', '라그하르트', 'mine', ['trav', 'volga', 'zen', 'tiko', 'kaien_rag', 'rag_smith', 'rag_shop', 'dora'], 'old_mine',
+  town('raghart', '라그하르트', 'mine', ['trav', 'volga', 'zen', 'tiko', 'kaien_rag', 'yeonhee_rag', 'rag_smith', 'rag_shop', 'dora'], 'old_mine',
     [{ t: 'house', x: 450, w: 260, color: '#6a6a72' }, { t: 'torch', x: 900 }, { t: 'guild', x: 1150, w: 520 }, { t: 'crate', x: 1900 }, { t: 'torch', x: 2150 }]);
   G.MAPS.raghart.deco[2].label = '광산 조합';
   field('old_mine', '폐광', 'Lv.30~34', 'cave', 'raghart', 0, 'mine_rat', 'rock_golem', 'raghart', 'furnace');
@@ -339,7 +348,7 @@
   field('star_corridor', '별의 회랑', 'Lv.85~89', 'sanctum', 'aeros', 2, 'star_knight', 'comet_spirit', 'storm_tower', 'sky_sanctum', { eastPortal: 'in', eastLabel: '천공 성소 (보스)', extra: { elite: 'storm_guardian' } });
   boss('sky_sanctum', '천공 성소', '보스 · Lv.89~90', 'sanctum', 'aeros', 'aurelion', 'star_corridor');
   // 종장: 녹스게이트
-  town('noxgate', '녹스게이트', 'void', ['trav', 'elma_nox', 'kaien_nox', 'astra', 'nox_shop', 'dora'], 'broken_dimension',
+  town('noxgate', '녹스게이트', 'void', ['trav', 'elma_nox', 'kaien_nox', 'astra', 'yeonhee_nox', 'nox_shop', 'dora'], 'broken_dimension',
     [{ t: 'tent', x: 450 }, { t: 'torch', x: 800 }, { t: 'tent', x: 1200 }, { t: 'torch', x: 1600 }, { t: 'crystal', x: 2000 }]);
   field('broken_dimension', '무너진 차원', 'Lv.90~94', 'void', 'noxgate', 0, 'void_shade', 'rift_beast', 'noxgate', 'shadow_citadel');
   field('shadow_citadel', '그림자 성채', 'Lv.94~97', 'den', 'noxgate', 1, 'dark_knight', 'cult_mage', 'broken_dimension', 'void_river',

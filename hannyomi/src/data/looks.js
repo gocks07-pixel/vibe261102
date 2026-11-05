@@ -36,6 +36,6 @@ G.LOOKS = {
   // 그리기용 look 객체 (top/bottom 을 넘기면 장비 색을 우선)
   toDraw(L, top, bottom) {
     const of = this.outfitOf(L.outfit);
-    return { skin: L.skin, hair: L.hairColor, style: L.hairStyle, eye: L.eye, eyeColor: L.eyeColor, gender: L.gender, top: top || of[2], bottom: bottom || of[3] };
+    return { skin: L.skin, hair: L.hairColor, style: L.hairStyle, eye: L.eye, eyeColor: L.eyeColor, gender: L.gender, outfit: of[0], top: top || of[2], bottom: bottom || of[3] };
   },
 };

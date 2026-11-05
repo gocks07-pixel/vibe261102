@@ -1,7 +1,7 @@
 {
   "name": "hannyomi-adventure",
-  "version": "1.7.9",
-  "description": "한요미의 대모험 (1.7.9 빌드)",
+  "version": "1.9.0",
+  "description": "한요미의 대모험 (1.9 빌드)",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",

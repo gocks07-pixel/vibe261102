@@ -64,25 +64,21 @@
         { drum: 'shaker', pat: 'o . . o . .', vol: 0.5 },
       ],
     },
-    t_elen: {   // 엘렌하임: 하프 아르페지오, 신비로운 숲 (리디안)
+    t_elen: {   // 엘렌하임: 하프 아르페지오, 신비로운 숲 (리디안) (1.8: 가끔 나던 높은 유리 종 삭제)
       key: 'D', mode: 'lydian', bpm: 74, sub: 4, prog: '1 2 1 2 6 5 2 2',
       parts: [
         { mel: '3 - - 4 5 - - - | 6 - 5 - 4 - 2 - | 3 - - 4 5 - 1\' - | 7 - - - 6 - - - | 1\' - 7 - 6 - 3 - | 5 - 4 - 3 - 2 - | 2 - 4 - 6 - 7 - | 6 - - - - - . .', inst: 'flute', oct: 5, vol: 0.85, rate: 2 },
         { gen: 'arp', pat: '1 2 3 4 5 4 3 2', inst: 'harp', oct: 4, vol: 0.5 },
         { gen: 'pad', inst: 'pad', oct: 3, vol: 1 },
         { gen: 'bass', pat: 'R - - - - - - - F - - - - - - -', inst: 'bass', oct: 2, vol: 0.55 },
-        { mel: '. . . . . . . . . . . . . . . . 5\' - . . . . . . . . . . . . . .', inst: 'glass', oct: 5, vol: 0.4 },
       ],
     },
-    t_rag: {   // 라그하르트: 망치질 타악기, 묵직
+    t_rag: {   // 라그하르트: 묵직한 금관 (1.8: 타악기 삭제)
       key: 'C', mode: 'minor', bpm: 100, sub: 4, prog: '1 1 6 7 1 1 4 5M',
       parts: [
         { mel: '1 - - 1 3 - 2 1 | 5, - - - . . . . | 6 - - 5 4 - 3 4 | 5 - - - 7, - . . | 1 - - 1 3 - 4 5 | 6 - 5 - 3 - . . | 4 - - 3 4 - 6 - | 5 - - - 2 - #7, -', inst: 'brass', oct: 4, vol: 1, rate: 2 },
         { gen: 'bass', pat: 'R - - - . . R . R - - - . . O .', inst: 'sawbass', oct: 2, vol: 1 },
         { gen: 'pad', inst: 'strings', oct: 3, vol: 0.6 },
-        { drum: 'kick', pat: 'X . . . . . . . x . . . . . . .', vol: 0.9 },
-        { drum: 'anvil', pat: '. . . . x . . . . . . . x . . x', vol: 0.8 },
-        { drum: 'hat', pat: '. . o . . . o . . . o . . . o .', vol: 0.6 },
       ],
     },
     t_sahrin: {   // 사하린: 중동풍 음계 (히자즈), 이국적
@@ -96,21 +92,22 @@
         { drum: 'tek', pat: '. . . x . x . . x . . x . x . x', vol: 0.6 },
       ],
     },
-    t_frost: {   // 프로스트벨: 차가운 종소리, 느린 단조
+    t_frost: {   // 프로스트벨: 느린 단조 (1.8: 종소리 아주 작게, 플루트가 멜로디)
       key: 'A', mode: 'minor', bpm: 64, sub: 2, prog: '1 6 4 5M 1 6 2d 5M',
       parts: [
-        { mel: '5 - - - 3 - - - | 3 - - 4 3 - 1 - | 4 - - - 6 - 5 4 | 2 - - - - - . . | 5 - - - 1\' - - - | 7 - 6 - 5 - 3 - | 4 - 3 - 2 - 1 - | #7, - - - - - . .', inst: 'bell', oct: 5, vol: 1 },
+        { mel: '5 - - - 3 - - - | 3 - - 4 3 - 1 - | 4 - - - 6 - 5 4 | 2 - - - - - . . | 5 - - - 1\' - - - | 7 - 6 - 5 - 3 - | 4 - 3 - 2 - 1 - | #7, - - - - - . .', inst: 'bell', oct: 5, vol: 0.25 },   // 1.8 종소리 아주 작게,
+        { mel: '5 - - - 3 - - - | 3 - - 4 3 - 1 - | 4 - - - 6 - 5 4 | 2 - - - - - . . | 5 - - - 1\' - - - | 7 - 6 - 5 - 3 - | 4 - 3 - 2 - 1 - | #7, - - - - - . .', inst: 'flute', oct: 5, vol: 0.55 },   // 1.8 멜로디는 플루트가 받침
         { gen: 'pad', inst: 'strings', oct: 3, vol: 0.7 },
-        { gen: 'arp', pat: '. . 3 . . . 5 . . . 4 . . . 6 .', inst: 'glass', oct: 5, vol: 0.35 },
+        { gen: 'arp', pat: '. . 3 . . . 5 . . . 4 . . . 6 .', inst: 'glass', oct: 5, vol: 0.12 },
         { gen: 'bass', pat: 'R - - - - - - -', inst: 'bass', oct: 2, vol: 0.6 },
       ],
     },
-    t_aeros: {   // 아에로스: 맑고 높은 음, 하늘을 떠다니는 느낌
+    t_aeros: {   // 아에로스: 맑고 높은 음, 하늘을 떠다니는 느낌 (1.8: 유리 종 줄이고 플루트가 멜로디)
       key: 'G', mode: 'major', bpm: 86, sub: 4, prog: '1 3 4 4m 1 6 2 5',
       parts: [
-        { mel: '3 - - 5 1\' - - - | 7 - 5 - 3 - - - | 6 - - 1\' 4\' - 3\' - | 2\' - - - 1\' - b6 - | 3 - - 5 1\' - 2\' - | 3\' - 2\' - 1\' - 6 - | 6 - 1\' - 2\' - 4\' - | 3\' - - - 2\' - - -', inst: 'glass', oct: 5, vol: 1, rate: 2 },
-        { mel: '3 - - 5 1\' - - - | 7 - 5 - 3 - - - | 6 - - 1\' 4\' - 3\' - | 2\' - - - 1\' - b6 - | 3 - - 5 1\' - 2\' - | 3\' - 2\' - 1\' - 6 - | 6 - 1\' - 2\' - 4\' - | 3\' - - - 2\' - - -', inst: 'flute', oct: 4, vol: 0.35, rate: 2 },
-        { gen: 'arp', pat: '1 3 5 6 5 3', inst: 'tri', oct: 5, vol: 0.18 },
+        { mel: '3 - - 5 1\' - - - | 7 - 5 - 3 - - - | 6 - - 1\' 4\' - 3\' - | 2\' - - - 1\' - b6 - | 3 - - 5 1\' - 2\' - | 3\' - 2\' - 1\' - 6 - | 6 - 1\' - 2\' - 4\' - | 3\' - - - 2\' - - -', inst: 'glass', oct: 5, vol: 0.4, rate: 2 },
+        { mel: '3 - - 5 1\' - - - | 7 - 5 - 3 - - - | 6 - - 1\' 4\' - 3\' - | 2\' - - - 1\' - b6 - | 3 - - 5 1\' - 2\' - | 3\' - 2\' - 1\' - 6 - | 6 - 1\' - 2\' - 4\' - | 3\' - - - 2\' - - -', inst: 'flute', oct: 4, vol: 0.8, rate: 2 },
+        { gen: 'arp', pat: '1 3 5 6 5 3', inst: 'tri', oct: 5, vol: 0.1 },
         { gen: 'pad', inst: 'pad', oct: 3, vol: 1 },
         { gen: 'bass', pat: 'R - - - - - - - F - - - - - - -', inst: 'bass', oct: 2, vol: 0.5 },
       ],
@@ -181,11 +178,11 @@
         { drum: 'shaker', pat: '. o . o . o . o', vol: 0.6 },
       ],
     },
-    f_frost: {   // 프로스트벨 사냥터: 눈보라처럼 몰아치는 곡
+    f_frost: {   // 프로스트벨 사냥터: 눈보라처럼 몰아치는 곡 (1.8: 높은 현악 · 전자음 반주 줄임)
       key: 'B', mode: 'minor', bpm: 144, sub: 4, prog: '1 6 7 5 1 6 4 5M',
       parts: [
-        { mel: '1\' - - 7 6 - 5 - | 6 - - 5 3 - - - | 2\' - - 1\' 7 - 6 - | 7 - - - 5 - - - | 1\' - - 7 6 - 5 - | 3\' - - 2\' 1\' - 6 - | 4\' - 3\' - 2\' - 1\' - | #7 - - - - - . .', inst: 'strings', oct: 4, vol: 1.6, rate: 2 },
-        { gen: 'arp', pat: '1 2 3 4 3 2 1 2', inst: 'pulse', oct: 4, vol: 0.45 },
+        { mel: '1\' - - 7 6 - 5 - | 6 - - 5 3 - - - | 2\' - - 1\' 7 - 6 - | 7 - - - 5 - - - | 1\' - - 7 6 - 5 - | 3\' - - 2\' 1\' - 6 - | 4\' - 3\' - 2\' - 1\' - | #7 - - - - - . .', inst: 'strings', oct: 4, vol: 1.0, rate: 2 },
+        { gen: 'arp', pat: '1 2 3 4 3 2 1 2', inst: 'pulse', oct: 4, vol: 0.25 },
         { gen: 'bass', pat: 'R R R R R R R R', inst: 'sqbass', oct: 2, vol: 0.9 },
         { drum: 'kick', pat: 'x . . x . . x . x . . x . . x .', vol: 0.7 },
         { drum: 'snare', pat: '. . . . x . . . . . . . x . . .', vol: 0.55 },
@@ -372,7 +369,8 @@
     },
   };
   // 곡마다 체감 음량을 맞추는 배율 (오프라인 렌더링으로 측정한 평균 음량 기준)
-  G.SONG_GAIN = {title: 0.67, tutorial: 0.92, t_sprout: 1.08, t_wind: 0.55, t_elen: 0.61, t_rag: 1.3, t_sahrin: 0.97, t_frost: 0.88, t_aeros: 0.79, t_nox: 0.55, f_sprout: 1.38, f_wind: 1.25, f_elen: 0.61, f_rag: 1.38, f_sahrin: 0.81, f_frost: 1.01, f_aeros: 0.71, f_nox: 1.28, b_shellock: 1.34, b_bark: 1.43, b_morwen: 1.01, b_grounder: 1.24, b_parakan: 0.69, b_kaien: 1.52, b_eldrick: 0.65, nox1: 1.6, nox2: 1.36, nox3: 1.17, nox4: 1.01, end_seal: 0.6, end_purify: 0.71};
+  // 1.8: 라그하르트 · 프로스트벨 · 아에로스 · 눈보라는 악기를 바꾼 뒤 음량을 다시 맞춤 (전후 RMS 측정)
+  G.SONG_GAIN = {title: 0.67, tutorial: 0.92, t_sprout: 1.08, t_wind: 0.55, t_elen: 0.61, t_rag: 1.62, t_sahrin: 0.97, t_frost: 0.76, t_aeros: 0.66, t_nox: 0.55, f_sprout: 1.38, f_wind: 1.25, f_elen: 0.61, f_rag: 1.38, f_sahrin: 0.81, f_frost: 1.04, f_aeros: 0.71, f_nox: 1.28, b_shellock: 1.34, b_bark: 1.43, b_morwen: 1.01, b_grounder: 1.24, b_parakan: 0.69, b_kaien: 1.52, b_eldrick: 0.65, nox1: 1.6, nox2: 1.36, nox3: 1.17, nox4: 1.01, end_seal: 0.6, end_purify: 0.71};
   // 곡 제목 (설정 화면 / 확인용)
   G.SONG_NAMES = {
     title: '별조각의 계승자', tutorial: '꿈속의 해변',
