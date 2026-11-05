@@ -30,7 +30,7 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
 </style>
 <div class="wrap">
   <h1>보스 새 패턴 시안</h1>
-  <p class="sub">2.1 보스 밸런스 계획서의 그림 시안이에요. 체력 70%·40%에서 열리는 새 패턴 16개, 성공하면 크게 때릴 수 있는 그로기 기믹 4종, 녹스 "종말의 별" 개선, 비 스킬 보스 조준을 4.5초씩 반복해서 보여 줘요. 보스와 캐릭터는 게임과 같은 그리기 코드예요.</p>
+  <p class="sub">2.1 보스 밸런스 계획서의 그림 시안이에요. 체력 70%·40%에서 열리는 새 패턴 16개, 아우렐리온·엘드리크 추가 후보 4개, 쉘로크 검은 천 연출, 성공하면 크게 때릴 수 있는 그로기 기믹 4종, 녹스 "종말의 별" 개선, 비 스킬 보스 조준을 4.5초씩 반복해서 보여 줘요. 보스와 캐릭터는 게임과 같은 그리기 코드예요.</p>
   <div class="bar" role="toolbar" aria-label="재생"><button type="button" id="pause">일시정지</button><button type="button" id="slow">느리게</button></div>
   <main id="book"></main>
 </div>
@@ -66,6 +66,16 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
 <script>
 (function () {
   G.Game = G.Game || { player: null, world: null };   // 보스 그림 코드가 플레이어 위치를 참고하므로 빈 값
+
+  // 2.1 시안: 쉘로크 껍데기의 검은 띠를 뺀 모습으로 미리 보기 (게임 그림 코드를 그대로 쓰되 그 두 줄만 제외)
+  (function () {
+    const A = G.MonArt.shellock; if (!A) return;
+    const src = A.draw.toString().split('\n').filter(l => !l.includes("'#1e1a24'") && !l.includes("'#3a3048'")).join('\n');
+    const D = G.Draw, line = (ctx, c, w, pts, cap) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.lineCap = cap || 'round'; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); };
+    const poly = (ctx, fill, pts) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
+    const legPair = (ctx, c, x, y, len, ph, lw = 2.5, bend = 1) => { const kx = x + len * 0.55, ky = y - len * 0.45 * bend + Math.sin(ph) * 3; line(ctx, c, lw, [[x, y], [kx, ky], [x + len, Math.sin(ph) * 1.5]]); };
+    try { A.draw = new Function('ell', 'rrect', 'shade', 'PI', 'sin', 'cos', 'abs', 'line', 'poly', 'legPair', 'return ' + src)(D.ell, D.rrect, (c, f) => G.Icons.shade(c, f), Math.PI, Math.sin, Math.cos, Math.abs, line, poly, legPair); } catch (e) { console.error('shellock patch', e.message); }
+  })();
   const PI = Math.PI, W = 480, H = 270, GY = 232, L = 4.5;
   const ease = k => 1 - Math.pow(1 - Math.min(1, Math.max(0, k)), 3);
   const cl = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -255,6 +265,47 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
     }],
   ];
 
+
+  // ---------------- 추가 후보 (아우렐리온 · 엘드리크) + 쉘로크 검은 천 ----------------
+  function eyeMark(c, x, y, r, a = 1) { c.save(); c.globalAlpha *= a; c.strokeStyle = '#c890ff'; c.lineWidth = 2.5; c.beginPath(); c.ellipse(x, y, r, r * 0.55, 0, 0, 7); c.stroke(); c.fillStyle = '#7a3ad0'; c.beginPath(); c.arc(x, y, r * 0.35, 0, 7); c.fill(); c.fillStyle = '#1a0a2a'; c.beginPath(); c.arc(x, y, r * 0.15, 0, 7); c.fill(); c.restore(); }
+  function cloth(c, x, y, rot, t) { c.save(); c.translate(x, y); c.rotate(rot); c.fillStyle = '#1e1a24'; c.beginPath(); c.moveTo(-16, -9); for (let i = 0; i <= 4; i++) c.lineTo(-16 + i * 8, -9 + Math.sin(t * 8 + i) * 2); c.lineTo(16, 9); for (let i = 4; i >= 0; i--) c.lineTo(-16 + i * 8, 9 + Math.sin(t * 8 + i + 1) * 2); c.closePath(); c.fill(); eyeMark(c, 0, 0, 7); c.restore(); }
+  const EX = [
+    ['aurelion', '아우렐리온 · 하늘 가르기 (후보 1)', '50% 이후', '하늘을 날며 화면 끝에서 끝까지 낮게 가로질러 브레스를 끌고 간다. 높이 표시를 보고 점프!', (c, t) => {
+      stage(c, 'aurelion'); const y = GY - 30;
+      if (t < 1.2) { c.fillStyle = `rgba(255,240,160,${0.15 + 0.12 * Math.sin(t * 18)})`; c.fillRect(0, y - 16, W, 32); c.strokeStyle = 'rgba(255,240,160,.9)'; c.setLineDash([10, 6]); c.strokeRect(1, y - 16, W - 2, 32); c.setLineDash([]); boss(c, 'aurelion', 430, t, { y: GY - 70, scale: 0.8 }); }
+      else if (t < 2.6) { const k = (t - 1.2) / 1.4, x = 520 - k * 600; boss(c, 'aurelion', x, t, { y: y + 20, scale: 0.8 }); const g = c.createLinearGradient(x, 0, x + 260, 0); g.addColorStop(0, 'rgba(255,246,200,.95)'); g.addColorStop(1, 'rgba(255,246,200,0)'); c.fillStyle = g; c.fillRect(x, y - 10, 260, 20); }
+      else boss(c, 'aurelion', 430, t, { y: GY - 70, scale: 0.8, alpha: cl((t - 2.6) / 0.6, 0, 1) });
+      hero(c, 170, t, { jump: jumpAt(t, 1.75) }); label(c, '하늘 가르기!', '#fff6c8');
+    }],
+    ['aurelion', '아우렐리온 · 유성 꼬리 (후보 2)', '50% 이후', '별빛 꼬리로 바닥을 크게 휩쓴다. 낮게 오는 꼬리를 점프로 넘기!', (c, t) => {
+      stage(c, 'aurelion'); boss(c, 'aurelion', 400, t, { scale: 1 });
+      if (t < 1.0) { c.fillStyle = `rgba(255,240,160,${0.15 + 0.12 * Math.sin(t * 18)})`; c.fillRect(0, GY - 24, 380, 24); }
+      else if (t < 2.0) { const k = (t - 1.0) / 1.0, tip = 380 - k * 400; c.strokeStyle = '#e6e2ff'; c.lineWidth = 12; c.lineCap = 'round'; c.beginPath(); c.moveTo(380, GY - 30); c.quadraticCurveTo((380 + tip) / 2, GY - 4, tip, GY - 14); c.stroke(); for (let i = 0; i < 6; i++) star(c, tip + i * 18, GY - 20 - (i % 2) * 8, 5, '#fff4b0'); glow(c, tip, GY - 14, 26, 'rgba(255,246,200,1)', 0.7); }
+      hero(c, 160, t, { jump: jumpAt(t, 1.35) }); label(c, '유성 꼬리!', '#fff6c8');
+    }],
+    ['eldrick', '엘드리크 · 교단의 낙인 (후보 1)', '70% 이후', '머리 위에 눈 문양 낙인 → 3초 뒤 그 자리가 폭발. 낙인이 찍히면 다른 곳으로!', (c, t) => {
+      stage(c, 'eldrick'); boss(c, 'eldrick', 400, t, { atk: win(t, 0.2, 0.7) ? 0.5 : -1 });
+      const mx = 150, left = 3 - (t - 0.6) * 1.5;
+      if (t > 0.6 && left > 0) { const hx = t < 1.4 ? mx : mx + (t - 1.4) * 110; const ox = t < 1.4 ? hx : mx; eyeMark(c, ox, t < 1.4 ? GY - 95 : GY - 20, 16 + Math.sin(t * 10) * 2); if (t >= 1.4) eyeMark(c, hx, GY - 95, 10, 0.4); tag(c, String(Math.ceil(left)), ox, t < 1.4 ? GY - 120 : GY - 44, '#e0c8ff'); }
+      if (left <= 0 && left > -0.6) boom(c, mx, GY - 20, 60, -left / 0.6, '#c890ff');
+      const hx = t < 1.4 ? mx : Math.min(300, mx + (t - 1.4) * 110); hero(c, hx, t, { moving: t >= 1.4 && hx < 300 }); label(c, '교단의 낙인!', '#e0c8ff');
+    }],
+    ['eldrick', '엘드리크 · 거짓 성가 (후보 2)', '70% 이후', '회복 성가를 부른다. 3초 안에 일정 피해를 넣으면 끊기고, 못 끊으면 엘드리크가 체력을 조금 회복.', (c, t) => {
+      stage(c, 'eldrick'); const broke = t > 2.4;
+      boss(c, 'eldrick', 330, t, { groggy: broke, hurt: !broke && t > 0.6 && (t * 10 % 2) < 0.4 });
+      if (!broke) { glow(c, 330, GY - 70, 80, 'rgba(160,255,190,1)', 0.25 + 0.1 * Math.sin(t * 8)); for (let i = 0; i < 4; i++) { const y = GY - 90 - ((t * 40 + i * 25) % 80); c.fillStyle = 'rgba(200,255,220,.9)'; c.font = 'bold 16px serif'; c.fillText(i % 2 ? '♪' : '♫', 300 + i * 18, y); } }
+      const fill = cl((t - 0.6) / 1.8, 0, 1); c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(270, 60, 120, 12); c.fillStyle = broke ? '#ffe680' : '#8fe0a8'; c.fillRect(270, 60, 120 * fill, 12); c.strokeStyle = '#fff'; c.lineWidth = 1; c.strokeRect(270, 60, 120, 12);
+      tag(c, broke ? '성가 끊김! 그로기' : '성가 끊기', 330, 54, broke ? '#ffe680' : '#bfffd0');
+      hero(c, 250, t, { atk: !broke ? (t * 1.6) % 1 : -1 }); label(c, '거짓 성가!', '#bfffd0');
+    }],
+    ['shellock', '쉘로크 · 쓰러질 때 떨어지는 검은 천', '연출', '껍데기의 검은 띠는 지우고, 쓰러질 때 눈 문양 검은 천이 팔랑이며 떨어진다 (교단 복선, 1장 "검은 천 조각"과 같은 문양)', (c, t) => {
+      stage(c, 'shellock'); const k = cl((t - 0.6) / 0.8, 0, 1);
+      boss(c, 'shellock', 300, t, { rot: -k * 1.2, alpha: 1 - cl((t - 3) / 1, 0, 1), hurt: t < 0.6 });
+      if (t > 1.0) { const u = cl((t - 1.0) / 2.2, 0, 1), x = 290 - u * 60 + Math.sin(t * 3) * 25, y = GY - 120 + u * 110; cloth(c, x, y, Math.sin(t * 4) * 0.6, t); if (u >= 1) glow(c, x, y, 26, 'rgba(200,140,255,1)', 0.4 + 0.2 * Math.sin(t * 6)); }
+      hero(c, 150, t); label(c, t > 2.8 ? '검은 천 조각...?' : '쉘로크를 쓰러뜨렸다!', t > 2.8 ? '#e0c8ff' : '#ffe08a');
+    }],
+  ];
+
   // ---------------- 페이지 ----------------
   const book = document.getElementById('book'), views = [];
   function sect(title, lead, list, kind) {
@@ -265,12 +316,13 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--mint); margin: 0 0 4px; 
       const card = document.createElement('div'); card.className = 'card';
       const cv = document.createElement('canvas'); cv.width = W * 2; cv.height = H * 2; cv.setAttribute('aria-label', name);
       const tx = document.createElement('div'); tx.className = 't';
-      const bb = document.createElement('b'); bb.textContent = name; if (a || kind) { const em = document.createElement('em'); em.textContent = a ? '체력 ' + a : kind; if (!a) em.className = 'g'; if (a && !a.endsWith('%')) em.textContent = a; bb.append(em); }
+      const bb = document.createElement('b'); bb.textContent = name; if (a || kind) { const em = document.createElement('em'); em.textContent = a ? (a.endsWith('%') ? '체력 ' + a : a) : kind; if (!a) em.className = 'g'; bb.append(em); }
       const sm = document.createElement('small'); sm.textContent = b; tx.append(bb, sm); card.append(cv, tx); g.append(card);
       views.push({ cv, draw, off: views.length * 0.37 });
     }
   }
   sect('새 패턴 16개 (페이즈마다 1개씩 열림)', '보스 체력 70%와 40%에서 페이즈가 바뀌며 새 패턴이 하나씩 열려요. 직전에 쓴 패턴 2개는 다시 고르지 않아서 같은 패턴이 연달아 나오지 않아요.', P);
+  sect('추가 후보: 아우렐리온 · 엘드리크 (각각 하나 골라 주세요)', '아우렐리온과 엘드리크는 따로인 보스라 하나씩 더 넣어요. 후보 두 개씩 비교해 보세요. 쉘로크의 검은 천 연출도 함께 있어요.', EX);
   sect('그로기 기믹 4종 (신규)', '기믹을 성공하면 6초 동안 보스가 받는 피해가 1.75배가 돼요. 기존 기믹(기둥 · 잔영 · 별조각 · 근위대 · 보호막)도 똑같이 적용돼요.', GIM, '그로기');
   sect('개선', '녹스 종말의 별은 덜 억울하게, 비 형태 스킬은 보스를 조준하게 바꿔요.', FIX, '개선');
 
