@@ -114,7 +114,7 @@ G.Player = class {
       this.updateDash(dt, w);
     } else {
       if (move && this.lock <= 0) this.dir = move;
-      const canMove = !(this.lock > 0 && this.onGround);
+      const canMove = !(this.lock > 0 && this.onGround) || (G.Play && G.Play.moveCancel());   // 모바일 2차-1.2: 공격 중 바로 이동 (터치 모드에서 켰을 때만)
       this.vx = canMove ? move * 250 * (1 + this.st.mspd / 100) * (this.slowT > 0 ? 0.5 : 1) : 0;
     }
     const K = G.Keys;

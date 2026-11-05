@@ -5,7 +5,7 @@
 G.Touch = {
   KEY: 'hny_touch',
   // mode: auto = 휴대폰·태블릿에서만 / on = 항상 / off = 끔
-  opt: { mode: 'auto', size: 'm', alpha: 'm', swap: false, noticed: false },
+  opt: { mode: 'auto', size: 'm', alpha: 'm', swap: false, noticed: false, magnet: true, moveCancel: true },
   SIZE: { s: 0.85, m: 1, l: 1.18 },
   ALPHA: { s: 0.32, m: 0.55, l: 0.8 },
 

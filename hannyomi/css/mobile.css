@@ -121,3 +121,28 @@ body.touch-on #win-shop { width: 370px !important; }
   padding: 8px 12px; border-radius: 12px; background: #121727f2; border: 1px solid #c9a33a; color: #fff3c4; font: 700 14px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.5); white-space: nowrap; }
 #mob-update button { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 1px solid #4a5578; background: #1f2740; color: #e8ecf6; }
 #mob-update button.gold { background: #6b5214; border-color: #ffd54a; color: #fff3c4; }
+
+/* ---------- 2차-1.2 플레이 편의 ---------- */
+.stat-tip { background: #1a2238; border: 1px solid #c9a33a88; border-radius: 8px; padding: 7px 9px; margin-bottom: 8px; font-size: 12px; line-height: 1.5; color: #e8ecf6; }
+.stat-tip .ms, #mob-modal .ms { color: #ffd54a; }
+#tooltip .cmp h5 { color: #9fd8ff; }
+#tooltip .cmp-l { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+#tooltip .cmp .up { color: #7dff9a; font-weight: 700; }
+#tooltip .cmp .dn { color: #ff8a8a; font-weight: 700; }
+.cell .upb { position: absolute; left: 1px; bottom: -1px; font-size: 12px; font-weight: 900; color: #5dff8a; text-shadow: 0 0 3px #000, 0 0 2px #000; pointer-events: none; }
+#mob-modal .job-card { border: 1px solid #39425f; border-radius: 10px; padding: 7px 10px; margin: 7px 0; background: #0d1120; }
+#mob-modal .job-card.mine { border-color: #c9a33a; }
+#mob-modal .jc-h { font-size: 15px; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+#mob-modal .jc-d { margin-left: auto; color: #ffe08a; font-size: 12px; }
+#mob-modal .jc-l { font-size: 12.5px; margin-top: 2px; }
+#touch .topbar .tw.off { opacity: .45; }
+#touch .topbar .tw#tw-auto.on { background: #1f7a3e; border-color: #8ff0b0; }
+#auto-st { position: absolute; top: calc(var(--st) + 42px); left: 50%; transform: translateX(-50%); pointer-events: auto; touch-action: none; padding: 4px 12px; border-radius: 12px;
+  background: rgba(31,122,62,.85); color: #eaffef; font-size: 12px; font-weight: 800; border: 1px solid #8ff0b0; animation: pulse 1.6s infinite; white-space: nowrap; }
+#play-toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 84px); transform: translateX(-50%); z-index: 1400; max-width: 90vw; padding: 8px 14px; border-radius: 12px;
+  background: #121727f0; color: #fff3c4; border: 1px solid #c9a33a; font: 700 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; opacity: 0; pointer-events: none; transition: opacity .3s; text-align: center; }
+#play-toast.on { opacity: 1; }
+/* 2차-1.2: 위쪽 버튼이 8개가 되어 줄바꿈 없이 조금 좁게 */
+#touch .topbar { gap: 4px; }
+#touch .topbar .tw { white-space: nowrap; padding: 0 7px; min-width: 40px; font-size: 12.5px; }
+@media (max-width: 700px) { #touch .topbar { gap: 3px; } #touch .topbar .tw { padding: 0 5px; min-width: 34px; font-size: 11.5px; height: 30px; } }

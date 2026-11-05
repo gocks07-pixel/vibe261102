@@ -400,12 +400,14 @@ G.Mobile = {
       <div class="row"><b>크기</b>${opt('size', 's', '작게')}${opt('size', 'm', '보통')}${opt('size', 'l', '크게')}</div>
       <div class="row"><b>투명도</b>${opt('alpha', 's', '연하게')}${opt('alpha', 'm', '보통')}${opt('alpha', 'l', '진하게')}</div>
       <div class="row"><b>위치</b>${opt('swap', false, '이동 왼쪽 · 공격 오른쪽')}${opt('swap', true, '좌우 바꾸기 (왼손)')}</div>
+      <div class="row"><b>자동 흡수</b>${opt('magnet', true, '켬 (골드 · 아이템이 날아와요)')}${opt('magnet', false, '끔')}</div>
+      <div class="row"><b>공격 중 이동</b>${opt('moveCancel', true, '켬 (공격하다 바로 움직임)')}${opt('moveCancel', false, '끔')}</div>
       <div class="row"><b>배터리 절약</b>${opt('fps30', false, '끔 (부드럽게)')}${opt('fps30', true, '켬 (30프레임)')}</div>
       <div class="dim">배터리 절약을 켜면 화면을 1초에 30번만 그려서 휴대폰이 덜 뜨겁고 배터리가 오래 가요. 게임 속도는 그대로예요.</div>
       <div class="dim">"끔"으로 하면 블루투스 키보드 · 게임패드로 플레이할 수 있어요. 다시 켜려면 메뉴 → 📱 터치 버튼 설정</div>
       <div class="end"><button class="gold" data-m="close">닫기</button></div>`, a => {
       const [, k, v] = a.split(':');
-      o[k] = k === 'swap' || k === 'fps30' ? v === 'true' : v;
+      o[k] = ['swap', 'fps30', 'magnet', 'moveCancel'].includes(k) ? v === 'true' : v;
       G.Touch.save(); this.apply(); this.checkPortrait();
       this.touchSettings();
     });

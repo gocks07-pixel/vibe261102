@@ -254,6 +254,7 @@ G.World = class {
     this.projectiles = this.projectiles.filter(pr => !pr.dead);
     for (const dr of this.drops) {
       dr.update(dt, this);
+      if (G.Play && !dr.dead) G.Play.magnet(dr, p, dt);   // 모바일 2차-1.2: 자동 흡수 (터치 모드에서 켰을 때만)
       if (!dr.dead && dr.landed && !p.dead && G.U.overlap(dr.box, p.box)) this.pickup(dr);
     }
     this.drops = this.drops.filter(dr => !dr.dead);
