@@ -32,7 +32,9 @@ const BOT = function (R) {
   B.fieldMaps = () => Object.keys(G.MAPS).filter(id => { const m = G.MAPS[id]; return !m.town && !m.bossRoom && !m.hidden && id !== 'dream_beach' && (m.spawns || []).length; });
   B.mapLv = id => Math.max(0, ...spawnsOf(id).map(m => (G.MONSTERS[m] && G.MONSTERS[m].lv) || 0));
   B.grindMap = () => {
-    const L = P().d.level, f = B.fieldMaps().filter(id => B.mapLv(id) <= L + 2).sort((a, b) => B.mapLv(b) - B.mapLv(a));
+    const L = P().d.level, ban = B.ban || {};
+    const cap = P().d.job === 'beginner' ? L : L + 1;
+    const f = B.fieldMaps().filter(id => B.mapLv(id) <= cap && !(ban[id] && B.t - ban[id] < 1200)).sort((a, b) => B.mapLv(b) - B.mapLv(a));
     return f[0] || B.fieldMaps()[0];
   };
   B.go = id => { if (W().mapId !== id) { G.Game.changeMap(id, null); B.ev('map', { to: id }); } };
@@ -186,8 +188,11 @@ const BOT = function (R) {
   B.bossTick = () => {
     const w = W(), p = P(), bs = B.boss;
     if (p.dead) { B.endBoss(false, 'dead'); return; }
-    const fin = bs.g.mon, dead = !w.monsters.some(m => m.id === fin && !m.dead) && !w.monsters.some(m => m.isBoss && !m.dead) && !B.nextPending;
-    if (G.Quest.isDone(bs.g.q) || (G.Quest.isActive(bs.g.q) && G.Quest.ready(G.QUESTS[bs.g.q])) || (dead && B.t - bs.t0 > 5)) { B.endBoss(true, 'win'); return; }
+    // 2단계 보스: 다음 단계가 있는 보스가 쓰러지면 게임 시간 2.8초 뒤 다음 보스 (게임의 실제 타이머 대신)
+    for (const m of w.monsters) if (m.isBoss && m.d.next) { if (!m.dead) bs.stage = m; }
+    if (bs.stage && bs.stage.dead && !bs.stageDone) { bs.stageDone = true; B.next = { m: bs.stage, id: w.mapId, t: 2.8 }; B.nextPending = true; B.ev('stage2', { map: w.mapId }); }
+    // 이김 = 퀘스트 목표(처치)가 채워짐
+    if (G.Quest.isDone(bs.g.q) || (G.Quest.isActive(bs.g.q) && G.Quest.ready(G.QUESTS[bs.g.q]))) { B.endBoss(true, 'win'); return; }
     if (B.t - bs.t0 > 1500) { B.endBoss(false, 'timeout'); G.Game.changeMap(B.townOf(), null); return; }
     if (!G.Play.autoOn) { G.Play.forceBoss = true; G.Play.toggleAuto(); }
   };
@@ -204,11 +209,20 @@ const BOT = function (R) {
     const ov = document.querySelector('#overlay .overlay');
     if (p.dead || (ov && /쓰러졌습니다/.test(ov.textContent))) {
       if (B.boss) { B.endBoss(false, 'dead'); }
-      else { B.deaths.field++; B.ev('fieldDeath', { map: w.mapId }); }
-      G.UI.overlay(''); p.revive(); return;
+      else {
+        B.deaths.field++; B.ev('fieldDeath', { map: w.mapId });
+        const rec = (B.dmap || (B.dmap = {}))[w.mapId] = ((B.dmap[w.mapId] || []).concat(B.t)).filter(t => B.t - t < 600);
+        if (rec.length >= 3) { (B.ban || (B.ban = {}))[w.mapId] = B.t; B.ev('banMap', { map: w.mapId }); }
+      }
+      G.UI.overlay(''); p.revive(); B.restNow(); return;
     }
     if (ov) G.UI.overlay('');
     if (B.boss) { B.bossTick(); return; }
+    // 쉬기: 마을에서 HP 95% · MP 90% 까지 (자연 회복 5초마다 2%, 최대 3분) — 사람이 재도전 전에 회복하는 것처럼
+    if (B.mode === 'rest') {
+      if ((p.hp >= p.st.maxHP * 0.95 && p.mp >= p.st.maxMP * 0.9) || B.t - B.restT > 180) B.mode = B.afterRest || 'idle';
+      else return;
+    }
     B.grow();
     // 장 바뀜: 기록 · 세이브 확인 · 강함 지급
     const ch = G.Chapter.current(p.d);
@@ -221,31 +235,44 @@ const BOT = function (R) {
     B.quests();
     if (G.Quest.ready(G.QUESTS.f_08) || G.Quest.isDone('f_08')) { B.phase = 'ending'; return; }
     const goals = B.goals();
-    const field = goals.filter(g => !g.boss && !g.visit), boss = goals.filter(g => g.boss), visit = goals.filter(g => g.visit);
+    // 내 레벨보다 훨씬 높은 목표(예: 연희의 선물 — 후반 정예 6종)는 레벨이 될 때까지 미룸. 메인 퀘스트 목표 먼저
+    const L = p.d.level, isMain = g => G.QUESTS[g.q].type === 'main';
+    const field = goals.filter(g => !g.boss && !g.visit && g.lv <= L + 4).sort((a, b) => (isMain(b) - isMain(a)) || (a.lv - b.lv));
+    const boss = goals.filter(g => g.boss && (isMain(g) || g.lv <= L + 4)), visit = goals.filter(g => g.visit);
     if (visit.length) { B.go(visit[0].map); G.Quest.onMap(visit[0].map); return; }
     if (field.length) { B.hunt(field[0].map, 'quest'); return; }
     if (boss.length) {
       const g = boss[0], b = B.bossTry(g);
       if (b.skipped) { B.skipBoss(g); return; }
       if (b.tries >= 6 && b.failAuto6 && p.d.level < 100) { B.mode = 'to100'; return; }
+      if (B.hpPots() < 30) {
+        B.shopping();
+        if (B.hpPots() < 30 && (B.farmT == null || B.t - B.farmT < 1800)) { if (B.farmT == null) { B.farmT = B.t; B.ev('farmGold', { map: g.map, gold: p.d.gold, pots: B.hpPots() }); } B.hunt(B.grindMap(), 'gold'); return; }
+      }
+      B.farmT = null;
+      if (p.hp < p.st.maxHP * 0.95 || p.mp < p.st.maxMP * 0.9) { B.restNow(); return; }
       B.buyT = B.t; B.shopping(); B.startBoss(g); return;
     }
     // 할 퀘스트가 없음 → 다음 퀘스트 레벨까지 사냥
-    const need = B.nextMainLv();
-    if (need && p.d.level < need) { B.hunt(B.grindMap(), 'level'); return; }
+    const need = B.nextMainLv(), later = goals.filter(g => !g.boss && !g.visit && g.lv > L + 4).map(g => g.lv);
+    const want = Math.min(need || 999, later.length ? Math.min(...later) - 4 : 999);
+    if (want < 999 && p.d.level < want) { B.hunt(B.grindMap(), 'level'); return; }
     if (!need && !goals.length) { B.ev('noWork'); B.hunt(B.grindMap(), 'idle'); }
   };
+  B.hpPots = () => P().d.inv.use.reduce((n, s) => n + (s && G.ITEMS[s.tid].use && (G.ITEMS[s.tid].use.hp || G.ITEMS[s.tid].use.hpP) ? s.qty : 0), 0);
+  B.restNow = () => { if (B.mode === 'rest') return; G.Play.stop(); B.go(B.townOf()); B.afterRest = B.mode === 'to100' ? 'to100' : 'idle'; B.mode = 'rest'; B.restT = B.t; };
   B.hunt = (map, why) => {
     if (W().mapId !== map || !G.Play.autoOn) { B.go(map); G.Play.forceBoss = false; if (!G.Play.autoOn) G.Play.toggleAuto(); }
     if (why === 'level' || why === 'to100') B.grind += 1;
   };
   // 세이브 → 불러오기 확인 (장마다)
-  B.saveCheck = async () => {
+  B.saveCheck = () => {   // 저장 직후 바로 비교 (나중에 비교하면 자동 저장이 덮어써 다르게 보임)
     try {
-      await G.Game.save(true);
-      const raw = await G.Save.read(G.Save.slot), data = JSON.parse(raw);
-      const same = JSON.stringify(data.d.quests) === JSON.stringify(P().d.quests) && data.d.level === P().d.level && data.d.gold === P().d.gold;
-      B.ev('saveCheck', { ok: same });
+      const snap = JSON.parse(JSON.stringify(P().d));
+      G.Game.save(true);   // 브라우저 저장은 바로 써짐
+      const raw = localStorage.getItem(G.Save.key(G.Save.slot)), data = JSON.parse(raw);
+      const d = snap, diff = ['level', 'gold', 'exp', 'job', 'map'].filter(k => data.d[k] !== d[k]).concat(JSON.stringify(data.d.quests) === JSON.stringify(d.quests) ? [] : ['quests']);
+      B.ev('saveCheck', { ok: !diff.length, diff, slot: G.Save.slot });
     } catch (e) { B.ev('saveCheck', { ok: false, err: String(e) }); }
   };
   // 진행이 10분(게임) 동안 없으면 멈춤 기록
@@ -282,7 +309,7 @@ const BOT = function (R) {
   G.Touch.opt.fps30 = false; G.Touch.opt.moveCancel = true; G.Touch.opt.magnet = true;
   B.GUARD0 = Object.assign({}, G.Play.AUTO_GUARD);
   // 2단계 보스 소환 타이머를 게임 시간으로
-  const hookWorld = () => { const w = W(); if (!w || w.__bot) return; w.__bot = 1; w.draw = () => {}; const sp = w.spawnNextBoss.bind(w); B.spawnNext = sp; w.spawnNextBoss = (m, id) => { B.next = { m, id, t: 2.8 }; B.nextPending = true; }; };
+  const hookWorld = () => { const w = W(); if (!w || w.__bot) return; w.__bot = 1; w.draw = () => {}; B.spawnNext = G.World.prototype.spawnNextBoss.bind(w); w.spawnNextBoss = () => {}; };   // 월드는 맵을 옮겨도 같은 객체 → 항상 원래 함수를 씀   // 실제 타이머(2.8초)는 무시하고 bossTick 이 게임 시간으로 부름
   const cm = G.Game.changeMap.bind(G.Game);
   G.Game.changeMap = (...a) => { const r = cm(...a); const w = W(); w.__bot = 0; hookWorld(); return r; };
   hookWorld(); G.UI.frame = () => {};
