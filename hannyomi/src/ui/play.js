@@ -386,7 +386,7 @@ G.Play = {
         const dx = tgt.x - p.x, dist = Math.abs(dx);
         let retreat = false;
         if (ranged && !boss) {
-          // ① 원거리: 120px 안이면 약 200px 까지 물러남 · 서는 자리는 벽 쪽 공간이 넓은 쪽
+          // ① 원거리: 80px 안이면 약 200px 까지 물러남 (2초에 한 번) · 서는 자리는 벽 쪽 공간이 넓은 쪽
           // 물러나는 자리는 지금 서 있는 발판 안에서만 (발판 끝에서 떨어지면 다시 올라와 붙는 것을 되풀이함)
           const side = -Math.sign(dx || 1), onPlat = p.onGround && p.plat && !p.plat.ground && p.plat.w < W - 10;
           const lo = Math.max(90, onPlat ? p.plat.x + 25 : 0), hi = Math.min(W - 90, onPlat ? p.plat.x + p.plat.w - 25 : W);
@@ -394,8 +394,9 @@ G.Play = {
           if (Math.abs(stand - tgt.x) < 100) stand = G.U.clamp(tgt.x - side * 200, lo, hi);
           if (dist > reach) moveTo(tgt.x + side * (reach - 20));
           const back = Math.abs(stand - p.x) > 40 && Math.sign(stand - p.x) === side && Math.abs(stand - tgt.x) >= 100;
-          if (dist < 120 && back && !(this.retT > 0)) this.retT = 1.2;   // 물러나기 시작 → 190px 까지 또는 1.2초
-          if (this.retT > 0) { this.retT -= dt; if (dist >= 190 || !back) this.retT = 0; else { moveTo(stand); retreat = true; } }
+          // 80px 안으로 붙으면 물러나기 시작 → 190px 까지 또는 1.2초. 물러난 뒤 2초는 그 자리에서 쏨 (계속 다가오는 몬스터에게 한 발도 못 쏘는 것 방지)
+          if (dist < 80 && back && !(this.retT > 0) && this.gt >= (this.retCd || 0)) this.retT = 1.2;
+          if (this.retT > 0) { this.retT -= dt; if (dist >= 190 || !back || this.retT <= 0) { this.retT = 0; this.retCd = this.gt + 2; } else { moveTo(stand); retreat = true; } }
         } else if (dist > reach) moveTo(tgt.x - Math.sign(dx) * (reach - 20));
         else if (ranged && dist < 40) {   // 보스 방: 너무 붙으면 살짝 물러남 (벽 쪽으로는 물러나지 않음)
           const back = p.x - Math.sign(dx || 1) * 80;
