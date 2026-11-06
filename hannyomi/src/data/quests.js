@@ -76,7 +76,7 @@ G.QUESTS = {};
   });
   add('m07', {
     type: 'main', ch: '프롤로그', name: '꺼져가는 등불', lv: 7, start: 'elma', end: 'elma', pre: ['m06'],
-    obj: [{ t: 'kill', mon: 'spikeshell', n: 10 }, { t: 'item', id: 'q_pearl', n: 3 }], exp: 1.2, gold: 300,
+    obj: [{ t: 'kill', mon: 'spikeshell', n: 10 }, { t: 'item', id: 'q_pearl', n: 3 }], exp: 1.2, gold: 300, items: [['pot_red', 30]], // 2.1.3: 첫 보스(쉘로크) 전에 들풀 회복약 30개
     desc: '조개 해변의 가시 조개 10마리를 처치하고 빛나는 진주 3개를 구하자.',
     dlg: {
       start: ['요즘 등대의 불빛이 점점 약해지고 있어요.', '등불은 빛나는 진주로 밝히는데, 조개 해변의 가시 조개들이 진주를 품은 채 사나워졌어요.', '가시 조개를 처치하고 빛나는 진주 3개를 구해 주세요.'],

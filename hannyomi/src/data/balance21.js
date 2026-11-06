@@ -8,7 +8,7 @@
   const tune = (id, pid, o) => { const pt = B[id].patterns.find(x => x.id === pid); if (pt) Object.assign(pt, o); };
 
   // ---------- 체력 배율 (시뮬레이션으로 맞춘 값: 보통 장비 기준 목표 길이) ----------
-  const HP = { shellock: 7, bark: 4, morwen: 6.5, grounder: 6, parakan: 2.2, kaien_boss: 3.8, aurelion: 7, eldrick: 7, nox: 8.5 };
+  const HP = { shellock: 0.9, bark: 4, morwen: 6.5, grounder: 6, parakan: 2.2, kaien_boss: 3.8, aurelion: 7, eldrick: 7, nox: 8.5 }; // 2.1.3: 쉘로크 7 → 0.9 (실제 순서: 각성 전 표류자 Lv.9 · 나무 막대 기준 약 1분 30초)
   for (const id in HP) M[id].hpMul = (M[id].hpMul || 1) * HP[id];
 
   // ---------- 새 패턴 ----------
