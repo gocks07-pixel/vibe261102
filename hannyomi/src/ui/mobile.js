@@ -23,6 +23,7 @@ G.Mobile = {
     if (this.ready) return;
     this.ready = true;
     this.wrap();
+    this.watchText();   // 2차-1.7: 휴대폰에 없는 키 문구 바꿔 보여 주기
     document.body.insertAdjacentHTML('beforeend', `<div id="touch"></div>
       <div id="rotate"><div class="ph">📱</div><b>휴대폰을 가로로 돌려 주세요</b><div>이 게임은 가로 화면에서 플레이해요</div></div>
       <div id="mob-modal"></div>`);
@@ -92,15 +93,61 @@ G.Mobile = {
         const fs = M.canFullscreen() ? `<button class="btn" data-act="menu" data-arg="fullscreen">${M.isFullscreen() ? '전체 화면 끄기' : '전체 화면'}</button>` : '';
         h = h.replace(keysBtn, `<button class="btn" data-act="menu" data-arg="touchset">📱 터치 버튼 설정</button>${fs}`)
           .replace('>조작법 (F1)<', `>${G.Touch.active() ? '조작 안내' : '조작법 (F1)'}<`);
+        if (G.Touch.active()) h = h.replace('>저장 후 타이틀로<', '>타이틀로 가기<');   // 2차-1.8
       }
       return h.replace('<button class="btn" data-act="menu" data-arg="sound">', m => save + m);
     };
     G.Win.menu.act = function (a) {
       if (a === 'savefile') { G.UI.closeWin('menu'); M.saveFile(); return; }
       if (a === 'touchset') { G.UI.closeWin('menu'); M.touchSettings(); return; }
+      // 2차-1.8: 휴대폰 "타이틀로 가기" — 확인 창 (진행은 자동 저장되므로 저장 안 하기는 없음)
+      if (a === 'title' && G.Touch.active() && G.Game.player) { const me = this; G.UI.ask('타이틀로 갈까요? 지금까지의 진행은 저장돼요.', '타이틀로', () => ma.call(me, 'title')); return; }
       if (a === 'fullscreen') { M.toggleFullscreen(); setTimeout(() => G.UI.isOpen('menu') && G.UI.renderWin('menu'), 400); return; }
       return ma.apply(this, arguments);
     };
+  },
+
+  // ---------- 2차-1.7 휴대폰에 없는 키 문구 → 휴대폰 버튼 말로 (보여 줄 때만, 원본 글 · PC · EXE 그대로) ----------
+  //  로그 · 대화 · 창 · 퀘스트 알림 · 설명 풍선 · 튜토리얼 · 알림이 모두 G.UI.root 아래 글이라, 새로 생긴 글자 칸만 바꾼다
+  TXT: [
+    [/\s*\(Shift\+클릭:? ?5씩\)/g, ''], [/,?\s*Shift\+클릭:? ?5씩/g, ''],
+    ['F1 키로 전체 단축키 설명을 볼 수 있어요. 키는 메뉴 → 키 설정에서 원하는 대로 바꿀 수 있어요.', '≡ 메뉴 → 조작 안내에서 전체 조작 설명을 볼 수 있어요.'],
+    ['언제든 F1 키로 단축키를 확인할 수 있어요.', '언제든 ≡ 메뉴 → 조작 안내에서 조작법을 볼 수 있어요.'],
+    ['(F1: 단축키 안내)', '(조작법: ≡ 메뉴 → 조작 안내)'], ['조작법 (F1)', '조작 안내'], [/\s*\(F9\)/g, ''],
+    ['(우클릭/ESC 취소)', '(≡ 메뉴 버튼: 취소)'], ['(우클릭: 취소)', '(≡ 메뉴 버튼: 취소)'], ['(Esc: 취소)', '(≡ 메뉴 버튼: 취소)'], ['메뉴(Esc)', '메뉴 버튼'],
+    ['인벤토리(I)', '인벤토리'], ['장비창은 E 키야', '장비창은 장비 버튼이야'], ['퀘스트 창(Q)', '퀘스트 창'], ['공격은 Z 키일세', '공격은 공격 버튼일세'],
+    [/(^|[^A-Za-z])S 키로/g, '$1스탯 버튼으로'], [/(^|[^A-Za-z])K 키로/g, '$1스킬 버튼으로'], ['(K)', '(스킬 버튼)'],
+    [/↑ 키를/g, '▲ 버튼을'], [/([가-힣]{2,}) 키\(\1\)/g, '$1 버튼'], [/([가-힣]{2,}) 키로/g, '$1 버튼으로'], [/([가-힣]{2,}) 키를/g, '$1 버튼을'],
+    [/더블클릭/g, '두 번 탭'], [/클릭/g, '탭'],
+  ],
+  TXT_TEST: /F1|F9|Shift|Esc|ESC|우클릭|클릭|[A-Z] 키|\([IKQ]\)| 키[로를(]|↑ 키/,
+  fixText(t) {
+    if (!t || !this.TXT_TEST.test(t)) return t;
+    for (const [a, b] of this.TXT) t = typeof a === 'string' ? t.split(a).join(b) : t.replace(a, b);
+    return t;
+  },
+  fixNode(n) {
+    if (n.nodeType === 3) {
+      const p = n.parentNode; if (!p || p.closest && (p.closest('textarea, input, script, style'))) return;
+      if (p.tagName === 'KBD' && n.nodeValue.trim() === 'F1') { n.nodeValue = '≡ 메뉴'; return; }   // 튜토리얼 키 칸
+      const v = n.nodeValue, w = this.fixText(v); if (w !== v) n.nodeValue = w;
+    } else if (n.nodeType === 1 && !/^(TEXTAREA|INPUT|SCRIPT|STYLE|CANVAS)$/.test(n.tagName)) {
+      const it = document.createTreeWalker(n, NodeFilter.SHOW_TEXT); let x; const list = [];
+      while ((x = it.nextNode())) list.push(x);
+      for (const t of list) this.fixNode(t);
+    }
+  },
+  watchText() {
+    const M = this, root = document.body;   // #ui (로그 · 창 · 대화 · 튜토리얼) + 몸 아래 알림 · 안내 창
+    const ob = new MutationObserver(ms => {
+      if (!G.Touch.active()) return;
+      for (const m of ms) {
+        if (m.type === 'characterData') M.fixNode(m.target);
+        else for (const n of m.addedNodes) M.fixNode(n);
+      }
+    });
+    ob.observe(root, { childList: true, subtree: true, characterData: true });
+    if (G.Touch.active()) this.fixNode(root);
   },
 
   // ---------- 버튼 만들기 ----------
