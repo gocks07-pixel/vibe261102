@@ -18,7 +18,10 @@ G.Nav = {
   },
 
   npcMap(npc) { return Object.keys(G.MAPS).find(id => G.MAPS[id].npcs.some(n => n.id === npc)); },
-  mapsWithMon(mons) { return new Set(Object.keys(G.MAPS).filter(id => G.MAPS[id].spawns.some(s => mons.includes(s.m)))); },
+  mapsWithMon(mons) {   // 2.1.4: 2단계 보스(엘드리크)는 맵에 없으니 앞 단계 보스(아우렐리온)가 나오는 맵도 찾음
+    const all = mons.concat(Object.keys(G.MONSTERS).filter(id => mons.includes(G.MONSTERS[id].next)));
+    return new Set(Object.keys(G.MAPS).filter(id => G.MAPS[id].spawns.some(s => all.includes(s.m))));
+  },
 
   // 지금 가야 할 곳
   targets(q) {
