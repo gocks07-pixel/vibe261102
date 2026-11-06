@@ -279,7 +279,7 @@ G.Play = {
     this.drive(dt, p, w);
   },
   // 2차-1.4 ③: 발판 길 지도 (맵마다 한 번). 위로 = 270px 안 · 옆으로 닿음(60px 틈까지), 아래로 = 옆으로 겹침
-  RISE: 270,
+  RISE: 290,   // 2.1.6: 2단 점프(위로) 최대 296px
   platGraph(w) {
     if (this.pg && this.pg.map === w.mapId && this.pg.n === w.platforms.length) return this.pg;
     const P = w.platforms, up = P.map(() => []), down = P.map(() => []);
