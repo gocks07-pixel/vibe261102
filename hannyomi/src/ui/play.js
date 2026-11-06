@@ -230,7 +230,7 @@ G.Play = {
       this.toast(left > 0 ? `🤖 보스 방에서는 ${this.BOSS_TRIES}번 도전한 뒤에 자동 사냥을 쓸 수 있어요 (남은 도전 ${left}번)` : '🤖 자동 사냥은 사냥터에서만 쓸 수 있어요 (마을 · 튜토리얼 제외)');
       return;
     }
-    this.autoOn = true; this.userT = -1e9; this.stuckT = 0;
+    this.autoOn = true; this.userT = -1e9; this.stuckT = 0; this.gen = (this.gen || 0) + 1;
     this.toast(this.bossMode ? '🤖 보스 자동 전투 시작! 기둥 같은 기믹은 먼저 부수지만, 보스 공격은 피하지 않아요.' : '🤖 자동 사냥 시작! 포탈 · 퀘스트 · 맵 이동은 직접 해 주세요. 몬스터 스킬은 피하지 않아요.');
     this.ui();
   },
@@ -278,43 +278,129 @@ G.Play = {
     if (this.paused() || this.userBusy()) { this.hold(new Set()); return; }
     this.drive(dt, p, w);
   },
+  // 2차-1.4 ③: 발판 길 지도 (맵마다 한 번). 위로 = 270px 안 · 옆으로 닿음(60px 틈까지), 아래로 = 옆으로 겹침
+  RISE: 270,
+  platGraph(w) {
+    if (this.pg && this.pg.map === w.mapId && this.pg.n === w.platforms.length) return this.pg;
+    const P = w.platforms, up = P.map(() => []), down = P.map(() => []);
+    P.forEach((a, i) => P.forEach((b, j) => {
+      if (i === j) return;
+      const gap = Math.max(a.x, b.x) - Math.min(a.x + a.w, b.x + b.w);   // 음수 = 겹침
+      if (b.y < a.y - 12 && a.y - b.y <= this.RISE && gap <= 60) up[i].push(j);
+      else if (b.y > a.y + 12 && gap < -20) down[i].push(j);
+    }));
+    return (this.pg = { map: w.mapId, n: P.length, up, down, memo: {} });
+  },
+  // from 발판 → to 발판: 가장 적게 오르는 길 (오르기 1, 내려가기 0). { ups, next } · 길 없으면 null
+  route(w, from, to) {
+    const g = this.platGraph(w), P = w.platforms, i0 = P.indexOf(from), i1 = P.indexOf(to);
+    if (i0 < 0 || i1 < 0) return null;
+    const key = i0 + '>' + i1; if (key in g.memo) return g.memo[key];
+    const dist = P.map(() => 1e9), first = P.map(() => -1), dq = [i0]; dist[i0] = 0;
+    while (dq.length) {
+      const i = dq.shift();
+      for (const [list, c] of [[g.down[i], 0], [g.up[i], 1]]) for (const j of list) {
+        if (dist[i] + c < dist[j]) { dist[j] = dist[i] + c; first[j] = i === i0 ? j : first[i]; c ? dq.push(j) : dq.unshift(j); }
+      }
+    }
+    return (g.memo[key] = dist[i1] >= 1e9 ? null : { ups: dist[i1], next: P[first[i1]] });
+  },
+  // 2차-1.4 ②: 지금 받은 퀘스트에 필요한 몬스터 (처치 · 아이템 목표)
+  questMons(p) {
+    if (this.qmT && this.gt - this.qmT < 2) return this.qm;
+    const out = new Set();
+    for (const id of Object.keys(p.d.quests || {})) {
+      const q = G.QUESTS[id]; if (!q || !G.Quest.isActive(id)) continue;
+      for (const o of q.obj || []) {
+        const [c, n] = G.Quest.progress(q, o); if (c >= n) continue;
+        if (o.t === 'kill') out.add(o.mon);
+        else if (o.t === 'item') for (const m of Object.keys(G.MONSTERS)) if ((G.MONSTERS[m].quest || []).includes(o.id)) out.add(m);
+      }
+    }
+    this.qmT = this.gt; return (this.qm = out);
+  },
+  ELITE_WAIT: 180, ELITE_GIVEUP: 20,
   drive(dt, p, w) {
     const K = id => G.Touch.code(id), want = new Set();
     const py = p.onGround && p.plat ? p.plat.y : p.y;
     const wt = p.weaponTpl && p.weaponTpl(), ranged = wt && (wt.type === 'bow' || wt.type === 'wand');
-    const reach = ranged ? 300 : 70;
-    // 목표: 같은 층 먼저, 한 번에 올라갈 수 있는 위층, 아래층 (보스 · 쓰러진 몬스터 제외)
-    let tgt = null, best = 1e9;
+    const reach = ranged ? 300 : 70, W = w.map.width;
     const boss = this.bossMode, guards = boss ? w.monsters.filter(m => !m.dead && this.isGuard(m)) : [];
+    // 사냥터에 머문 시간 (맵을 옮기거나 자동을 다시 켜면 처음부터)
+    if (this.autoMap !== w.mapId || this.autoGen !== this.gen) { this.autoMap = w.mapId; this.autoGen = this.gen; this.mapT = 0; this.eliteCd = 0; this.eliteTgt = null; }
+    this.mapT += dt;
+    const myPlat = p.onGround ? p.plat : (this.lastPlat || null);
+    if (p.onGround && p.plat) this.lastPlat = p.plat;
+    // 정예: 퀘스트 목표면 바로, 아니면 3분 뒤 (포기하면 3분 쉼)
+    const qm = boss ? null : this.questMons(p);
+    if (this.eliteTgt && this.eliteTgt.dead) { if (qm && !qm.has(this.eliteTgt.id)) this.mapT = 0; this.eliteTgt = null; }   // 잡았으면 다시 3분 뒤에 (퀘스트 목표면 계속)
+    const eliteOk = m => !boss && m.d && m.d.kind === 'elite' && this.gt >= (this.eliteCd || 0) && (qm.has(m.id) || this.mapT >= this.ELITE_WAIT);
+    // 목표: 같은 층 먼저, 오르는 발판 수 × 420, 아래층 320 (보스 · 쓰러진 몬스터 제외)
+    let tgt = null, best = 1e9;
     for (const m of w.monsters) {
       if (m.dead || (!boss && m.isBoss)) continue;
       if (boss && guards.length && !this.isGuard(m)) continue;                    // 기믹(기둥 · 잔영 등)부터
       if (boss && m.isBoss && m.boss && m.boss.phaseInv > 0 && w.monsters.some(x => !x.dead && !x.isBoss && x !== m)) continue;   // 무적 중엔 다른 적
       if (!boss && !m.plat) continue;
       const my = m.plat ? m.plat.y : py, dy = py - my;
-      const cost = Math.abs(dy) < 12 ? 0 : dy > 0 && dy <= 270 ? 420 : dy < 0 ? 320 : 1e9;
+      let cost;
+      if (Math.abs(dy) < 12) cost = 0;
+      else if (!boss && myPlat && m.plat) { const r = this.route(w, myPlat, m.plat); cost = !r ? 1e9 : r.ups ? 420 * r.ups : 320; }
+      else cost = dy > 0 && dy <= this.RISE ? 420 : dy < 0 ? 320 : 1e9;
+      if (cost >= 1e9) continue;
       // 떠 있는 몬스터(바람 정령 등)는 땅에서 안 맞으므로 덜 고름 (점프 공격으로 잡음)
       const hi = (py - 30) - (m.y - (m.h || 40) / 2);
-      const c = Math.abs(m.x - p.x) + cost + (hi > 70 ? 250 : 0);
+      let c = Math.abs(m.x - p.x) + cost + (hi > 70 ? 250 : 0);
+      if (eliteOk(m)) c -= 6000;   // 정예 먼저
       if (c < best) { best = c; tgt = m; }
     }
+    // 정예를 노리기 시작 · 포기
+    if (tgt && best < -1000 && tgt.d.kind === 'elite') {
+      if (this.eliteTgt !== tgt) { this.eliteTgt = tgt; this.eliteT0 = this.gt; this.eliteNear = false; if (this.gt - (this.eliteMsgT || -1e9) > 60) { this.eliteMsgT = this.gt; this.toast('정예 몬스터를 잡으러 가요!'); } }
+      const near = Math.abs(tgt.x - p.x) <= reach + 30 && Math.abs(py - (tgt.plat ? tgt.plat.y : py)) < 12;
+      if (near) this.eliteNear = true;
+      const giveUp = (!this.eliteNear && this.gt - this.eliteT0 > this.ELITE_GIVEUP) || (this.eliteNear && p.hp < p.st.maxHP * 0.4 && p.potionIdx('hp') < 0);
+      if (giveUp) { this.eliteCd = this.gt + this.ELITE_WAIT; this.eliteTgt = null; }
+    } else if (this.eliteTgt) this.eliteTgt = null;
     const moveTo = x => { if (Math.abs(x - p.x) > 14) want.add(x > p.x ? 'ArrowRight' : 'ArrowLeft'); };
+    // ① 원거리: 구석에서 몬스터에 붙잡히면 몬스터 쪽으로 점프해 넘어감 (2초에 한 번)
+    if (ranged && !boss && this.escT != null && this.gt - this.escT < 0.9 && !p.onGround) { want.add(this.escDir > 0 ? 'ArrowRight' : 'ArrowLeft'); if (p.vy > -60 && !p.airDashed && p.d.skills.b_djump) this.tap(K('jump')); this.dbg = { esc: 1 }; this.hold(want); return; }
+    if (ranged && !boss && p.onGround) {
+      const close = w.monsters.filter(m => !m.dead && !m.isBoss && !(m.d && m.d.harmless) && Math.abs(m.x - p.x) < 60 && Math.abs((m.plat ? m.plat.y : m.y) - py) < 40);
+      const wallL = p.x < 120, wallR = p.x > W - 120;
+      if (close.length && (wallL || wallR) && this.gt - (this.escT || -9) > 2) {
+        this.escT = this.gt; this.escDir = wallL ? 1 : -1;
+        want.add(this.escDir > 0 ? 'ArrowRight' : 'ArrowLeft'); this.tap(K('jump')); this.hold(want); this.dbg = { esc: 1 }; return;
+      }
+    }
     if (!tgt || best >= 1e9) {
       // 몬스터가 없으면 맵을 천천히 돌며 기다림
-      if (p.x < 100) this.patrol = 1; else if (p.x > w.map.width - 100) this.patrol = -1;
+      if (p.x < 100) this.patrol = 1; else if (p.x > W - 100) this.patrol = -1;
       want.add(this.patrol > 0 ? 'ArrowRight' : 'ArrowLeft');
     } else {
-      const tp = tgt.plat || { x: 0, y: py, w: w.map.width }, dy = py - tp.y;
+      let tp = tgt.plat || { x: 0, y: py, w: W }, dy = py - tp.y;
+      // ③ 높은 발판: 길의 다음 발판으로
+      if (!boss && Math.abs(dy) >= 12 && p.onGround && p.plat && tgt.plat) { const r = this.route(w, p.plat, tgt.plat); if (r && r.next) { tp = r.next; dy = py - tp.y; } }
       if (Math.abs(dy) < 12) {
         // 같은 층: 사거리 안으로 → 바라보기 → 스킬 · 공격
         const dx = tgt.x - p.x, dist = Math.abs(dx);
-        if (dist > reach) moveTo(tgt.x - Math.sign(dx) * (reach - 20));
-        else if (ranged && dist < 40) {   // 너무 붙으면 살짝 물러남 (벽 쪽으로는 물러나지 않음 → 벽에 붙어 못 싸우는 것 방지)
+        let retreat = false;
+        if (ranged && !boss) {
+          // ① 원거리: 120px 안이면 약 200px 까지 물러남 · 서는 자리는 벽 쪽 공간이 넓은 쪽
+          const side = -Math.sign(dx || 1), lo = 90, hi = W - 90;
+          let stand = G.U.clamp(tgt.x + side * 200, lo, hi);
+          if (Math.abs(stand - tgt.x) < 100) stand = G.U.clamp(tgt.x - side * 200, lo, hi);
+          if (dist > reach) moveTo(tgt.x + side * (reach - 20));
+          const back = Math.abs(stand - p.x) > 40 && Math.sign(stand - p.x) === side;
+          if (dist < 120 && back && !(this.retT > 0)) this.retT = 1.2;   // 물러나기 시작 → 190px 까지 또는 1.2초
+          if (this.retT > 0) { this.retT -= dt; if (dist >= 190 || !back) this.retT = 0; else { moveTo(stand); retreat = true; } }
+        } else if (dist > reach) moveTo(tgt.x - Math.sign(dx) * (reach - 20));
+        else if (ranged && dist < 40) {   // 보스 방: 너무 붙으면 살짝 물러남 (벽 쪽으로는 물러나지 않음)
           const back = p.x - Math.sign(dx || 1) * 80;
-          if (back > 90 && back < w.map.width - 90) moveTo(back);
+          if (back > 90 && back < W - 90) moveTo(back);
         }
         const inv = tgt.isBoss && tgt.boss && tgt.boss.phaseInv > 0;   // 페이즈 전환 무적: 헛손질하지 않고 기다림
-        if (dist <= reach + 30 && !inv) {
+        if (!retreat && dist <= reach + 30 && !inv) {
           // 반대쪽을 보고 있으면 공격을 멈추고(경직이 풀려야 돌아설 수 있음) 돌아선다
           if (Math.sign(dx) !== p.dir && Math.abs(dx) > 6) {
             want.delete('ArrowLeft'); want.delete('ArrowRight');   // 반대 방향 키와 겹치지 않게
@@ -338,8 +424,9 @@ G.Play = {
           else if (!p.onGround && this.held.has('ArrowUp')) want.add('ArrowUp');
         }
       } else if (p.onGround && p.plat && !p.plat.ground) {
-        // 아래층: ↓ + 점프로 내려가기
-        want.add('ArrowDown'); this.tap(K('jump'));
+        // 아래층: (내려갈 발판 위로 가서) ↓ + 점프로 내려가기
+        if (tp.w < W && (p.x < tp.x + 20 || p.x > tp.x + tp.w - 20)) moveTo(G.U.clamp(tgt.x, tp.x + 30, tp.x + tp.w - 30));
+        else { want.add('ArrowDown'); this.tap(K('jump')); }
       } else moveTo(tgt.x);
     }
     // 걸어가는데 1.5초 동안 그대로면 점프

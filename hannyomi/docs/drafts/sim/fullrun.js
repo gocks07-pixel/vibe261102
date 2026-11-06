@@ -344,6 +344,15 @@ const BOT = function (R) {
     }
     return hurt.apply(this, arguments);
   };
+  // 안전지대 패턴(파라칸 태양의 심판 · 녹스 종말의 별)도 같은 30% 로 안전지대에 들어감 (2026-11-06: 전에는 피해 함수가 달라서 한 번도 못 들어갔음)
+  const tdm = G.Player.prototype.trueDamage;
+  G.Player.prototype.trueDamage = function () {
+    if (B.manualDodge && B.boss) {
+      const m = W().monsters.find(x => x.isBoss && !x.dead), id = m && m.boss && m.boss.cur && m.boss.cur.pt && m.boss.cur.pt.id;
+      if ((id === 'sun' || id === 'doom') && Math.random() < 0.3) return;
+    }
+    return tdm.apply(this, arguments);
+  };
   const qp = G.Player.prototype.quickPotion; G.Player.prototype.quickPotion = function () { B.pots++; return qp.apply(this, arguments); };
   return true;
 };
