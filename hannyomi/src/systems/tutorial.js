@@ -79,18 +79,24 @@ G.Tutorial = {
   hide() { if (this.el) { this.el.remove(); this.el = null; this.shown = -1; } },
 
   skip() {
-    G.UI.ask('튜토리얼을 건너뛰고 새싹항으로 갈까요?', '건너뛰기', () => G.Game.changeMap('sprout_port', null));
+    G.UI.ask('튜토리얼을 건너뛰고 새싹항으로 갈까요? 건너뛰면 루미의 완주 선물을 받을 수 없어요.', '건너뛰기', () => {
+      const p = G.Game.player; if (p.d.tut) p.d.tut.skipped = true;   // 2.1.6: 건너뛰면 보상 없음
+      G.Game.changeMap('sprout_port', null);
+    });
   },
   // 꿈속의 해변을 떠날 때 호출
   complete() {
     const p = G.Game.player;
     if (!p.d.tut) return;
+    const full = !p.d.tut.skipped && p.d.tut.step >= this.STEPS.length - 1;   // 2.1.6: 15단계까지 다 한 경우만
     p.d.tut = null;
-    G.Inv.add(p, 'pot_red', 10);
+    if (full) { G.Inv.add(p, 'pot_red', 20); G.Inv.add(p, 'scroll_tele', 2); p.d.gold += 300; }
     this.hide();
     setTimeout(() => {
       // (1.4) 챕터 타이틀 카드 "프롤로그 · 낯선 해변"이 대신 나온다
-      G.UI.log('튜토리얼 완료! 보상: 들풀 회복약 ×10. 언제든 F1 키로 단축키를 확인할 수 있어요.', '#ffe08a');
+      G.UI.log(full ? '튜토리얼 완료! 루미의 선물: 들풀 회복약 ×20 · 여행자의 나침반 ×2 · 300골드. 언제든 조작법을 볼 수 있어요 (PC: F1 · 휴대폰: 메뉴 → 조작 안내).'
+        : '튜토리얼을 건너뛰었어요. 언제든 조작법을 볼 수 있어요 (PC: F1 · 휴대폰: 메뉴 → 조작 안내).', '#ffe08a');
+      if (full) G.UI.banner('루미', '잘했어요! 꿈에서 깨기 전에 이걸 가져가요.');
       G.UI.log('머리 위에 ! 표시가 있는 루루에게 말을 걸어 보세요.', '#ffe08a');
     }, 300);
     // 1.7.7: 꿈에서 깨어나기 직전, 어둠 속 목소리 (녹스)
