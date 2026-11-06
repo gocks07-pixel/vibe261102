@@ -343,7 +343,8 @@ G.Play = {
     const a = sk.atk;
     if (!a) return { score: 0, n: 0 };
     const dir = p.dir, ahead = (m, far, near = -20) => { const dx = (m.x - p.x) * dir; return dx >= near && dx <= far; };
-    const sameY = (m, h = 70) => Math.abs((m.y - (m.h || 40) / 2) - (p.y - 30)) < h;
+    // 몬스터 몸(발 ~ 머리) 이 내 공격 높이 띠와 겹치는지 (녹스처럼 키 큰 보스도)
+    const sameY = (m, h = 70) => { const top = m.y - (m.h || 40), mid = p.y - 30; return m.y > mid - h && top < mid + h; };
     let n = 0, hits = a.hits || 1, mult = 1;
     switch (a.kind) {
       case 'melee': n = Math.min(a.targets || 1, list.filter(m => ahead(m, a.w + 20) && sameY(m, a.h)).length); break;
