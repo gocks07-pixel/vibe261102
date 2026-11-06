@@ -49,8 +49,8 @@ npm run build:dev
 
 | 명령 | 만들어지는 파일 |
 |---|---|
-| `npm run build:player` | `RPG Adventure 2.1.6.exe` |
-| `npm run build:dev` | `RPG Adventure DEV 2.1.6.exe` |
+| `npm run build:player` | `RPG Adventure 2.1.7.exe` |
+| `npm run build:dev` | `RPG Adventure DEV 2.1.7.exe` |
 
 - 설치가 필요 없는 EXE입니다. 더블클릭하면 바로 실행됩니다.
 - 처음 실행할 때 Windows가 "PC 보호" 창을 띄우면 **추가 정보 → 실행**을 누르면 됩니다. (인증서를 사지 않은 개인 프로그램이라 나오는 안내입니다)

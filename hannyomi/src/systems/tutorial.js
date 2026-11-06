@@ -9,6 +9,7 @@ G.Tutorial = {
     { text: '점프한 공중에서 한 번 더 누르면 앞으로 살짝 뛰어요! 점프 키를 두 번 연속으로 눌러 보세요.', keys: ['@jump', '@jump'], flag: 'dash' },
     { text: '보랏빛 발판 위에서 점프한 뒤, ↑ 를 누른 채 점프를 한 번 더! 위로 한 번 더 뛰어 금색 높은 발판에 올라가 보세요.', keys: ['@jump', '+', '↑', '+', '@jump'],
       check: (s, p) => s.flags.djup && p.onGround && p.plat && p.plat.high },
+    { text: '스킬창({skill})의 표류자 탭에서 2단 점프를 [위로]로 바꾸면, ↑ 없이 점프 두 번만으로 위로 뛰어요. 바꿔 보세요! (다시 [앞으로]로 돌려도 돼요)', keys: ['@skill', '위로'], flag: 'djmode' },   // 2.1.7
     { text: '↓ + {jump} 로 발판 아래로 내려와 보세요. (금색 높은 발판에는 사냥터마다 보물상자가 있어요!)', keys: ['↓', '+', '@jump'], flag: 'drop' },
     { text: '땅에서 대쉬 키({dash})를 누르면 짧게 돌진해요! (방향키 두 번 대쉬는 메뉴에서 켤 수 있어요)', keys: ['@dash'], flag: 'gdash' },
     { text: '꿈의 안내자 루미 앞에서 ↑ 키를 누르거나, 루미를 클릭해서 말을 걸어 보세요.', keys: ['↑'], flag: 'talk:lumi' },
@@ -16,7 +17,7 @@ G.Tutorial = {
     { text: '{skill1} 키로 [돌 던지기] 스킬을 써 보세요. 스킬은 스킬 칸 1~6 단축키로 사용해요.', keys: ['@skill1'], flag: 'skill' },
     { text: 'HP가 줄었어요! {hp} 키로 HP 물약을 마셔 보세요. (MP 물약은 {mp})', keys: ['@hp'], flag: 'potion', onStart: p => { p.hp = Math.ceil(p.st.maxHP * 0.4); } },
     { text: '{stat} 키로 스탯창을 열고 + 버튼으로 능력 포인트를 배분해 보세요. (Shift+클릭: 5씩)', keys: ['@stat'], flag: 'ap' },
-    { text: '다른 창들도 열어 보세요. 스킬창 표류자 탭에서는 2단 점프 모드(앞으로/위로)도 바꿀 수 있어요.', keys: ['@inv', '@equip', '@skill', '@quest'],
+    { text: '다른 창들도 열어 보세요.', keys: ['@inv', '@equip', '@skill', '@quest'],
       all: [['win:inv', '인벤토리'], ['win:equip', '장비'], ['win:skill', '스킬'], ['win:quest', '퀘스트']] },
     { text: '{map} 키로 지도를 열어 보세요. 월드맵과 현재 맵을 볼 수 있어요.', keys: ['@map'], flag: 'win:map' },
     { text: 'F1 키로 전체 단축키 설명을 볼 수 있어요. 키는 메뉴 → 키 설정에서 원하는 대로 바꿀 수 있어요.', keys: ['F1'], flag: 'help' },
@@ -45,6 +46,7 @@ G.Tutorial = {
 
   update() {
     if (!this.active()) { this.hide(); return; }
+    if (this.st && this.st.v !== 16) { if (this.st.step >= 4) this.st.step++; this.st.v = 16; }   // 2.1.7: 16단계 — 하던 중인 세이브는 한 칸 뒤로
     const s = this.st, p = G.Game.player, step = this.STEPS[s.step];
     if (!step) return;
     if (!s.started) { s.started = true; if (step.onStart) step.onStart(p); }
