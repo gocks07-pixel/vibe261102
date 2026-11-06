@@ -307,11 +307,17 @@ G.Play = {
         // 같은 층: 사거리 안으로 → 바라보기 → 스킬 · 공격
         const dx = tgt.x - p.x, dist = Math.abs(dx);
         if (dist > reach) moveTo(tgt.x - Math.sign(dx) * (reach - 20));
-        else if (ranged && dist < 40) moveTo(p.x - Math.sign(dx || 1) * 80);   // 너무 붙으면 살짝 물러남
+        else if (ranged && dist < 40) {   // 너무 붙으면 살짝 물러남 (벽 쪽으로는 물러나지 않음 → 벽에 붙어 못 싸우는 것 방지)
+          const back = p.x - Math.sign(dx || 1) * 80;
+          if (back > 90 && back < w.map.width - 90) moveTo(back);
+        }
         const inv = tgt.isBoss && tgt.boss && tgt.boss.phaseInv > 0;   // 페이즈 전환 무적: 헛손질하지 않고 기다림
         if (dist <= reach + 30 && !inv) {
           // 반대쪽을 보고 있으면 공격을 멈추고(경직이 풀려야 돌아설 수 있음) 돌아선다
-          if (Math.sign(dx) !== p.dir && Math.abs(dx) > 6) { if (p.lock <= 0) want.add(dx > 0 ? 'ArrowRight' : 'ArrowLeft'); }
+          if (Math.sign(dx) !== p.dir && Math.abs(dx) > 6) {
+            want.delete('ArrowLeft'); want.delete('ArrowRight');   // 반대 방향 키와 겹치지 않게
+            if (p.lock <= 0) want.add(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
+          }
           else this.attack(p, want);
         }
       } else if (dy > 0) {
