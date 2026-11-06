@@ -590,12 +590,7 @@ G.Play = {
   //  가는 곳 = 길 안내(G.Nav.targets)와 같은 기준, 가장 가까운 곳. 보스 방이면 그 앞 맵. 확인 창 없이 바로 · 공짜 · 처음 가는 맵도 됨
   questDest(q) {
     const w = G.Game.world; if (!w || !q || !G.Quest.isActive(q.id)) return null;
-    const tg = G.Nav.targets(q);
-    let maps = new Set([...(tg.maps || [])].filter(id => id && G.MAPS[id] && !G.MAPS[id].hidden));
-    if (!maps.size && tg.mons) {   // 2단계 보스(엘드리크 등)는 맵에 없음 → 앞 단계 보스(아우렐리온)가 나오는 방
-      const pre = Object.keys(G.MONSTERS).filter(id => tg.mons.includes(G.MONSTERS[id].next));
-      if (pre.length) maps = G.Nav.mapsWithMon(pre);
-    }
+    const tg = G.Nav.targets(q), maps = new Set([...(tg.maps || [])].filter(id => id && G.MAPS[id] && !G.MAPS[id].hidden));   // 2단계 보스(엘드리크)도 2.1.4 길 안내가 찾음
     if (!maps.size || maps.has(w.mapId)) return null;
     const r = G.Nav.route(w.mapId, maps);
     let dest = r ? r.path[r.path.length - 1] : [...maps][0];
