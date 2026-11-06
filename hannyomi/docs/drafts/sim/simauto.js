@@ -44,6 +44,7 @@ const BASE = process.argv[3] || 'http://localhost:8123';
       const w = G.Game.world, sp = w.spawnNextBoss.bind(w);
       window.__next = null; w.spawnNextBoss = (m, id) => { window.__next = { m, id, t: 2.8 }; };
       window.__sp = sp;
+      if (R.guard != null) G.Play.AUTO_GUARD[R.map] = R.guard;   // 보스 방 자동 전투 중 받는 피해 배율 맞추기
       G.Play.forceBoss = true; G.Play.autoOn = false; G.Play.toggleAuto();
       window.__T = { t: 0, ts: performance.now(), dead: false, pot: 0, maxBossHp: 0, bossHp: [] };
       const oq = p.quickPotion.bind(p); p.quickPotion = k => { window.__T.pot++; return oq(k); };
@@ -69,7 +70,7 @@ const BASE = process.argv[3] || 'http://localhost:8123';
       }, R);
     }
     const info = await pg.evaluate(() => { const w = G.Game.world, p = G.Game.player, m = w.monsters.find(x => x.isBoss); return { hp: Math.round(p.hp), maxHP: p.st.maxHP, pot: window.__T.pot, bossLeft: m ? Math.round(m.hp / m.maxHp * 100) : 0 }; });
-    console.log(JSON.stringify({ boss: R.boss, fam: R.fam, gear: R.gear, L: R.L, ...res, t: Math.round(res ? res.t : -1), ...info, errs: errs.slice(0, 3) }));
+    console.log(JSON.stringify({ boss: R.boss, fam: R.fam, gear: R.gear, L: R.L, guard: R.guard, ...res, t: Math.round(res ? res.t : -1), ...info, errs: errs.slice(0, 3) }));
     await ctx.close();
   }
   await b.close();

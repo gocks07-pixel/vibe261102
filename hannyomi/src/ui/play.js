@@ -211,6 +211,14 @@ G.Play = {
     bd[k] = (bd[k] || 0) + 1; G.Touch.save();
     if (bd[k] === this.BOSS_TRIES) { this.toast(`🌟 ${this.BOSS_TRIES}번 도전했어요! 이제 이 보스는 자동으로 도와줄게요`); G.UI.log(`🌟 ${this.BOSS_TRIES}번 도전했어요! 이제 ${m.name}에서는 자동 사냥으로 도와줄게요.`, '#ffe08a'); }
   },
+  // 2차-1.3: 보스 방 자동 전투 중에만 받는 피해 배율 (직접 할 때는 그대로). 목표: 보통 장비 70% 이상 승리 (시뮬레이터로 맞춤)
+  //  여기 없는 보스는 1 (지금도 자동으로 이김)
+  AUTO_GUARD: { buried_temple: 1, void_throne: 1 },
+  guardMul() {
+    if (!this.autoOn || !this.bossMode || !this.on()) return 1;
+    const w = G.Game.world;
+    return (this.AUTO_GUARD[w.mapId] != null ? this.AUTO_GUARD[w.mapId] : 1);
+  },
   // 보스를 지키는 것 (부숴야 보스 무적이 풀리는 기둥 · 잔영 등, 2.1 시뮬레이터와 같은 목록)
   GUARD: ['void_pillar', 'hero_echo', 'corrupt_shard', 'cool_valve', 'forgotten_star', 'rot_fruit', 'mummy_guard'],
   isGuard(m) { return !!(m.d && m.d.chainPillar) || this.GUARD.includes(m.id); },
@@ -451,6 +459,13 @@ G.Play = {
     // 진짜 사람이 누른 터치 버튼이면 2초 동안 직접 조작
     const tp = G.Touch.press;
     G.Touch.press = function () { if (!P.inAuto) P.userT = performance.now(); return tp.apply(this, arguments); };
+    const hurt = G.Player.prototype.hurt, td = G.Player.prototype.trueDamage;
+    G.Player.prototype.hurt = function (raw, fromX, opt) {   // 최대 HP 비율 공격(opt.pct)도 같은 배율
+      const k = P.guardMul();
+      if (k === 1) return hurt.apply(this, arguments);
+      return hurt.call(this, raw * k, fromX, opt && opt.pct ? Object.assign({}, opt, { pct: opt.pct * k }) : opt);
+    };
+    G.Player.prototype.trueDamage = function (n, ...a) { const k = P.guardMul(); return td.call(this, k === 1 ? n : n * k, ...a); };
     const die = G.Player.prototype.die;
     G.Player.prototype.die = function () { const was = this.dead; const r = die.apply(this, arguments); if (!was && this.dead) { try { P.onDeath(this); } catch (e) { /* 기록만 실패 */ } setTimeout(() => P.ui(), 0); } return r; };
     const lu = G.Player.prototype.levelUp;
