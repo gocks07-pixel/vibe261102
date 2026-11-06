@@ -293,7 +293,9 @@ G.Play = {
       if (!boss && !m.plat) continue;
       const my = m.plat ? m.plat.y : py, dy = py - my;
       const cost = Math.abs(dy) < 12 ? 0 : dy > 0 && dy <= 270 ? 420 : dy < 0 ? 320 : 1e9;
-      const c = Math.abs(m.x - p.x) + cost;
+      // 떠 있는 몬스터(바람 정령 등)는 땅에서 안 맞으므로 덜 고름 (점프 공격으로 잡음)
+      const hi = (py - 30) - (m.y - (m.h || 40) / 2);
+      const c = Math.abs(m.x - p.x) + cost + (hi > 70 ? 250 : 0);
       if (c < best) { best = c; tgt = m; }
     }
     const moveTo = x => { if (Math.abs(x - p.x) > 14) want.add(x > p.x ? 'ArrowRight' : 'ArrowLeft'); };
@@ -318,7 +320,12 @@ G.Play = {
             want.delete('ArrowLeft'); want.delete('ArrowRight');   // 반대 방향 키와 겹치지 않게
             if (p.lock <= 0) want.add(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
           }
-          else this.attack(p, want);
+          else {
+            // 몸이 너무 위에 있으면 점프해서 공중에서 공격
+            const hi = (p.y - 30) - (tgt.y - (tgt.h || 40) / 2);
+            if (hi > 60 && p.onGround && p.lock <= 0.1) this.tap(G.Touch.code('jump'));
+            this.attack(p, want);
+          }
         }
       } else if (dy > 0) {
         // 위층: 발판 아래로 가서 점프 → 꼭대기에서 ↑ + 점프 (2단 점프 위로). 땅에서는 ↑ 를 누르지 않는다 (포탈 · NPC 방지)
@@ -340,6 +347,7 @@ G.Play = {
     if (moving && Math.abs(p.x - this.lastX) < 1 && p.onGround) { this.stuckT += dt; if (this.stuckT > 1.5) { this.stuckT = 0; this.tap(K('jump')); this.patrol *= -1; } } else this.stuckT = 0;
     this.lastX = p.x;
     if (p.onGround) want.delete('ArrowUp');
+    this.dbg = { tgt: tgt && tgt.id, tx: tgt && Math.round(tgt.x), best: Math.round(best), want: [...want] };   // 점검용 (화면에는 안 씀)
     this.hold(want);
   },
   // ② 2차-1.3: 스킬 칸(1~6) 안에서 가장 효율적인 스킬 (예상 피해 = 배율 × 타수 × 지금 맞힐 수 있는 몬스터 수)
@@ -383,8 +391,14 @@ G.Play = {
         const mp = sk.mp ? sk.mp(lv) : 0;
         if (mp && p.mp < mp) continue;
         // 버프 · 회복은 바로 (꺼져 있을 때 · HP 60% 아래)
-        if (sk.type === 'buff') { if (!p.buffs[id]) { if (ready) { this.skT = this.gt; this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); } return; } continue; }
-        if (sk.type === 'heal') { if (p.hp < p.st.maxHP * 0.6) { if (ready) { this.skT = this.gt; this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); } return; } continue; }
+        if (sk.type === 'buff') {
+          // 눌렀는데도 켜지지 않는 버프는 30초 동안 건너뜀 (버프만 기다리다 공격을 안 하는 것 방지)
+          const bt = (this.buffTry || (this.buffTry = {}));
+          if (p.buffs[id] || (bt[id] && this.gt - bt[id] < 30 && this.gt - bt[id] > 1.5)) continue;
+          if (ready) { if (!bt[id] || this.gt - bt[id] >= 30) bt[id] = this.gt; this.skT = this.gt; this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); return; }
+          break;
+        }
+        if (sk.type === 'heal') { if (p.hp < p.st.maxHP * 0.6 && ready) { this.skT = this.gt; this.lastSkill = id; this.tap(G.Touch.code('skill' + (i + 1))); return; } continue; }
         if (sk.type !== 'attack') continue;
         const r = this.skillScore(p, sk, lv, w, list);
         if (!r.n) continue;
@@ -393,7 +407,8 @@ G.Play = {
         if (lowMp && mp) sc = sc / (1 + mp / Math.max(1, p.st.maxMP * 0.05));
         if (sc > bestS) { bestS = sc; best = i; }
       }
-      if (best != null) { if (ready) { this.skT = this.gt; this.lastSkill = d.hot[best]; this.tap(G.Touch.code('skill' + (best + 1))); } return; }
+      if (best != null && ready) { this.skT = this.gt; this.lastSkill = d.hot[best]; this.tap(G.Touch.code('skill' + (best + 1))); return; }
+      if (best != null && p.lock > 0) return;   // 경직 중이면 스킬을 기다림 (기본 공격으로 덮지 않음)
     }
     this.lastSkill = 'basic';
     want.add(G.Touch.code('attack'));
