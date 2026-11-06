@@ -64,8 +64,8 @@ G.Play = {
       if (G.familyOf(d.job) === 'mage') t += ' 지혜는 MP 도 늘려 줘요 (지혜 2점당 MP +1).';
     }
     return `<div class="stat-tip">${t}<div class="row" style="margin-top:6px;gap:6px">
-      <button class="btn sm gold" data-play="statall" ${d.ap ? '' : 'disabled'}>⭐ 추천대로 모두 올리기${d.ap ? ` (${d.ap}점)` : ''}</button>
-      <button class="btn sm" data-play="jobintro">📖 직업 소개</button></div></div>`;
+      <button class="btn sm gold st-btn" data-play="statall" ${d.ap ? '' : 'disabled'}>⭐ 추천대로 올리기${d.ap ? ` ${d.ap}P` : ''}</button>
+      <button class="btn sm st-btn" data-play="jobintro">📖 직업 소개</button></div></div>`;
   },
   statAll() {
     const p = G.Game.player, d = p.d;
