@@ -387,11 +387,13 @@ G.Play = {
         let retreat = false;
         if (ranged && !boss) {
           // ① 원거리: 120px 안이면 약 200px 까지 물러남 · 서는 자리는 벽 쪽 공간이 넓은 쪽
-          const side = -Math.sign(dx || 1), lo = 90, hi = W - 90;
+          // 물러나는 자리는 지금 서 있는 발판 안에서만 (발판 끝에서 떨어지면 다시 올라와 붙는 것을 되풀이함)
+          const side = -Math.sign(dx || 1), onPlat = p.onGround && p.plat && !p.plat.ground && p.plat.w < W - 10;
+          const lo = Math.max(90, onPlat ? p.plat.x + 25 : 0), hi = Math.min(W - 90, onPlat ? p.plat.x + p.plat.w - 25 : W);
           let stand = G.U.clamp(tgt.x + side * 200, lo, hi);
           if (Math.abs(stand - tgt.x) < 100) stand = G.U.clamp(tgt.x - side * 200, lo, hi);
           if (dist > reach) moveTo(tgt.x + side * (reach - 20));
-          const back = Math.abs(stand - p.x) > 40 && Math.sign(stand - p.x) === side;
+          const back = Math.abs(stand - p.x) > 40 && Math.sign(stand - p.x) === side && Math.abs(stand - tgt.x) >= 100;
           if (dist < 120 && back && !(this.retT > 0)) this.retT = 1.2;   // 물러나기 시작 → 190px 까지 또는 1.2초
           if (this.retT > 0) { this.retT -= dt; if (dist >= 190 || !back) this.retT = 0; else { moveTo(stand); retreat = true; } }
         } else if (dist > reach) moveTo(tgt.x - Math.sign(dx) * (reach - 20));
@@ -417,7 +419,7 @@ G.Play = {
         // 위층: 발판 아래로 가서 점프 → 꼭대기에서 ↑ + 점프 (2단 점프 위로). 땅에서는 ↑ 를 누르지 않는다 (포탈 · NPC 방지)
         const cx = G.U.clamp(tgt.x, tp.x + 40, tp.x + tp.w - 40);
         if (p.onGround) {
-          if (p.x > tp.x + 30 && p.x < tp.x + tp.w - 30) this.tap(K('jump')); else moveTo(cx);
+          if (p.x > tp.x + 25 && p.x < tp.x + tp.w - 25) this.tap(K('jump')); else moveTo(cx);   // 2차-1.4: 발판 끝 25px (전에는 30px 이라 40px 안쪽 목표 자리와 어긋나 멈춤)
         } else {
           moveTo(cx);
           if (p.vy > -120 && p.y > tp.y - 4 && !p.airDashed && p.d.skills.b_djump) { want.add('ArrowUp'); this.tap(K('jump')); }

@@ -12,15 +12,15 @@ const URL = process.argv[2], LIST = JSON.parse(process.argv[3]), REPS = +(proces
     const pg = await (await b.newContext(devices['iPhone 13 landscape'])).newPage();
     pg.on('pageerror', e => console.error('PAGEERR', sc.label, String(e).slice(0, 200)));
     await pg.goto(URL + '/index.html'); await pg.waitForTimeout(800);
-    const r = await pg.evaluate(async ([dump, map, MINS]) => {
+    const r = await pg.evaluate(async ([dump, map, MINS, EXTRA]) => {
       G.Mobile.closeModal();
       const d = JSON.parse(dump);
       G.Game.loop = () => {}; G.UI.overlay(''); G.Game.begin(d);
       G.Game.changeMap(map, null); G.Game.world.draw = () => {}; G.UI.frame = () => {};
       const p = G.Game.player;
-      // 물약은 넉넉히 (가진 것 중 가장 좋은 HP 물약 100개 더) — 물약 부족이 아니라 움직임을 비교
+      // POTS 환경변수: 가진 것 중 가장 좋은 HP 물약을 더 줌
       const hpPot = d.inv.use.filter(s => s && G.ITEMS[s.tid].use && G.ITEMS[s.tid].use.hp).sort((a, b) => G.ITEMS[b.tid].use.hp - G.ITEMS[a.tid].use.hp)[0];
-      if (hpPot) G.Inv.add(p, hpPot.tid, 100);
+      if (hpPot && EXTRA) G.Inv.add(p, hpPot.tid, EXTRA);   // 기본 0: 보스 직전 그대로의 물약 (물약이 떨어지면 쓰러짐도 그대로 잼)
       const full = () => { p.hp = p.st.maxHP; p.mp = p.st.maxMP; };
       full();
       G.Play.userT = -1e9; G.Play.forceBoss = false; G.Play.autoOn = false; G.Play.toggleAuto();
@@ -45,7 +45,7 @@ const URL = process.argv[2], LIST = JSON.parse(process.argv[3]), REPS = +(proces
       }
       const elitesHere = [...new Set(G.Game.world.monsters.filter(m => m.d && m.d.kind === 'elite').map(m => m.id))];
       return { deaths, stops, kills, killsPerH: Math.round(kills / (MINS / 60)), eliteKills, firstElite: eliteKills[0] ?? null, eliteToasts: toasts.slice(0, 5), elitesHere, lv: p.d.level, job: p.d.job };
-    }, [dump, sc.map, MINS]);
+    }, [dump, sc.map, MINS, +(process.env.POTS || 0)]);
     console.log(JSON.stringify(Object.assign({ label: sc.label, map: sc.map, rep }, r)));
     await pg.context().close();
   }
