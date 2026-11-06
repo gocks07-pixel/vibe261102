@@ -70,16 +70,23 @@ const BOT = function (R) {
         const hpA = G.Play.statsWith(d.eq).maxHP, hpB = G.Play.statsWith(Object.assign({}, d.eq, { [slot]: it })).maxHP;
         if ((b > a * 1.01 || (b >= a * 0.999 && hpB > hpA * 1.02)) && G.Inv.hasSpace(p, id)) { d.gold -= t.price; G.Inv.add(p, it); B.ev('buy', { item: id, price: t.price }); }
       }
-      B.bestGear();
     }
+    B.bestGear();   // ⭐ 최고 장비 입기 — 세 단계 모두 (약함도 퀘스트 보상 · 주운 장비는 입음)
     // 물약: 이 마을에서 파는 가장 좋은 HP · MP 물약 (HP 100 · MP 50 까지)
     const pots = shops.filter(id => G.ITEMS[id].cat === 'use' && G.ITEMS[id].use);
     const best = k => pots.filter(id => G.ITEMS[id].use[k] && !G.ITEMS[id].use.cd).sort((a, b) => G.ITEMS[b].use[k] - G.ITEMS[a].use[k])[0];
+    // 좋은 물약을 살 골드가 모자라면 남은 개수는 싼 물약으로 채움 (사람처럼)
     for (const [k, want] of [['hp', 100], ['mp', 50]]) {
-      const id = best(k); if (!id) continue;
-      const have = G.Inv.count(p, id), price = G.ITEMS[id].price || 1, n = Math.max(0, Math.min(want - have, Math.floor(d.gold * 0.9 / price)));
-      if (want - have > 0 && n < (want - have) * 0.5) { B.goldLow++; B.ev('goldLow', { item: id, want: want - have, can: n, gold: d.gold }); }
-      if (n > 0) { d.gold -= n * price; G.Inv.add(p, id, n); }
+      const list = pots.filter(id => G.ITEMS[id].use[k] && !G.ITEMS[id].use.cd).sort((a, b) => G.ITEMS[b].use[k] - G.ITEMS[a].use[k]);
+      if (!list.length) continue;
+      let need = want - list.reduce((n, id) => n + G.Inv.count(p, id), 0);
+      const id0 = list[0], n0 = Math.max(0, Math.min(need, Math.floor(d.gold * 0.9 / (G.ITEMS[id0].price || 1))));
+      if (need > 0 && n0 < need * 0.5) { B.goldLow++; B.ev('goldLow', { item: id0, want: need, can: n0, gold: d.gold }); }
+      for (const id of list) {
+        if (need <= 0) break;
+        const price = G.ITEMS[id].price || 1, n = Math.max(0, Math.min(need, Math.floor(d.gold * 0.9 / price)));
+        if (n > 0 && G.Inv.hasSpace(p, id)) { d.gold -= n * price; G.Inv.add(p, id, n); need -= n; }
+      }
     }
     // 장비 칸 정리: 26칸 넘으면 약한 장비부터 판다
     const eqInv = d.inv.equip;
@@ -238,7 +245,10 @@ const BOT = function (R) {
     const goals = B.goals();
     // 내 레벨보다 훨씬 높은 목표(예: 연희의 선물 — 후반 정예 6종)는 레벨이 될 때까지 미룸. 메인 퀘스트 목표 먼저
     const L = p.d.level, isMain = g => G.QUESTS[g.q].type === 'main';
-    const field = goals.filter(g => !g.boss && !g.visit && g.lv <= L + 4).sort((a, b) => (isMain(b) - isMain(a)) || (a.lv - b.lv));
+    // 3번 쓰러져 막힌 사냥터의 목표는 20분 동안 미루고, 그동안 더 쉬운 곳에서 레벨 · 골드를 모음 (사람처럼)
+    const banned = g => B.ban && B.ban[g.map] && B.t - B.ban[g.map] < 1200;
+    const field0 = goals.filter(g => !g.boss && !g.visit && g.lv <= L + 4), field = field0.filter(g => !banned(g)).sort((a, b) => (isMain(b) - isMain(a)) || (a.lv - b.lv));
+    if (!field.length && field0.length) { B.hunt(B.grindMap(), 'level'); return; }
     const boss = goals.filter(g => g.boss && (isMain(g) || g.lv <= L + 4)), visit = goals.filter(g => g.visit);
     if (visit.length) { B.go(visit[0].map); G.Quest.onMap(visit[0].map); return; }
     if (field.length) { B.hunt(field[0].map, 'quest'); return; }
