@@ -36,7 +36,7 @@ G.Game = {
     G.UI.dirty();
     if (d.tut) {
       G.UI.banner('꿈속의 해변', '튜토리얼: 위쪽 안내를 따라 해 보세요');
-      G.UI.log(`${d.name}님, 한요미의 대모험에 오신 것을 환영합니다!`, '#ffe08a');
+      G.UI.log(`${d.name}님, 아르셀리아에 오신 것을 환영합니다!`, '#ffe08a');   // 2.1.7
     } else {
       G.UI.log(`${d.name}님, 다시 오신 것을 환영합니다! (F1: 단축키 안내)`, '#ffe08a');
       if (d.essGift) { G.UI.log('[업데이트] 엘마가 할머니의 별의 정수 3개를 건네주었습니다. 정말 위험할 때만 쓰세요! (인벤토리 소비 칸)', '#ffe68a'); delete d.essGift; }

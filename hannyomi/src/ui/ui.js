@@ -131,7 +131,7 @@ G.UI = {
       case 'title': G.Title.act(arg); break;
       case 'hidden': if (arg === 'seek') { this.overlay(''); if (/^end_/.test(G.Music.want || '')) G.Music.playMap(G.Game.world.mapId, 2); G.Hidden.seek(); } break;   // 2.0
       case 'cc': G.Creator.act(arg); break;
-      case 'djump': p.d.djump = arg; G.UI.log(`2단 점프 모드: ${arg === 'up' ? '위로' : '앞으로'}`, '#bfe6ff'); this.dirty(); break;
+      case 'djump': p.d.djump = arg; G.UI.log(`2단 점프 모드: ${arg === 'up' ? '위로' : '앞으로'}`, '#bfe6ff'); G.Tutorial.ev('djmode'); this.dirty(); break;
       case 'keyset': G.Keys.waiting = arg; this.renderWin('keys'); break;
       case 'keyreset': G.Keys.reset(); this.renderWin('keys'); this.dirty(); break;
       case 'tutskip': G.Tutorial.skip(); break;
