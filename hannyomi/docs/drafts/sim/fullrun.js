@@ -159,6 +159,7 @@ const BOT = function (R) {
     return b;
   };
   B.startBoss = g => {
+    if (R.dumpAt === g.map) { window.__dump = JSON.stringify(P().d); B.phase = 'dump'; return; }   // 보스 직전 캐릭터 상태 꺼내기 (보스 값 맞추기용)
     const b = B.bossTry(g); b.tries++;
     const auto = b.tries >= 6;
     B.boss = { g, b, t0: B.t, auto, hp0: P().hp };
@@ -250,6 +251,7 @@ const BOT = function (R) {
         if (B.hpPots() < 30 && (B.farmT == null || B.t - B.farmT < 1800)) { if (B.farmT == null) { B.farmT = B.t; B.ev('farmGold', { map: g.map, gold: p.d.gold, pots: B.hpPots() }); } B.hunt(B.grindMap(), 'gold'); return; }
       }
       B.farmT = null;
+      B.potFull();
       if (p.hp < p.st.maxHP * 0.95 || p.mp < p.st.maxMP * 0.9) { B.restNow(); return; }
       B.buyT = B.t; B.shopping(); B.startBoss(g); return;
     }
@@ -260,6 +262,16 @@ const BOT = function (R) {
     if (!need && !goals.length) { B.ev('noWork'); B.hunt(B.grindMap(), 'idle'); }
   };
   B.hpPots = () => P().d.inv.use.reduce((n, s) => n + (s && G.ITEMS[s.tid].use && (G.ITEMS[s.tid].use.hp || G.ITEMS[s.tid].use.hpP) ? s.qty : 0), 0);
+  // 마을에서 물약으로 HP · MP 를 가득 채움 (재도전 전, 사람처럼)
+  B.potFull = () => {
+    const p = P(), use = p.d.inv.use;
+    for (const k of ['hp', 'mp']) for (let i = 0; i < 60; i++) {
+      const cur = k === 'hp' ? p.hp / p.st.maxHP : p.mp / p.st.maxMP; if (cur >= 0.999) break;
+      const idx = use.findIndex(s => s && G.ITEMS[s.tid].use && (G.ITEMS[s.tid].use[k] || G.ITEMS[s.tid].use[k + 'P']) && !G.ITEMS[s.tid].use.cd);
+      if (idx < 0) break;
+      p.itemCd = {}; p.useItem(idx, W()); B.potsTown = (B.potsTown || 0) + 1;
+    }
+  };
   B.restNow = () => { if (B.mode === 'rest') return; G.Play.stop(); B.go(B.townOf()); B.afterRest = B.mode === 'to100' ? 'to100' : 'idle'; B.mode = 'rest'; B.restT = B.t; };
   B.hunt = (map, why) => {
     if (W().mapId !== map || !G.Play.autoOn) { B.go(map); G.Play.forceBoss = false; if (!G.Play.autoOn) G.Play.toggleAuto(); }
@@ -353,6 +365,7 @@ const BOT = function (R) {
     if (h > LIMIT_H) { st = 'limit'; break; }
     await pg.waitForTimeout(20);   // 사이에 게임 타이머(setTimeout) 처리
   }
+  if (st === 'dump') { console.log(await pg.evaluate(() => window.__dump)); await b.close(); return; }
   // ---------- 엔딩 3종 ----------
   const endings = [];
   if (st === 'ending') {

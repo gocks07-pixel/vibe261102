@@ -230,7 +230,7 @@ G.Play = {
       this.toast(left > 0 ? `🤖 보스 방에서는 ${this.BOSS_TRIES}번 도전한 뒤에 자동 사냥을 쓸 수 있어요 (남은 도전 ${left}번)` : '🤖 자동 사냥은 사냥터에서만 쓸 수 있어요 (마을 · 튜토리얼 제외)');
       return;
     }
-    this.autoOn = true; this.userT = 0; this.stuckT = 0;
+    this.autoOn = true; this.userT = -1e9; this.stuckT = 0;
     this.toast(this.bossMode ? '🤖 보스 자동 전투 시작! 기둥 같은 기믹은 먼저 부수지만, 보스 공격은 피하지 않아요.' : '🤖 자동 사냥 시작! 포탈 · 퀘스트 · 맵 이동은 직접 해 주세요. 몬스터 스킬은 피하지 않아요.');
     this.ui();
   },
