@@ -586,6 +586,45 @@ G.Play = {
     clearTimeout(this.toastT); this.toastT = setTimeout(() => t.classList.remove('on'), 3200);
   },
 
+  // ================= 2차-1.6 퀘스트 "▶ 이동" (오른쪽 퀘스트 알림, 터치 모드) =================
+  //  가는 곳 = 길 안내(G.Nav.targets)와 같은 기준, 가장 가까운 곳. 보스 방이면 그 앞 맵. 확인 창 없이 바로 · 공짜 · 처음 가는 맵도 됨
+  questDest(q) {
+    const w = G.Game.world; if (!w || !q || !G.Quest.isActive(q.id)) return null;
+    const tg = G.Nav.targets(q);
+    let maps = new Set([...(tg.maps || [])].filter(id => id && G.MAPS[id] && !G.MAPS[id].hidden));
+    if (!maps.size && tg.mons) {   // 2단계 보스(엘드리크 등)는 맵에 없음 → 앞 단계 보스(아우렐리온)가 나오는 방
+      const pre = Object.keys(G.MONSTERS).filter(id => tg.mons.includes(G.MONSTERS[id].next));
+      if (pre.length) maps = G.Nav.mapsWithMon(pre);
+    }
+    if (!maps.size || maps.has(w.mapId)) return null;
+    const r = G.Nav.route(w.mapId, maps);
+    let dest = r ? r.path[r.path.length - 1] : [...maps][0];
+    if (G.MAPS[dest].bossRoom) {   // 보스 방 바로 앞 맵 (보스 방으로 들어가는 포탈이 있는 맵)
+      const front = r && r.path.length >= 2 ? r.path[r.path.length - 2] : null;
+      dest = front && !G.MAPS[front].bossRoom ? front : Object.keys(G.MAPS).find(id => !G.MAPS[id].bossRoom && !G.MAPS[id].hidden && (G.MAPS[id].portals || []).some(pt => pt.to === dest)) || null;
+    }
+    return dest && dest !== w.mapId ? dest : null;
+  },
+  questGo(qid) {
+    const p = G.Game.player, w = G.Game.world, q = G.QUESTS[qid];
+    if (!p || !w || p.dead || G.MAPS[w.mapId].bossRoom || this.paused() || G.Dialog.isOpen()) return;
+    const dest = this.questDest(q); if (!dest) return;
+    G.Game.changeMap(dest, null);
+    if (G.Nav.qid !== qid) { G.Nav.qid = qid; G.Nav.t = 0; }
+    G.Nav.refresh(); G.UI.log(`📍 [${q.name}] ${G.MAPS[dest].name}(으)로 이동했어요.`, '#9fd8ff'); G.UI.dirty();
+  },
+  decorateTracker(el) {
+    const w = G.Game.world; if (!el || !w || G.MAPS[w.mapId].bossRoom) return;   // 보스 방 안에서는 숨김
+    for (const tq of el.querySelectorAll('.tq')) {
+      const m = /^nav:(.+)$/.exec(tq.dataset.dbl || ''); if (!m) continue;
+      if (!this.questDest(G.QUESTS[m[1]])) continue;
+      const b = tq.querySelector('b'); if (!b) continue;
+      tq.classList.add('has-go');
+      const c = document.createElement('span'); c.className = 'qgo'; c.dataset.qgo = m[1]; c.textContent = '▶ 이동';
+      b.after(c);
+    }
+  },
+
   // ---------- 원래 함수 감싸기 (스크립트를 읽을 때: G.Mobile 보다 안쪽) ----------
   // G.Game 은 main.js(맨 마지막)에 있어서 load 때 감싼다 (G.Game.init 보다 먼저, G.Mobile 보다 안쪽)
   wrapGame() {
@@ -597,7 +636,7 @@ G.Play = {
       return frame.call(this, ts);
     };
     const cm = G.Game.changeMap;
-    G.Game.changeMap = function () { if (P.autoOn) P.stop('🤖 맵을 옮겨서 자동 사냥을 멈췄어요.'); const r = cm.apply(this, arguments); setTimeout(() => P.ui(), 0); return r; };
+    G.Game.changeMap = function () { if (P.autoOn) P.stop('🤖 맵을 옮겨서 자동 사냥을 멈췄어요.'); const r = cm.apply(this, arguments); setTimeout(() => { P.ui(); if (P.on() && G.HUD.el && G.HUD.el.tracker) G.HUD.tracker(); }, 0); return r; };
   },
   wrap() {
     const P = this;
@@ -625,6 +664,14 @@ G.Play = {
       h = h.replace(/data-dbl="inv:equip:(\d+)"([^>]*)>/g, (m, i) => ups.has(+i) ? m + '<span class="upb">▲</span>' : m);
       return `<div class="row" style="margin-bottom:6px"><button class="btn sm gold" data-play="best">⭐ 최고 장비 입기</button><span class="dim" style="font-size:11px">▲ = 지금보다 좋아요</span></div>` + h;
     };
+    const trk = G.HUD.tracker;
+    G.HUD.tracker = function () { const r = trk.apply(this, arguments); if (P.on()) try { P.decorateTracker(this.el && this.el.tracker); } catch (e) { /* 버튼만 실패 */ } return r; };
+    document.addEventListener('pointerdown', e => {   // ▶ 이동: 한 번 탭 (길 안내 더블탭 · 설명 보기와 겹치지 않게 여기서 끝냄)
+      const g = e.target.closest && e.target.closest('[data-qgo]');
+      if (!g) return;
+      e.preventDefault(); e.stopPropagation();
+      P.questGo(g.dataset.qgo);
+    }, true);
     const tb = G.Tip.build;
     G.Tip.build = function (ref) {
       const h = tb.apply(this, arguments);
