@@ -131,7 +131,7 @@ G.Player = class {
         // 2단 점프: ↑ 를 누르고 있거나 [위로] 모드면 위로, 아니면 앞으로 살짝
         this.airDashed = true;
         if (I.isDown('ArrowUp') || this.d.djump === 'up') {
-          this.vy = Math.min(this.vy, -650);
+          this.vy = Math.min(this.vy, -720);   // 2.1.6: 사냥터 가운데 발판(바닥에서 230~260px)에 2단 점프로 여유 있게 (최대 271 → 296px)
           G.Audio.play('jump'); G.FX.ring(this.x, this.y + 4, 40, '#bfe6ff', 0.35); G.FX.burst(this.x, this.y, '#e8f4ff', 8, 120);
           G.Tutorial.ev('djup');
         } else {
