@@ -15,7 +15,7 @@ const BOSS = { buried_temple: 'parakan', void_throne: 'nox' };
     const pg = await (await b.newContext(devices['iPhone 13 landscape'])).newPage();
     pg.on('pageerror', e => console.error('PAGEERR', String(e).slice(0, 200)));
     await pg.goto(URL + '/index.html'); await pg.waitForTimeout(700);
-    const r = await pg.evaluate(async ([dump, map, bossId, gear, mode, setIds, DOOMP]) => {
+    const r = await pg.evaluate(async ([dump, map, bossId, gear, mode, setIds, DOOMP, GUARD]) => {
       G.Mobile.closeModal();
       const d = JSON.parse(dump);
       G.Game.loop = () => {}; G.UI.overlay(''); G.Game.begin(d);
@@ -49,7 +49,8 @@ const BOSS = { buried_temple: 'parakan', void_throne: 'nox' };
         if (mode === 'direct' && (pid === 'sun' || pid === 'doom') && Math.random() < DOOMP) return;
         const id = pid + '(고정)', h0 = this.hp, r = tdm.apply(this, arguments); rec(id, h0 - this.hp); return r; };
       G.Play.userT = -1e9; G.Play.forceBoss = true;
-      if (mode === 'direct') G.Play.AUTO_GUARD = {};
+      if (mode === 'direct') { G.Play.AUTO_GUARD = {}; G.Play.safeArea = () => null; }   // 직접 플레이 모델: 자동의 안전지대 이동은 끔 (안전지대는 30% 규칙으로)
+      else if (GUARD != null) G.Play.AUTO_GUARD = { buried_temple: GUARD, void_throne: GUARD };   // 보정 값 바꿔 보기 (GUARD 환경변수)
       G.Play.autoOn = false; G.Play.toggleAuto();
       const potN = () => p.d.inv.use.reduce((n, s) => n + (s && G.ITEMS[s.tid].use && (G.ITEMS[s.tid].use.hp || G.ITEMS[s.tid].use.hpP) ? s.qty : 0), 0), pot0 = potN();
       let ts = performance.now(), gone = 0;
@@ -67,7 +68,7 @@ const BOSS = { buried_temple: 'parakan', void_throne: 'nox' };
         if (!G.Play.autoOn) { G.Play.forceBoss = true; G.Play.userT = -1e9; G.Play.toggleAuto(); }
       }
       return out({ win: false, why: 'timeout' });
-    }, [dump, MAP, BOSS[MAP], gear, mode, SETS[MAP], +(process.env.DOOM || 0.3)]);
+    }, [dump, MAP, BOSS[MAP], gear, mode, SETS[MAP] || [], +(process.env.DOOM || 0.3), process.env.GUARD ? +process.env.GUARD : null]);
     console.log(JSON.stringify(Object.assign({ map: MAP, gear, mode, rep }, r)));
     await pg.context().close();
   }

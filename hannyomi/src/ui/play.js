@@ -231,7 +231,7 @@ G.Play = {
       return;
     }
     this.autoOn = true; this.userT = -1e9; this.stuckT = 0; this.gen = (this.gen || 0) + 1;
-    this.toast(this.bossMode ? '🤖 보스 자동 전투 시작! 기둥 같은 기믹은 먼저 부수지만, 보스 공격은 피하지 않아요.' : '🤖 자동 사냥 시작! 포탈 · 퀘스트 · 맵 이동은 직접 해 주세요. 몬스터 스킬은 피하지 않아요.');
+    this.toast(this.bossMode ? '🤖 보스 자동 전투 시작! 기둥 같은 기믹은 먼저 부수고, 안전지대 · 위층 같은 피할 곳으로도 가요. 멈출 때는 자동 버튼을 다시 눌러요.' : '🤖 자동 사냥 시작! 멈출 때는 자동 버튼을 다시 눌러요. 포탈 · 퀘스트 · 맵 이동은 직접 해 주세요.');
     this.ui();
   },
   stop(msg, warn) {
@@ -247,7 +247,7 @@ G.Play = {
     for (const c of set) if (!this.held.has(c)) this.press(c);
     this.held = set;
   },
-  tap(code) { if (!code) return; if (this.held.has(code)) { G.Touch.release(code); this.held.delete(code); } this.press(code); this.taps.push(code); },
+  tap(code) { if (!code) return; if (this.noJump && code === G.Touch.code('jump')) return; if (this.held.has(code)) { G.Touch.release(code); this.held.delete(code); } this.press(code); this.taps.push(code); },
   userBusy() {
     const M = G.Mobile;
     const holding = M && (Object.keys(M.held || {}).length || Object.values(M.dpadDir || {}).some(Boolean));
@@ -320,7 +320,38 @@ G.Play = {
     this.qmT = this.gt; return (this.qm = out);
   },
   ELITE_WAIT: 180, ELITE_GIVEUP: 20,
+  // 2차-1.5: 보스 피하기 패턴의 안전한 곳 { lo, hi, ground } (보스 방 자동 전투 중에만)
+  //  종말의 별 · 태양의 심판 = 가장 가까운 안전지대 (땅에 서 있어야 함), 공허 잠식 · 별빛 감옥 = 가운데, 장판 절반(유사 지옥 · 밀물 · 포자) = 반대편
+  safeArea(p, w) {
+    const W = w.map.width, cx = W / 2;
+    if (w.doom && w.doom.zones && w.doom.zones.length) {
+      const z = w.doom.zones.reduce((a, b) => Math.abs(b - p.x) < Math.abs(a - p.x) ? b : a), r = (w.doom.r || 90) - 25;
+      return { lo: z - r, hi: z + r, ground: true, kind: 'doom' };
+    }
+    if (w.zone) { const lim = Math.max(40, (w.zone.safe || 300) - 50); return { lo: cx - lim, hi: cx + lim, ground: false, kind: 'zone' }; }
+    if (w.half) return w.half.side < 0 ? { lo: cx + 50, hi: W - 60, ground: false, kind: 'half' } : { lo: 60, hi: cx - 50, ground: false, kind: 'half' };
+    return null;
+  },
   drive(dt, p, w) {
+    this.noJump = false;
+    if (this.bossMode) {
+      const sa = this.safeArea(p, w);
+      if (sa) {
+        const onFloor = p.onGround && p.plat && p.plat.ground, inX = p.x >= sa.lo && p.x <= sa.hi;
+        if (!inX || (sa.ground && !onFloor)) {
+          // 안전한 곳으로 달려감 (가는 동안은 공격하지 않음). 땅이어야 하면 발판에서 내려옴
+          const K = id => G.Touch.code(id), want = new Set(), tx = G.U.clamp(p.x, sa.lo + 15, sa.hi - 15);
+          if (sa.ground && p.onGround && p.plat && !p.plat.ground && inX) { want.add('ArrowDown'); this.tap(K('jump')); }
+          else if (Math.abs(tx - p.x) > 6) want.add(tx > p.x ? 'ArrowRight' : 'ArrowLeft');
+          this.safeT = (this.safeT || 0) + dt; this.dbg = { safe: sa.kind, tx: Math.round(tx) }; this.hold(want); return;
+        }
+        // 안전한 곳 안: 평소처럼 싸우되 밖으로 나가는 이동 · (땅이어야 하면) 점프는 막음
+        this.safeIn = sa; if (sa.ground) this.noJump = true;
+      } else this.safeIn = null;
+    } else this.safeIn = null;
+    this.drive0(dt, p, w);
+  },
+  drive0(dt, p, w) {
     const K = id => G.Touch.code(id), want = new Set();
     const py = p.onGround && p.plat ? p.plat.y : p.y;
     const wt = p.weaponTpl && p.weaponTpl(), ranged = wt && (wt.type === 'bow' || wt.type === 'wand');
@@ -437,6 +468,11 @@ G.Play = {
     if (moving && Math.abs(p.x - this.lastX) < 1 && p.onGround) { this.stuckT += dt; if (this.stuckT > 1.5) { this.stuckT = 0; this.tap(K('jump')); this.patrol *= -1; } } else this.stuckT = 0;
     this.lastX = p.x;
     if (p.onGround) want.delete('ArrowUp');
+    if (this.safeIn) {   // 2차-1.5: 안전한 곳 밖으로 걸어 나가지 않음
+      if (p.x + 12 > this.safeIn.hi) want.delete('ArrowRight');
+      if (p.x - 12 < this.safeIn.lo) want.delete('ArrowLeft');
+      if (this.safeIn.ground) want.delete('ArrowDown');
+    }
     this.dbg = { tgt: tgt && tgt.id, tx: tgt && Math.round(tgt.x), best: Math.round(best), want: [...want] };   // 점검용 (화면에는 안 씀)
     this.hold(want);
   },
@@ -530,10 +566,7 @@ G.Play = {
     b.className = 'tw'; b.id = 'tw-auto'; b.innerHTML = this.icon(false) + '<span>자동</span><span class="auto-n"></span>';
     b.addEventListener('pointerdown', e => { e.preventDefault(); this.toggleAuto(); });
     bar.appendChild(b);
-    const st = document.createElement('div');
-    st.id = 'auto-st'; st.innerHTML = this.icon(true, 16) + ' 자동 사냥 중 · 탭하면 멈춤';
-    st.addEventListener('pointerdown', e => { e.preventDefault(); this.stop('자동 사냥을 멈췄어요.'); });
-    document.querySelector('#touch .g-top').appendChild(st);
+    // 2차-1.5 시안 2: 가운데 "자동 사냥 중" 띠 대신 위쪽 자동 버튼이 초록빛으로 빛남 (css/mobile.css #tw-auto.on), 멈추기도 그 버튼
     const t = document.createElement('div'); t.id = 'play-toast'; document.body.appendChild(t);
   },
   ui() {

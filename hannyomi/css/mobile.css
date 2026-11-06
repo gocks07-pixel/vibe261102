@@ -136,7 +136,8 @@ body.touch-on #win-shop { width: 370px !important; }
 #mob-modal .jc-d { margin-left: auto; color: #ffe08a; font-size: 12px; }
 #mob-modal .jc-l { font-size: 12.5px; margin-top: 2px; }
 #touch .topbar .tw.off { opacity: .45; }
-#touch .topbar .tw#tw-auto.on { background: #1f7a3e; border-color: #8ff0b0; }
+#touch .topbar .tw#tw-auto.on { background: #1f7a3e; border-color: #8ff0b0; animation: auto-glow 1.4s ease-in-out infinite; }   /* 2차-1.5 시안 2: 자동 중에는 초록빛으로 천천히 빛남 */
+@keyframes auto-glow { 0%, 100% { box-shadow: 0 0 0 3px #8ff0b0, 0 0 18px 6px rgba(80,255,150,.75); } 50% { box-shadow: 0 0 0 2px #8ff0b0, 0 0 8px 2px rgba(80,255,150,.4); } }
 #auto-st { position: absolute; top: calc(var(--st) + 42px); left: 50%; transform: translateX(-50%); pointer-events: auto; touch-action: none; padding: 4px 12px; border-radius: 12px;
   background: rgba(31,122,62,.85); color: #eaffef; font-size: 12px; font-weight: 800; border: 1px solid #8ff0b0; animation: pulse 1.6s infinite; white-space: nowrap; }
 #play-toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 84px); transform: translateX(-50%); z-index: 1400; max-width: 90vw; padding: 8px 14px; border-radius: 12px;

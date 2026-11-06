@@ -174,6 +174,7 @@ const BOT = function (R) {
     G.Play.forceBoss = true;
     G.Play.AUTO_GUARD = Object.assign({}, B.GUARD0, auto ? {} : { [g.map]: 1 });   // 직접 = 자동 보정 없음
     B.manualDodge = !auto;
+    G.Play.safeArea = auto ? B.safeArea0 : () => null;   // 직접 플레이 모델은 자동의 안전지대 이동을 쓰지 않음 (30% 규칙)
     G.Play.autoOn = false; G.Play.toggleAuto();
     B.ev('bossStart', { map: g.map, mon: g.mon, try: b.tries, auto, lv: P().d.level });
   };
@@ -345,6 +346,7 @@ const BOT = function (R) {
     return hurt.apply(this, arguments);
   };
   // 안전지대 패턴(파라칸 태양의 심판 · 녹스 종말의 별)도 같은 30% 로 안전지대에 들어감 (2026-11-06: 전에는 피해 함수가 달라서 한 번도 못 들어갔음)
+  B.safeArea0 = G.Play.safeArea && G.Play.safeArea.bind(G.Play);
   const tdm = G.Player.prototype.trueDamage;
   G.Player.prototype.trueDamage = function () {
     if (B.manualDodge && B.boss) {
