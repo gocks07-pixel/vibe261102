@@ -96,11 +96,7 @@ G.Nav = {
     if (!inf) return null;
     if (!inf.arrived) return inf.first ? inf.first.x : null;
     if (inf.tg.npc) { const n = w.npcs.find(n => n.id === inf.tg.npc); return n ? n.x : null; }
-    if (inf.tg.mons) {
-      const p = w.player;
-      const ms = w.monsters.filter(m => !m.dead && inf.tg.mons.includes(m.id)).sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x));
-      return ms.length ? ms[0].x : null;
-    }
+    // 2.1.5: 목표 맵에 도착하면 몬스터를 따라다니는 화살표는 없앰 (안내판 글만). 보고할 NPC 는 그대로 가리킴
     return null;
   },
   text() {
