@@ -63,12 +63,30 @@ G.Hidden = {
     const p = G.Game.player;
     if (!p || !G.Quest.isDone('f_08')) return [];
     const out = [];
-    if (this.ready()) out.push({ label: '✦ 별조각의 기억 (선택의 순간으로)', fn: () => this.memory(D) });
-    else if (p.d.flags.hiddenHint) out.push({ label: '✦ 별조각의 속삭임 (히든 엔딩 힌트)', fn: () => {
+    out.push({ label: '✦ 별조각의 기억 (선택의 순간으로 · 다른 선택 다시 하기)', fn: () => this.redo(D) });   // 빌드 5 (15): 히든 조건과 상관없이
+    if (!this.ready() && p.d.flags.hiddenHint) out.push({ label: '✦ 별조각의 속삭임 (히든 엔딩 힌트)', fn: () => {
       const h = this.hints();
       D.show({ text: '별조각들이 속삭이고 있어요...\n' + h.map(s => '· ' + s).join('\n'), opts: [{ label: '확인', fn: () => D.close() }] });
     } });
     return out;
+  },
+  // 빌드 5 (15): 선택의 순간으로 (캐릭터 · 장비 · 레벨 그대로). 희생 / 구원, 공명을 다 채웠으면 히든도
+  redo(D) {
+    D = D || G.Dialog;
+    if (!G.Quest.isDone('f_08')) return;
+    D.npc = 'elma_nox';
+    const q = G.QUESTS.f_08;
+    const lines = this.ready()
+      ? ['별조각들이… 그 순간을 기억하고 있어요.', '당신이 녹스 앞에서 선택하던 그 순간을요. 이번엔 혼자가 아니에요.', '카이엔도, 영웅들도… 그리고 저도 함께할게요.']
+      : ['별조각들이… 그 순간을 기억하고 있어요.', '당신이 녹스 앞에서 선택하던 그 순간이에요. 이번엔 어떤 길을 고를까요?'];
+    let i = 0;
+    const step = () => {
+      const last = i === lines.length - 1;
+      D.show({ text: lines[i], title: '별조각의 기억', opts: last
+        ? this.choices(q).map(c => ({ label: c.label, gold: c.gold, fn: () => { D.close(); G.Ending.play(c.ending); } })).concat([{ label: '아직은 아니야', fn: () => D.close() }])
+        : [{ label: '다음 ▶', fn: () => { i++; step(); } }] });
+    };
+    step();
   },
   memory(D) {
     const lines = ['별조각들이… 그 순간을 기억하고 있어요.', '당신이 녹스 앞에서 선택하던 그 순간을요. 이번엔 혼자가 아니에요.', '카이엔도, 영웅들도… 그리고 저도 함께할게요.'];

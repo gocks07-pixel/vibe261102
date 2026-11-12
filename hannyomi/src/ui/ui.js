@@ -148,7 +148,8 @@ G.UI = {
       case 'bug': G.Bug.open(); break;
       case 'saveas': G.Win.saveas.act(arg); break;
       case 'title': G.Title.act(arg); break;
-      case 'hidden': if (arg === 'seek') { this.overlay(''); if (/^end_/.test(G.Music.want || '')) G.Music.playMap(G.Game.world.mapId, 2); G.Hidden.seek(); } break;   // 2.0
+      case 'hidden': if (arg === 'redo') { this.overlay(''); if (/^end_/.test(G.Music.want || '')) G.Music.playMap(G.Game.world.mapId, 2); G.Hidden.redo(); break; }   // 빌드 5 (15)
+        if (arg === 'seek') { this.overlay(''); if (/^end_/.test(G.Music.want || '')) G.Music.playMap(G.Game.world.mapId, 2); G.Hidden.seek(); } break;   // 2.0
       case 'cc': G.Creator.act(arg); break;
       case 'djump': p.d.djump = arg; G.UI.log(`2단 점프 모드: ${arg === 'up' ? '위로' : '앞으로'}`, '#bfe6ff'); G.Tutorial.ev('djmode'); this.dirty(); break;
       case 'keyset': G.Keys.waiting = arg; this.renderWin('keys'); break;
