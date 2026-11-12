@@ -390,3 +390,7 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 
 /* 빌드 5 (15) */
 .redo-note { margin-top: 10px; font-size: 11.5px; color: #b8b0d8; }
+
+/* 스킬 창: 각성별 기술 포인트 줄 */
+.sp-pools { margin: -6px 0 8px; padding: 0 2px; font-size: 11px; color: #8d97b5; }
+.sp-pools b { color: #ffe08a; }
