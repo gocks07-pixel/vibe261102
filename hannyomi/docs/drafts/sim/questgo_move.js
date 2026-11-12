@@ -6,7 +6,7 @@ const errs=[];pg.on('pageerror',e=>errs.push(String(e).slice(0,200)));
 await pg.goto(process.argv[2]+'/index.html');await pg.waitForTimeout(900);
 const r=await pg.evaluate(async(dump)=>{G.Mobile.closeModal();const d=JSON.parse(dump);G.Game.loop=()=>{};G.UI.overlay('');G.Game.begin(d);
  const Q=G.Quest,ready0=Q.ready.bind(Q),prog0=Q.progress.bind(Q),act0=Q.isActive.bind(Q);
- const p=G.Game.player; let ts=performance.now(); const step=n=>{for(let i=0;i<n;i++){ts+=1000/60;G.Game.frame(ts);G.Input.endFrame();} if(G.Dialog.isOpen())G.Dialog.close(); if(G.Cutscene.playing&&G.Cutscene.playing())G.Cutscene.finish(); for(const k of Object.keys(G.UI.wins))G.UI.closeWin(k); G.UI.overlay('');};
+ const p=G.Game.player; let ts=performance.now(); const step=n=>{for(let i=0;i<n;i++){ts+=1000/60;G.Game.frame(ts);G.Input.endFrame();} if(G.Dialog.isOpen())G.Dialog.close(); if(G.Cutscene.playing&&G.Cutscene.playing())G.Cutscene.finish(); for(const k of Object.keys(G.UI.wins))G.UI.closeWin(k); G.UI.overlay(''); if(G.UI.asking())G.UI.answer(false);};
  const out={moves:0,bad:[],byCh:{},maps:new Set()};
  for(const q of Object.values(G.QUESTS)){
   for(const stt of q.obj.map((o,i)=>({i})).concat([{ready:true}])){
@@ -14,7 +14,7 @@ const r=await pg.evaluate(async(dump)=>{G.Mobile.closeModal();const d=JSON.parse
    Q.isActive=id=>id===q.id||act0(id); Q.ready=qq=>qq.id===q.id?!!stt.ready:ready0(qq);
    Q.progress=(qq,o)=>{if(qq.id!==q.id)return prog0(qq,o);const i=q.obj.indexOf(o),n=o.n||1;return stt.ready||i<stt.i?[n,n]:[0,n];};
    const D=G.Play.questDest(q); if(!D) continue; const dest=D.map;
-   p.dead=false; p.hp=p.st.maxHP; G.Play.questGo(q.id); const dlg=G.Dialog.isOpen(); const w0=G.Game.world;
+   p.dead=false; p.hp=p.st.maxHP; G.Play.questGo(q.id); const dlg=G.Dialog.isOpen()||G.UI.asking();  /* 각성 시험은 대화 대신 직업 카드 (빌드 3) */ const w0=G.Game.world;
    const nx=D.npc&&w0.npcs.find(n=>n.id===D.npc), px=D.portal&&w0.portals.find(x=>x.id===D.portal);
    const off=nx?Math.abs(p.x-nx.x):px?Math.abs(p.x-px.x):null; out.near=(out.near||0)+(off!=null&&off<100?1:0); if(D.npc)out.npc=(out.npc||0)+1; if(D.portal)out.portal=(out.portal||0)+1; if(D.npc&&!dlg)out.bad.push({q:q.id,stt,why:'no-dialog'});
    if(off!=null&&off>=100)out.bad.push({q:q.id,stt,why:'far:'+Math.round(off)});

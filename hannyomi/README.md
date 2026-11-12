@@ -1,4 +1,4 @@
-# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.7
+# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.8
 
 세계관 "아르셀리아 연대기"의 튜토리얼 ~ 엔딩 (Lv.1~100) 플레이 가능 버전입니다. 배경음악과 효과음이 함께 나옵니다.
 
@@ -16,8 +16,8 @@
   ```
   npm install            # 처음 한 번
   npm start              # EXE 창으로 실행 (테스트용)
-  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.7.exe
-  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.7.exe
+  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.8.exe
+  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.8.exe
   ```
   자세한 순서: `docs/EXE_빌드_안내.md`
   EXE 세이브 위치: `문서\RPG Adventure\Save Data\save_A·B·C.json` (테스트용은 `Save Data (DEV)`)
@@ -42,6 +42,9 @@
 | F11 | 전체화면 (EXE) |
 
 오른쪽 위 퀘스트를 더블클릭하면 길 안내가 켜집니다.
+
+## v2.1.8에서 바뀐 점
+- 2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단 점프를 [위로] 모드로 바꾸고 점프 두 번으로 금색 발판에 다시 올라가야 통과
 
 ## v2.1.7에서 바뀐 점
 - 2.1.7 — 튜토리얼 16단계: 5단계에 '2단 점프 모드 [위로] 바꾸기' 추가(↑ 없이 점프 두 번으로 위로), 새 게임 환영 문구 '아르셀리아에 오신 것을 환영합니다!'

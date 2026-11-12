@@ -9,8 +9,9 @@ G.Tutorial = {
     { text: '점프한 공중에서 한 번 더 누르면 앞으로 살짝 뛰어요! 점프 키를 두 번 연속으로 눌러 보세요.', keys: ['@jump', '@jump'], flag: 'dash' },
     { text: '보랏빛 발판 위에서 점프한 뒤, ↑ 를 누른 채 점프를 한 번 더! 위로 한 번 더 뛰어 금색 높은 발판에 올라가 보세요.', keys: ['@jump', '+', '↑', '+', '@jump'],
       check: (s, p) => s.flags.djup && p.onGround && p.plat && p.plat.high },
-    { text: '스킬창({skill})의 표류자 탭에서 2단 점프를 [위로]로 바꾸면, ↑ 없이 점프 두 번만으로 위로 뛰어요. 바꿔 보세요! (다시 [앞으로]로 돌려도 돼요)', keys: ['@skill', '위로'], flag: 'djmode' },   // 2.1.7
     { text: '↓ + {jump} 로 발판 아래로 내려와 보세요. (금색 높은 발판에는 사냥터마다 보물상자가 있어요!)', keys: ['↓', '+', '@jump'], flag: 'drop' },
+    { text: '스킬창({skill})의 표류자 탭에서 2단 점프를 [위로]로 바꾸면, ↑ 없이 점프 두 번만으로 위로 뛰어요. [위로]로 바꾸고 점프 두 번으로 금색 높은 발판에 다시 올라가 보세요! (다시 [앞으로]로 돌려도 돼요)', keys: ['@skill', '위로', '+', '@jump', '@jump'],
+      check: (s, p) => s.flags.djmode && s.flags.djup && p.onGround && p.plat && p.plat.high },   // 2.1.8
     { text: '땅에서 대쉬 키({dash})를 누르면 짧게 돌진해요! (방향키 두 번 대쉬는 메뉴에서 켤 수 있어요)', keys: ['@dash'], flag: 'gdash' },
     { text: '꿈의 안내자 루미 앞에서 ↑ 키를 누르거나, 루미를 클릭해서 말을 걸어 보세요.', keys: ['↑'], flag: 'talk:lumi' },
     { text: '{attack}로 훈련용 허수아비를 3번 쓰러뜨려 보세요. 누르고 있으면 연속 공격!', keys: ['@attack'], count: ['kill:dummy', 3] },
@@ -46,7 +47,12 @@ G.Tutorial = {
 
   update() {
     if (!this.active()) { this.hide(); return; }
-    if (this.st && this.st.v !== 16) { if (this.st.step >= 4) this.st.step++; this.st.v = 16; }   // 2.1.7: 16단계 — 하던 중인 세이브는 한 칸 뒤로
+    if (this.st && this.st.v !== 17) {   // 2.1.8: 하던 중인 세이브 맞추기 (2.1.7 전 15단계 · 2.1.7 의 5 ↔ 6)
+      const t = this.st;
+      if (t.v === 16) { if (t.step === 4) t.step = 5; else if (t.step === 5) t.step = 4; }
+      else if (t.step >= 5) t.step++;
+      t.v = 17;
+    }
     const s = this.st, p = G.Game.player, step = this.STEPS[s.step];
     if (!step) return;
     if (!s.started) { s.started = true; if (step.onStart) step.onStart(p); }
