@@ -25,6 +25,12 @@ s=s.replace(old,"""    red: {}, steel: {}, wind: {}, crystal: {}, shadow: {},
     traveler: { cape: 'capelet', gloves: 'glove' },
     elen:     { hat: 'leafcrown', top: 'ranger', shoes: 'tallboot', gloves: 'bracer', cape: 'leafcape', trim: '#e2c66a' },
     rag:      { hat: 'engineer', top: 'apron', bottom: 'pants', shoes: 'boot', gloves: 'gauntlet', cape: 'steampack', trim: '#d0843e', rivet: true },
+    leather:  { hat: 'bandana', top: 'vest', bottom: 'pants', shoes: 'boot', gloves: 'glove' },
+    desert:   { hat: 'desertwrap', top: 'nomad', bottom: 'baggy', shoes: 'sandal', gloves: 'wrap', cape: 'long', trim: '#b0503a' },
+    sahrin:   { hat: 'sunhelm', top: 'guardvest', bottom: 'kilt', shoes: 'sandal', gloves: 'bracer', trim: '#3a7ad0' },
+    pharaoh:  { hat: 'sunmitre', top: 'priestrobe', bottom: 'kilt', shoes: 'sandal', gloves: 'bracer', cape: 'long', trim: '#2a50b0' },
+    storm:    { hat: 'stormcrest', top: 'stormcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'stormcape', trim: '#ffe060', glow: '#fff09a' },
+    sky:      { hat: 'skyhat', top: 'skyrobe', bottom: 'pants', shoes: 'winged', gloves: 'glove', cape: 'feather', trim: '#fff6d0', glow: '#e8f0ff' },
     starheir: { hat: 'starcirclet', top: 'knightcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'starflow', trim: '#e8c050', glow: '#ffe680' },
   });""")
 old2="    // 후드 (캐주얼)\n    if (e.hood && !g.top) hood(ctx, topC);"
