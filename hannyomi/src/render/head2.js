@@ -547,11 +547,13 @@ G.Head2 = (function () {
   };
   function m5eye(ctx, S, ec, skin, browC, fem) {
     // 1 눈썹
+    ctx.save(); ctx.translate(0, BROW_DY);
     ctx.fillStyle = browC; ctx.strokeStyle = browC; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
     const B = S.brow;
     if (B[0] === 'poly') { B[1].forEach((q, i) => i ? ctx.lineTo(...q) : ctx.moveTo(...q)); ctx.closePath(); ctx.fill(); }
     else if (B[0] === 'quad') { ctx.moveTo(...B[1]); ctx.quadraticCurveTo(...B[2], ...B[3]); ctx.lineWidth = B[4]; ctx.stroke(); }
     else { ctx.moveTo(...B[1]); ctx.lineTo(...B[2]); ctx.lineWidth = B[3]; ctx.stroke(); }
+    ctx.restore();
     ctx.save(); ctx.rotate(S.tilt);
     // 2 흰자 (안쪽만 그리도록 자름)
     ctx.beginPath(); ctx.ellipse(0, 0, S.rx, S.ry, 0, 0, PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.save(); ctx.clip();
@@ -603,10 +605,13 @@ G.Head2 = (function () {
     soft_gentle_f: { rx: 9, ry: 5.5, irs: [0.7, 0.75], top: null, bot: '#B45309', pu: 2.2, hl: 1.0, lift: -6, lw: 2.0, browY: -14, mouth: 'smile' },
     clear_sharp:   { rx: 9, ry: 5.2, irs: [0.7, 0.75], top: null, bot: '#2563EB', pu: 2.2, hl: 1.0, lift: -6, lw: 2.0, browY: -14, mouth: 'small' },
   });
+  let BROW_DY = 4;   // 눈썹을 조금 아래로 (앞머리 아래로 보이게, 사용자 확인 2026-11-12)
   function f4eye(ctx, S, ec, out, fem) {
     // 눈썹
+    ctx.save(); ctx.translate(0, BROW_DY);
     if (S.browPoly) { ctx.beginPath(); S.browPoly.forEach((q, i) => i ? ctx.lineTo(...q) : ctx.moveTo(...q)); ctx.closePath(); ctx.fillStyle = '#27272A'; ctx.fill(); }
     else { ctx.beginPath(); ctx.moveTo(-9, -12); ctx.quadraticCurveTo(0, S.browY, 9, -12); ctx.lineWidth = 1.8; ctx.strokeStyle = '#3B271A'; ctx.lineCap = 'round'; ctx.stroke(); }
+    ctx.restore();
     if (S.smile) {   // 화사한 웃음: 반달 눈 + 바깥 속눈썹
       ctx.beginPath(); ctx.ellipse(0, 4.2, 8, 4.4, 0, PI, 0, false); ctx.lineWidth = 2.5; ctx.strokeStyle = '#1E1B18'; ctx.stroke();   // 원래 반원(높이 8)은 세로로 늘린 우리 눈에서 너무 높아 납작하게 · 조금 아래로
       if (fem) { ctx.beginPath(); ctx.moveTo(7.6, 2.4); ctx.lineTo(10.8, -0.4); ctx.lineWidth = 2; ctx.stroke(); } return;
@@ -646,10 +651,12 @@ G.Head2 = (function () {
     if (EYE2[L.eye]) return face2(ctx, p, L);
     const { hr, hy } = p, ey = hy + hr * p.eyeY, ew = hr * p.eyeW, eh = hr * p.eyeH, ec = L.eyeColor || '#3a5ac0';
     // 눈썹
+    ctx.save(); ctx.translate(0, eh * BROW_DY / 6.5);
     for (const ex of [-hr * 0.34, hr * 0.46]) {
       ctx.beginPath(); ctx.moveTo(ex - ew * 0.9, ey - eh * 0.95); ctx.quadraticCurveTo(ex, ey - eh * (L.eye === 'sharp' ? 0.95 : 1.15), ex + ew * 0.9, ey - eh * (L.eye === 'sharp' ? 1.15 : 0.95));
       ctx.strokeStyle = sh(L.hair, -0.35); ctx.lineWidth = 1.6; ctx.lineCap = 'round'; ctx.stroke();
     }
+    ctx.restore();
     const E = L.eye || 'round';
     const k = { round: [1, 1], big: [1.1, 1.2], sharp: [1.0, 0.72], soft: [1.02, 0.92], sleepy: [1.02, 0.9], cat: [1.05, 0.9], smile: [1, 1] }[E] || [1, 1];
     for (const ex of [-hr * 0.34, hr * 0.46]) {
@@ -763,5 +770,5 @@ G.Head2 = (function () {
   }
   // 장비 모자 · 투구: 옛 머리(중심 (1,-50) 반지름 13) 기준으로 그린 것을 새 머리에 맞게 옮김
   function hatSpace(ctx) { ctx.translate(1, CY); ctx.scale(R / 13, R / 13); ctx.translate(-1, 50); }
-  return { back, front, hatSpace, toL, headOnly, STY, EYE };
+  return { back, front, hatSpace, toL, headOnly, STY, EYE, setBrow: v => { BROW_DY = v; cache.clear(); } };
 })();
