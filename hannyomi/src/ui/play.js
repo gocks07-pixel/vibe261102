@@ -213,7 +213,7 @@ G.Play = {
   },
   // 2차-1.3: 보스 방 자동 전투 중에만 받는 피해 배율 (직접 할 때는 그대로). 목표: 보통 장비 70% 이상 승리 (시뮬레이터로 맞춤)
   //  여기 없는 보스는 1 (지금도 자동으로 이김)
-  AUTO_GUARD: { buried_temple: 1, void_throne: 1 },   // 2차-1.5: 안전지대로 들어가게 된 뒤로는 보정 없이(×1)도 보통 장비 파라칸 84% · 녹스 90% (전 ×0.75)
+  AUTO_GUARD: { buried_temple: 1, frost_nest: 0.65, sky_sanctum: 0.65, void_throne: 0.65 },   // 빌드 1 (4-2 가 안): 보스 방 물약 3초 뒤로 후반 보스는 자동일 때 ×0.65 (시뮬레이션)   // 2차-1.5: 안전지대로 들어가게 된 뒤로는 보정 없이(×1)도 보통 장비 파라칸 84% · 녹스 90% (전 ×0.75)
   guardMul() {
     if (!this.autoOn || !this.bossMode || !this.on()) return 1;
     const w = G.Game.world;
