@@ -162,3 +162,13 @@ body.touch-on #win-shop { width: 370px !important; }
 /* 스탯 창 안내 버튼: 한 줄 ("⭐ 추천대로 올리기 5P" · "📖 직업 소개") */
 .stat-tip .row { flex-wrap: nowrap; }
 .stat-tip .st-btn { white-space: nowrap; font-size: 0.92em; }
+
+/* 빌드 3 (16): 겹친 창의 뒤쪽 창 · (17) ⟵ 뒤로 */
+#ui .win.m-back { filter: brightness(.5); pointer-events: none; }
+#ui .win.m-back * { pointer-events: none !important; }
+#touch .mback { position: fixed; left: calc(env(safe-area-inset-left) + 10px); top: calc(env(safe-area-inset-top) + 6px); pointer-events: auto; touch-action: none; height: 36px; padding: 0 14px; border-radius: 11px;
+  border: 2px solid #9fd8ff; background: rgba(15,18,34,.92); color: #dff3ff; font-weight: 800; font-size: 15px; display: flex; align-items: center; z-index: 5; }
+#touch .mback[hidden] { display: none; }
+/* 빌드 3 (19): 각성 카드는 휴대폰 배율(--mz)로 키워도 화면 안에 (1280 / mz 보다 좁게) */
+body.touch-on #askov .ask.jobp { width: calc(1220px / var(--mz, 1)); max-width: none; max-height: calc(690px / var(--mz, 1)); overflow-y: auto; }
+body.touch-on #askov .jobp .jc-l { font-size: 12px; }

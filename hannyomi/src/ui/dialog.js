@@ -34,6 +34,7 @@ G.Dialog = {
 
   quest(e) {
     const q = e.q;
+    if (G.JobCard && G.JobCard.show(this, e)) return;   // 빌드 3 (19): 각성 시험은 직업 설명 카드부터
     if (e.mode === 'start') {
       this.seq(q.dlg.start, q, [
         { label: '수락', fn: () => { G.Quest.accept(q.id); this.show({ text: q.dlg.accept || '부탁할게.', opts: [{ label: '확인', fn: () => this.close() }] }); } },

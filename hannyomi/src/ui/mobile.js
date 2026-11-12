@@ -114,7 +114,7 @@ G.Mobile = {
     ['F1 키로 전체 단축키 설명을 볼 수 있어요. 키는 메뉴 → 키 설정에서 원하는 대로 바꿀 수 있어요.', '≡ 메뉴 → 조작 안내에서 전체 조작 설명을 볼 수 있어요.'],
     ['언제든 F1 키로 단축키를 확인할 수 있어요.', '언제든 ≡ 메뉴 → 조작 안내에서 조작법을 볼 수 있어요.'],
     ['(F1: 단축키 안내)', '(조작법: ≡ 메뉴 → 조작 안내)'], ['조작법 (F1)', '조작 안내'], [/\s*\(F9\)/g, ''],
-    ['(우클릭/ESC 취소)', '(≡ 메뉴 버튼: 취소)'], ['(우클릭: 취소)', '(≡ 메뉴 버튼: 취소)'], ['(Esc: 취소)', '(≡ 메뉴 버튼: 취소)'], ['메뉴(Esc)', '메뉴 버튼'],
+    ['(우클릭/ESC 취소)', '(위의 [취소] 또는 ⟵ 뒤로)'], ['(우클릭: 취소)', '(⟵ 뒤로: 취소)'], ['(Esc: 취소)', '(⟵ 뒤로: 취소)'], ['메뉴(Esc)', '메뉴 버튼'],
     ['인벤토리(I)', '인벤토리'], ['장비창은 E 키야', '장비창은 장비 버튼이야'], ['퀘스트 창(Q)', '퀘스트 창'], ['공격은 Z 키일세', '공격은 공격 버튼일세'],
     [/(^|[^A-Za-z])S 키로/g, '$1스탯 버튼으로'], [/(^|[^A-Za-z])K 키로/g, '$1스킬 버튼으로'], ['(K)', '(스킬 버튼)'],
     [/↑ 키를/g, '▲ 버튼을'], [/([가-힣]{2,}) 키\(\1\)/g, '$1 버튼'], [/([가-힣]{2,}) 키로/g, '$1 버튼으로'], [/([가-힣]{2,}) 키를/g, '$1 버튼을'],
@@ -162,7 +162,7 @@ G.Mobile = {
     }
     h += '</div><div class="grp g-top"><div class="topbar">';
     for (const [w, n] of this.TOP) h += `<div class="tw" data-w="${w}">${n}${w === 'stat' ? '<span class="badge" data-badge="ap" hidden></span>' : w === 'skill' ? '<span class="badge" data-badge="sp" hidden></span>' : ''}</div>`;
-    h += '</div></div><div class="grp g-cut"><div class="skip" data-skip="1">건너뛰기 ▶▶</div></div>';
+    h += '</div><div class="tw mback" data-back="1" hidden>⟵ 뒤로</div></div><div class="grp g-cut"><div class="skip" data-skip="1">건너뛰기 ▶▶</div></div>';
     this.el.innerHTML = h;
     for (const b of this.el.querySelectorAll('[data-b]')) this.btn[b.dataset.b] = b;
     this.pad = this.el.querySelector('.dpad');
@@ -236,11 +236,20 @@ G.Mobile = {
       b.addEventListener('pointerdown', e => {
         e.preventDefault();
         const w = b.dataset.w;
-        if (w === 'menu') { G.Touch.press('Escape'); setTimeout(() => G.Touch.release('Escape'), 0); }   // Esc 와 같다: 열린 창 닫기 → 없으면 메뉴
+        if (w === 'menu') { if (G.Game.player) G.UI.toggle('menu'); }   // 빌드 3 (17): 메뉴는 메뉴만 (닫기 · 취소는 ⟵ 뒤로)
         else if (G.Game.player) G.UI.toggle(w);
       });
     }
+    // 빌드 3 (17): ⟵ 뒤로 = Esc (맨 위 창 닫기 · 대화 닫기 · 고르기 취소 · 묻기 창 취소)
+    this.backEl = this.el.querySelector('[data-back]');
+    this.backEl.addEventListener('pointerdown', e => { e.preventDefault(); this.back(); });
     this.el.querySelector('[data-skip]').addEventListener('pointerdown', e => { e.preventDefault(); if (G.Cutscene.playing()) G.Cutscene.finish(); });
+  },
+  // 갤럭시 앱의 뒤로 가기도 이 함수를 부르면 됨
+  back() {
+    const U = G.UI;
+    if (U.asking()) { U.answer(false); return true; }
+    return U.closeTop();
   },
   hold(id, on) {
     const code = G.Touch.code(id);
@@ -320,6 +329,8 @@ G.Mobile = {
       const v = Math.round(top) + 'px';
       if (v !== this.trkTop) { this.trkTop = v; G.UI.root.style.setProperty('--trk', v); }
     }
+    // 빌드 3 (17): 닫을 것이 있을 때만 ⟵ 뒤로
+    if (this.backEl) { const show = inGame && (anyWin || busy); if (this.backEl.hidden === show) this.backEl.hidden = !show; }
     // 위쪽 창 버튼: 열린 창 표시
     if (inGame) for (const b of this.el.querySelectorAll('[data-w]')) b.classList.toggle('on', b.dataset.w !== 'menu' && U.isOpen(b.dataset.w));
     // 스킬 재사용 대기 (G.HUD.update 와 같은 규칙)
@@ -432,7 +443,8 @@ G.Mobile = {
       ${row('1 ~ 6', '스킬 (스킬 창에서 칸에 등록)')}
       ${row('HP · MP', '물약 (자동 물약: 메뉴 → 자동 물약 설정)')}
       ${row('위쪽 버튼', '스탯 · 장비 · 인벤 · 스킬 · 퀘스트 · 지도 창 열고 닫기')}
-      ${row('≡ 메뉴', '열린 창 닫기 → 없으면 메뉴 (저장 · 설정 · 버그 신고)')}
+      ${row('≡ 메뉴', '메뉴 (저장 · 설정 · 버그 신고)')}
+      ${row('⟵ 뒤로', '열린 창 닫기 · 대화 닫기 · 고르기 취소 (창이 있을 때만 왼쪽 위에)')}
       ${row('한 번 탭', '아이템 · 스킬 설명 보기')}
       ${row('두 번 탭', '장비 입기 · 벗기, 물약 사용, 판매, 창고 넣기 · 빼기')}
       ${row('퀘스트 두 번 탭', '오른쪽 위 퀘스트 → 길 안내')}
@@ -525,22 +537,33 @@ G.Mobile = {
   layoutWins() {
     const U = G.UI, list = Object.values(U.wins || {});
     if (!G.Touch.active()) {
-      for (const el of list) if (el.dataset.mz) { el.style.transform = ''; el.style.transformOrigin = ''; const b = el.querySelector('.wb'); if (b) b.style.maxHeight = ''; delete el.dataset.mz; }
+      for (const el of list) if (el.dataset.mz) { el.style.transform = ''; el.style.transformOrigin = ''; el.style.filter = ''; el.classList.remove('m-back'); const b = el.querySelector('.wb'); if (b) b.style.maxHeight = ''; delete el.dataset.mz; }
       return;
     }
     if (!list.length) return;
     const Z = this.Z || 1, GAP = 10, T = this.TOP || 80;
+    const fit = (el, z) => { const b = el.querySelector('.wb'), head = el.querySelector('.wh'); const hh = head ? head.offsetHeight : 36;
+      if (b) b.style.maxHeight = Math.max(120, Math.floor((712 - T) / z - hh - 4)) + 'px';
+      el.style.transformOrigin = '0 0'; el.style.transform = `scale(${z.toFixed(3)})`; el.dataset.mz = z.toFixed(3); };
+    // 빌드 3 (16): 상점 · 창고는 인벤과 나란히 (같이 써야 함). 그 밖에는 새 창이 앞 창 위에 크게, 앞 창은 뒤에 어둡게
+    const side = list.length > 1 && (U.wins.shop || U.wins.storage) && list.length === 2;
+    if (list.length > 1 && !side) {
+      const order = list.slice().sort((a, b) => (+a.style.zIndex || 0) - (+b.style.zIndex || 0)), top = order[order.length - 1];
+      for (const el of order) {
+        const w = el.offsetWidth, z = Math.max(0.6, Math.min(Z, 1264 / w)), back = el !== top;
+        fit(el, z);
+        el.classList.toggle('m-back', back);
+        if (!el.dataset.moved) { el.style.left = Math.round(Math.max(8, (1280 - w * z) / 2) + (back ? -24 : 0)) + 'px'; el.style.top = (T + (back ? -6 : 0)) + 'px'; }
+      }
+      return;
+    }
+    for (const el of list) el.classList.remove('m-back');
     const ws = list.map(el => el.offsetWidth);
     const total = ws.reduce((a, b) => a + b, 0) + GAP * (list.length - 1);
     const z = Math.max(0.6, Math.min(Z, 1264 / total));
     let x = Math.max(8, (1280 - total * z) / 2);
     list.forEach((el, i) => {
-      const b = el.querySelector('.wb'), head = el.querySelector('.wh');
-      const hh = head ? head.offsetHeight : 36;
-      if (b) b.style.maxHeight = Math.max(120, Math.floor((712 - T) / z - hh - 4)) + 'px';
-      el.style.transformOrigin = '0 0';
-      el.style.transform = `scale(${z.toFixed(3)})`;
-      el.dataset.mz = z.toFixed(3);
+      fit(el, z);
       if (!el.dataset.moved) { el.style.left = Math.round(x) + 'px'; el.style.top = T + 'px'; }
       x += (ws[i] + GAP) * z;
     });
