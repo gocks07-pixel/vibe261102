@@ -1166,3 +1166,4 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - 배포판 만들기 검사 통과. 버전은 올리지 않음 (EXE 가 가져갈 때 올림)
 - **시험판 (2026-11-12)**: https://gocks07-pixel.github.io/rpg-adventure/beta/ (배포 저장소 `beta/` 폴더, 커밋 3577233). 본 게임은 그대로. 시험판만: 세이브 키 `hny_beta_save_*` (본 게임 세이브와 따로, 옛 `arcelia_save_v1` 옮기기 끔) · 서비스 워커는 아무것도 안 함 (본 게임 캐시 안 지움) · 왼쪽 아래 "시험판" 표시. 만드는 법: `build_web.js` 결과에서 save.js 키 바꾸기 · sw.js 바꾸기 · index.html 표시 넣기
 - **고침 (2026-11-12)**: 눈썹 아래로 (`BROW_DY 4`) · 동그란 · 신비로운 · 장난기 등 윗눈꺼풀 선을 흰자 위 테두리로 (`LID_UP 0.45`) · 영웅의 잔영 새 얼굴 `faceSorrow` (이야기 영상: 기본 A 슬픔, "일곱 영웅과 두 용" 봉인 장면 C 원망, "잠드는 영웅들" B 감은 눈 · 눈물 없음) · 아스트라 NPC 는 C 원망
+- 시험판에 테스트 모드 넣음 (`src/dev.js` 를 시험판에만 복사 · main.js 앞에 불러옴). 시험판 만드는 순서는 작업용 `make_beta.sh` 와 같음: build_web → save.js 키 바꾸기 → sw.js 바꾸기 → dev.js · 표시 넣기 → rpg-adventure/beta
