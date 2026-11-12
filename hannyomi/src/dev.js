@@ -41,7 +41,7 @@ G.Dev = {
     };
     d.inv = G.Inv.empty();
     const tmp = { d };
-    for (const [tid, n] of [['pot_white', 300], ['pot_elixir', 150], ['scroll_100', 30], ['cube', 30], ['scroll_tele', 20]]) G.Inv.add(tmp, tid, n);
+    for (const [tid, n] of [['pot_white', 300], ['pot_elixir', 150], ['scroll_100', 30], ['scroll_tele', 20]]) G.Inv.add(tmp, tid, n);
     return d;
   },
   build(ch) {

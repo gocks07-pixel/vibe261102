@@ -349,6 +349,7 @@ G.UI = {
   },
   answer(ok) {
     const el = document.getElementById('askov'), fn = this.askFn;
+    this.holdWorld = false;   // 단서 설명 창 (G.Clue) 이 멈춘 세계를 다시 움직임
     if (el) el.innerHTML = '';
     this.askFn = null;
     if (ok && fn) fn();
@@ -442,7 +443,7 @@ G.UI = {
         ${row(['메뉴'], '키 설정: 원하는 키로 변경')}
         ${row(['Esc'], '창 닫기 / 메뉴')}
         ${row(['F11'], '전체화면 (EXE)')}
-        <tr><td colspan="2" class="dim" style="padding-top:8px">오른쪽 위 퀘스트 더블클릭 → 길 안내<br>각인서·공명석: 더블클릭 후 장비 클릭 · 단련: 대장장이에게<br>금색 높은 발판: 2단 점프(위로)로 올라가면 보물상자<br>몬스터도 스킬을 써요: 하얗게 번쩍·무기를 치켜듦·바닥 그림자·옅은 웅덩이가 보이면 피하세요</td></tr>
+        <tr><td colspan="2" class="dim" style="padding-top:8px">오른쪽 위 퀘스트 더블클릭 → 길 안내<br>각인서: 더블클릭 후 장비 클릭 · 단련: 대장장이에게<br>금색 높은 발판: 2단 점프(위로)로 올라가면 보물상자<br>몬스터도 스킬을 써요: 하얗게 번쩍·무기를 치켜듦·바닥 그림자·옅은 웅덩이가 보이면 피하세요</td></tr>
       </table></div>
       </div><br><button class="btn gold" data-act="title" data-arg="closehelp">닫기</button></div>`);
     G.Tutorial.ev('help');
@@ -555,7 +556,7 @@ G.Tip = {
       const need = G.Items.resNeed(it);
       h += `<div class="sec"><h5 style="color:${g.color}">별자리 각인 · ${g.name}</h5>${it.pot.map(o => `<div style="color:${G.GRADES[o.g].color}">${G.statText(o.stat, o.val)}</div>`).join('')}${need ? `<div class="dim">공명 게이지 ${it.res || 0} / ${need}</div>` : ''}</div>`;
     } else {
-      h += `<div class="sec dim">별자리 각인 없음 (공명석으로 깨울 수 있음)</div>`;
+      h += `<div class="sec dim">별자리 각인 없음</div>`;
     }
     if (t.cheer) h += `<div class="sec"><h5 style="color:#ffc8e8">특수 효과 · 연희의 응원</h5><div style="color:#ffe0f0">쓰러질 만큼 큰 피해를 받으면 한 번 HP 1로 버팁니다. (재사용 3분)</div></div>`;
     if (t.desc) h += `<div class="sec" style="color:#e8d8f0;white-space:pre-wrap">${G.U.esc(t.desc)}</div>`;

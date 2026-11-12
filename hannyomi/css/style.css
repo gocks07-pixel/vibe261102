@@ -394,3 +394,14 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 /* 스킬 창: 각성별 기술 포인트 줄 */
 .sp-pools { margin: -6px 0 8px; padding: 0 2px; font-size: 11px; color: #8d97b5; }
 .sp-pools b { color: #ffe08a; }
+
+/* 이야기 단서 설명 창 (G.Clue) */
+#askov .ask.clue { max-width: 560px; text-align: left; border: 2px solid #ffd54a; }
+#askov .clue .clue-h { display: flex; gap: 14px; align-items: center; }
+#askov .clue .clue-h img { width: 56px; height: 56px; border: 1px solid #6b7aa8; border-radius: 10px; background: #0b0e18; flex: none; }
+#askov .clue .clue-k { color: #ffd54a; font-weight: 800; font-size: 13px; }
+#askov .clue .clue-n { font-size: 18px; font-weight: 900; margin: 2px 0; }
+#askov .clue .clue-d { color: #c8d0e8; font-size: 13px; }
+#askov .clue .clue-s { margin-top: 10px; line-height: 1.6; font-size: 14px; }
+#askov .clue .clue-to { margin-top: 8px; color: #9fd8ff; font-size: 13.5px; }
+#askov .clue .end { text-align: right; margin-top: 10px; }

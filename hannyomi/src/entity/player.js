@@ -24,6 +24,8 @@ G.Player = class {
     if (d.skills) G.SP.sync(d);   // 빌드 1 (8번): 불러올 때 각성별 SP 로 다시 계산
     if (d.skills.b_djump == null) d.skills.b_djump = 1;
     d.djump = d.djump || 'fwd'; d.chests = d.chests || {}; d.flags = d.flags || {};
+    // 2026-11-12: 공명석(cube)을 게임에서 없앰 → 가진 것도 지움 (가방 · 창고). id · 세이브 형식은 그대로
+    for (const box of [d.inv, d.storage]) if (box) for (const tab in box) if (Array.isArray(box[tab])) box[tab] = box[tab].map(it => it && it.tid === 'cube' ? null : it);
     this.gdash = 0; this.gdashCd = 0;
     this.x = 0; this.y = 0; this.vx = 0; this.vy = 0; this.kbX = 0; this.dir = 1;
     this.onGround = false; this.plat = null; this.dropT = 0; this.dropFrom = null;
