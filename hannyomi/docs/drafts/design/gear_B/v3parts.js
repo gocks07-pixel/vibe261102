@@ -1,6 +1,6 @@
   // ======== 시안 B: 아예 다른 디자인 (세트마다 다른 실루엣) ========
-  const TAIL = { surcoat: 1, furcoat: 1, longcoat: 1, knightcoat: 1, apron: 1 };
-  const SLV = { furcoat: 1, longcoat: 1, knightcoat: 1, surcoat: 1, jerkin: 1, ranger: 1, apron: 1 };
+  const TAIL = { surcoat: 1, furcoat: 1, longcoat: 1, knightcoat: 1, apron: 1, nomad: 1, priestrobe: 1, stormcoat: 1, skyrobe: 1 };
+  const SLV = { furcoat: 1, longcoat: 1, knightcoat: 1, surcoat: 1, jerkin: 1, ranger: 1, apron: 1, nomad: 1, guardvest: 1, priestrobe: 1, stormcoat: 1, skyrobe: 1 };
   const WHITE = '#f4f1e8';
   function hat(ctx, kind, c, sp, t) {
     const T = sp.trim || '#ffe08a';
@@ -68,6 +68,57 @@
         line(ctx, [[8.8, -61.5], [7.7, -61.5]], '#5a3a1a', 1);
         return;
       }
+      case 'bandana': {   // 초보 탐험가: 묶은 두건 + 뒤로 날리는 끈
+        const f = Math.sin(t * 6) * 1;
+        ctx.fillStyle = vgrad(ctx, -68, -55, c); ctx.beginPath(); ctx.moveTo(-13.5, -55); ctx.quadraticCurveTo(-14, -68, 1, -68); ctx.quadraticCurveTo(16, -68, 15.5, -55); ctx.closePath(); ctx.fill(); ctx.strokeStyle = sh(c, -0.55); ctx.lineWidth = 0.7; ctx.stroke();
+        for (let i = 0; i < 4; i++) ell(ctx, -6 + i * 5, -62 + (i % 2), 0.9, 0.9, sh(c, 0.4));   // 점무늬
+        ell(ctx, -14, -57, 2.4, 2, sh(c, -0.2), sh(c, -0.55), 0.5);
+        poly(ctx, [[-15, -57], [-22 + f, -60], [-21 + f, -55]], c, sh(c, -0.55), 0.5); poly(ctx, [[-15, -56], [-20 + f, -50], [-17 + f, -49]], sh(c, -0.1), sh(c, -0.55), 0.5);
+        return;
+      }
+      case 'desertwrap': {   // 사막 유랑자: 어깨까지 덮는 천 머리쓰개 + 이마 고글
+        const f = Math.sin(t * 5) * 1;
+        ctx.fillStyle = sh(c, -0.2); ctx.beginPath(); ctx.moveTo(-13, -56); ctx.quadraticCurveTo(-19, -46, -17 + f, -36); ctx.lineTo(-6, -38); ctx.quadraticCurveTo(-10, -48, -8, -56); ctx.closePath(); ctx.fill();   // 뒤로 늘어진 천
+        ctx.fillStyle = vgrad(ctx, -68, -55, c); ctx.beginPath(); ctx.moveTo(-14, -54); ctx.quadraticCurveTo(-15, -69, 1, -68); ctx.quadraticCurveTo(16, -68, 15.5, -55); ctx.closePath(); ctx.fill(); ctx.strokeStyle = sh(c, -0.55); ctx.lineWidth = 0.7; ctx.stroke();
+        for (const y of [-63, -59]) line(ctx, [[-12, y], [14, y + 1]], sh(c, -0.3), 0.7);
+        rr(ctx, -2, -61.5, 16, 3.2, 1.4, '#5a4030');
+        for (const x of [5, 11]) { ell(ctx, x, -60, 2.6, 2.6, '#c08a3a', '#5a3a1a', 0.6); ell(ctx, x, -60, 1.7, 1.7, '#7ad0e8'); }
+        return;
+      }
+      case 'sunhelm': {   // 모래 왕국 근위병: 금빛 투구 + 앞의 태양 원반 볏
+        glowOn(ctx, '#fff0a0', 6); ell(ctx, 6, -67, 4, 4, '#ffd040', '#b8862a', 0.7); glowOff(ctx);
+        for (let i = 0; i < 8; i++) { const a = i * PI / 4; line(ctx, [[6 + Math.cos(a) * 4.8, -67 + Math.sin(a) * 4.8], [6 + Math.cos(a) * 6.4, -67 + Math.sin(a) * 6.4]], '#ffd040', 0.9); }
+        dome(ctx, '#e8b840', '#8a6a1a');
+        rr(ctx, -14, -57.6, 30, 3.9, 1.6, T, sh(T, -0.5), 0.6);
+        ell(ctx, 6, -67, 1.6, 1.6, T);
+        return;
+      }
+      case 'sunmitre': {   // 태양의 사제: 높은 관 + 태양 원반 + 뒤로 늘어진 줄무늬 천
+        poly(ctx, [[-13.5, -57], [-5, -57], [-4, -38], [-15, -40]], c);
+        for (let i = 0; i < 4; i++) line(ctx, [[-14, -53 + i * 4], [-4.5, -53 + i * 4]], T, 1.3);
+        ctx.fillStyle = vgrad(ctx, -80, -56, '#f4ecd8', 0.1, -0.15); ctx.beginPath(); ctx.moveTo(-11, -56); ctx.lineTo(-7, -71); ctx.quadraticCurveTo(1, -74, 9, -71); ctx.lineTo(13, -56); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#b8a888'; ctx.lineWidth = 0.7; ctx.stroke();
+        for (const y of [-61, -66.5]) line(ctx, [[-10 - (y + 56) * 0.2, y], [12 + (y + 56) * 0.2, y]], T, 1.3);
+        glowOn(ctx, '#fff0a0', 8); ell(ctx, 1, -72, 3.4, 3.4, '#ffd040', '#b8862a', 0.6); glowOff(ctx);
+        rr(ctx, -13, -57.4, 28.5, 3, 1, '#f0d060');
+        return;
+      }
+      case 'stormcrest': {   // 폭풍의 기수: 양옆 번개 지느러미 투구
+        glowOn(ctx, sp.glow || '#fff09a', 6);
+        for (const sx of [-1, 1]) { const x0 = sx < 0 ? -12 : 14; poly(ctx, [[x0, -60], [x0 + sx * 6, -68], [x0 + sx * 2, -66], [x0 + sx * 8, -76], [x0 + sx * 1, -64], [x0 + sx * 3, -66]], T, sh(T, -0.45), 0.6); }
+        glowOff(ctx);
+        dome(ctx, c, sh(c, -0.35));
+        poly(ctx, [[-2, -64], [1, -61], [-1, -61], [2, -57], [0, -60], [2, -60]], T);
+        return;
+      }
+      case 'skyhat': {   // 하늘 순례자: 넓은 챙 흰 모자 + 깃털 둘
+        const f = Math.sin(t * 3) * 0.06;
+        for (let i = 0; i < 2; i++) { ctx.save(); ctx.translate(-8, -63); ctx.rotate(-0.9 - i * 0.35 + f); ell(ctx, -6, 0, 7.5, 2, i ? '#e8f0ff' : '#ffffff', '#b8c8e8', 0.5); ctx.restore(); }
+        ell(ctx, 1, -58.5, 19, 4.6, vgrad(ctx, -63, -54, '#f8fbff', 0.05, -0.15), '#b8c8e8', 0.7);
+        ctx.fillStyle = vgrad(ctx, -70, -58, '#ffffff', 0, -0.12); ctx.beginPath(); ctx.ellipse(1, -60, 11, 9, 0, PI, 0); ctx.fill(); ctx.strokeStyle = '#b8c8e8'; ctx.stroke();
+        rr(ctx, -10, -62, 22, 2.6, 1, c);
+        glowOn(ctx, sp.glow || '#e8f0ff', 6); ell(ctx, 10, -61, 1.6, 1.6, '#ffffff'); glowOff(ctx);
+        return;
+      }
       case 'starcirclet': {   // 별의 기사: 가는 금 서클릿 + 이마의 큰 별 + 작은 날개
         ctx.strokeStyle = '#e8c050'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.ellipse(1, -59, 14.5, 3.4, 0, PI * 0.05, PI * 0.95, true); ctx.stroke();
         for (let i = 0; i < 3; i++) { ctx.save(); ctx.translate(-12, -59); ctx.rotate(-0.6 - i * 0.35); ell(ctx, -4, 0, 5 - i, 1.4, '#fffbe8', '#e8c050', 0.4); ctx.restore(); }
@@ -80,6 +131,46 @@
   function torso(ctx, kind, c, lk, sp, e) {
     const T = sp.trim || '#e8c870';
     switch (kind) {
+      case 'nomad': {   // 사막 유랑자: 겹친 천 옷 + 사선 띠 + 동전 허리띠
+        rr(ctx, -9, -36, 18, 23, 6, vgrad(ctx, -36, -13, c), sh(c, -0.55), 0.8);
+        ctx.save(); ctx.beginPath(); ctx.roundRect(-9, -36, 18, 23, 6); ctx.clip();
+        poly(ctx, [[-10, -38], [-3, -38], [11, -20], [4, -20]], T); line(ctx, [[-6, -38], [8, -20]], sh(T, 0.3), 0.6); ctx.restore();
+        rr(ctx, -9.6, -19.2, 19.2, 3.4, 1, sh(c, -0.35), sh(c, -0.6), 0.5);
+        for (let i = 0; i < 6; i++) ell(ctx, -7.5 + i * 3, -15.4, 1, 1, '#e8c050', '#a8862a', 0.3);   // 동전 장식
+        return;
+      }
+      case 'guardvest': {   // 모래 왕국 근위병: 비늘 갑옷 + 파란 어깨띠 + 태양 버클
+        rr(ctx, -9, -36, 18, 23, 6, vgrad(ctx, -36, -13, c), sh(c, -0.55), 0.8);
+        ctx.save(); ctx.beginPath(); ctx.roundRect(-9, -36, 18, 23, 6); ctx.clip();
+        for (let r = 0; r < 5; r++) for (let i = 0; i < 6; i++) { const x = -8 + i * 3.3 + (r % 2) * 1.6, y = -33 + r * 3.6; ctx.beginPath(); ctx.arc(x, y, 1.9, 0, PI); ctx.strokeStyle = sh(c, -0.4); ctx.lineWidth = 0.6; ctx.stroke(); }
+        poly(ctx, [[-10, -36], [-5, -36], [10, -20], [5, -20]], T); ctx.restore();
+        belt(ctx, c, '#e8c050'); emblem(ctx, 'sun', 4.5, -17.4, c, '#fff4c0');
+        return;
+      }
+      case 'priestrobe': {   // 태양의 사제: 흰 긴 옷 + 넓은 금 목깃 + 태양
+        rr(ctx, -9, -36, 18, 23, 6, vgrad(ctx, -36, -13, WHITE, 0.08, -0.12), '#b8b0a0', 0.8);
+        ctx.save(); ctx.beginPath(); ctx.roundRect(-9, -36, 18, 23, 6); ctx.clip();
+        for (let i = 3; i >= 0; i--) ell(ctx, 1, -36, 13, 9 - i * 2, i % 2 ? T : '#e8c050', null); ell(ctx, 1, -36, 6, 2.5, WHITE); ctx.restore();
+        rr(ctx, -9.6, -19.2, 19.2, 3.4, 1, c, sh(c, -0.5), 0.5);
+        glowOn(ctx, '#fff0a0', 5); emblem(ctx, 'sun', 2, -24, c, '#fff4c0'); glowOff(ctx);
+        return;
+      }
+      case 'stormcoat': {   // 폭풍의 기수: 높은 깃 코트 + 번개 무늬 테
+        rr(ctx, -9, -36, 18, 23, 6, vgrad(ctx, -36, -13, c, 0.2, -0.35), sh(c, -0.6), 0.8);
+        poly(ctx, [[-7, -36], [-6.5, -41], [8.5, -40], [8.5, -36]], sh(c, -0.15), sh(c, -0.6), 0.6);
+        line(ctx, [[4, -35], [2, -30], [5, -27], [3, -22], [5.5, -18]], T, 1.3);
+        glowOn(ctx, sp.glow || '#fff09a', 5); emblem(ctx, 'bolt', -3.5, -27, c, T); glowOff(ctx);
+        belt(ctx, c, T);
+        return;
+      }
+      case 'skyrobe': {   // 하늘 순례자: 흰 겉옷 + 파란 띠 + 깃털 장식
+        rr(ctx, -9, -36, 18, 23, 6, vgrad(ctx, -36, -13, WHITE, 0.08, -0.12), '#b8c0d0', 0.8);
+        line(ctx, [[3.5, -35], [3.5, -14]], c, 1.4);
+        ctx.save(); ctx.beginPath(); ctx.roundRect(-9, -36, 18, 23, 6); ctx.clip(); poly(ctx, [[-10, -22], [10, -22], [10, -18.5], [-10, -18.5]], c); ctx.restore();
+        for (let i = 0; i < 3; i++) { ctx.save(); ctx.translate(-5 + i * 2.6, -31); ctx.rotate(-0.3 + i * 0.3); ell(ctx, 0, 0, 1.4, 3.6, '#ffffff', '#b8c8e8', 0.4); ctx.restore(); }
+        glowOn(ctx, sp.glow || '#e8f0ff', 5); emblem(ctx, 'feather', 5.5, -27, c, T); glowOff(ctx);
+        return;
+      }
       case 'jerkin': {   // 새싹 견습생: 짧은 재킷 + 안 셔츠 + 멜빵 가방끈
         rr(ctx, -9, -36, 18, 23, 6, vgrad(ctx, -36, -13, '#f4eedc', 0.1, -0.15), '#b8b0a0', 0.8);   // 셔츠
         rr(ctx, -9, -36, 13, 18, 5, vgrad(ctx, -36, -18, c), sh(c, -0.55), 0.8);   // 재킷 (앞이 열림)
@@ -150,9 +241,9 @@
   // 코트 자락 (허리 아래, 앞이 갈라짐)
   function coatTail(ctx, kind, c, sp, sw) {
     const k = sw * 2, T = sp.trim || '#e8c870';
-    const col = kind === 'knightcoat' ? WHITE : kind === 'surcoat' ? (sp.cloth || '#2a4a9a') : c;
-    const edge = kind === 'knightcoat' ? '#e8c050' : kind === 'furcoat' ? '#ffffff' : kind === 'longcoat' ? (sp.trim || '#c890ff') : T;
-    const len = kind === 'surcoat' ? -4 : kind === 'longcoat' ? 0 : -3;
+    const col = kind === 'knightcoat' || kind === 'priestrobe' || kind === 'skyrobe' ? WHITE : kind === 'surcoat' ? (sp.cloth || '#2a4a9a') : c;
+    const edge = kind === 'knightcoat' || kind === 'priestrobe' ? '#e8c050' : kind === 'skyrobe' ? c : kind === 'nomad' ? T : kind === 'stormcoat' ? T : kind === 'furcoat' ? '#ffffff' : kind === 'longcoat' ? (sp.trim || '#c890ff') : T;
+    const len = kind === 'surcoat' ? -4 : kind === 'longcoat' || kind === 'priestrobe' ? 0 : kind === 'nomad' ? -6 : -3;
     if (kind === 'apron') { poly(ctx, [[-0.5, -16], [8.5, -16], [9 + k, -5], [-1 + k, -5]], vgrad(ctx, -16, -5, '#7a4e2a', 0.1, -0.3), '#3a2210', 0.6); return; }
     if (kind === 'surcoat') {   // 앞판만
       poly(ctx, [[-1.5, -16], [8.5, -16], [9.5 + k, len], [-2 + k, len]], vgrad(ctx, -16, len, col, 0.1, -0.35), sh(col, -0.55), 0.7);
@@ -170,13 +261,20 @@
     if (kind === 'jerkin') { rr(ctx, -3, 0, 6, 9, 2.5, hgrad(ctx, -3, 3, c), sh(c, -0.55), 0.6); rr(ctx, -2.8, 8, 5.6, 6, 2, '#f4eedc', '#b8b0a0', 0.5); line(ctx, [[-3, 8.5], [3, 8.5]], sh(c, 0.3), 1.4); return; }
     if (kind === 'ranger') { rr(ctx, -2.8, 0, 5.6, 14, 2.5, hgrad(ctx, -2.8, 2.8, sh(c, 0.15)), sh(c, -0.55), 0.6); return; }
     if (kind === 'apron') { rr(ctx, -2.8, 0, 5.6, 10, 2.5, hgrad(ctx, -2.8, 2.8, c), sh(c, -0.55), 0.6); line(ctx, [[-2.8, 9], [2.8, 9]], sh(c, -0.4), 1.6); return; }
+    if (kind === 'nomad') { rr(ctx, -3.2, 0, 6.4, 14, 2.5, hgrad(ctx, -3.2, 3.2, c), sh(c, -0.55), 0.6); line(ctx, [[-3.2, 11], [3.2, 11]], sp.trim || '#b0503a', 1.2); return; }
+    if (kind === 'guardvest') { rr(ctx, -2.8, 0, 5.6, 14, 2.5, '#f4ecd8', '#b8b0a0', 0.5); return; }
+    if (kind === 'priestrobe' || kind === 'skyrobe') { poly(ctx, [[-3, 0], [3, 0], [6, 13], [-5, 13]], hgrad(ctx, -5, 6, WHITE), '#b8b0a0', 0.5); line(ctx, [[-5, 12.4], [6, 12.4]], kind === 'priestrobe' ? '#e8c050' : c, 1.3); return; }
+    if (kind === 'stormcoat') { rr(ctx, -3, 0, 6, 14, 2.5, hgrad(ctx, -3, 3, c), sh(c, -0.6), 0.6); line(ctx, [[-3, 10.5], [-1, 12], [1, 10.5], [3, 12]], sp.trim || '#ffe060', 0.9); return; }
     if (kind === 'surcoat') return sleeveOld(ctx, 'plate', c, e, sp);
     return sleeveOld(ctx, kind, c, e, sp);
   }
   function pauldron(ctx, kind, c, sp) {
     if (kind === 'surcoat') return pauldronV2(ctx, 'plate', c, sp);
     if (kind === 'knightcoat') { ctx.beginPath(); ctx.ellipse(0, 2, 5, 3.8, 0, PI * 0.95, PI * 2.05); ctx.fillStyle = '#e8c050'; ctx.fill(); ctx.strokeStyle = '#a8862a'; ctx.lineWidth = 0.6; ctx.stroke(); return; }
-    if (kind === 'furcoat' || kind === 'longcoat' || kind === 'jerkin' || kind === 'ranger') return;
+    if (kind === 'furcoat' || kind === 'longcoat' || kind === 'jerkin' || kind === 'ranger' || kind === 'nomad' || kind === 'priestrobe') return;
+    if (kind === 'guardvest') { ctx.beginPath(); ctx.ellipse(0, 2, 5.4, 4.2, 0, PI * 0.95, PI * 2.05); ctx.fillStyle = vgrad(ctx, -3, 2, '#e8b840', 0.3, -0.1); ctx.fill(); ctx.strokeStyle = '#8a6a1a'; ctx.lineWidth = 0.6; ctx.stroke(); return; }
+    if (kind === 'stormcoat') return pauldronV2(ctx, 'plate', c, sp);
+    if (kind === 'skyrobe') { for (let i = 0; i < 3; i++) ell(ctx, -3 + i * 3, 1 + (i % 2), 2, 3.6, i % 2 ? '#e8f0ff' : '#ffffff', '#b8c8e8', 0.4); return; }
     if (kind === 'apron') { ctx.beginPath(); ctx.ellipse(0, 2, 5.4, 4.4, 0, PI * 0.95, PI * 2.05); ctx.fillStyle = vgrad(ctx, -3, 2, '#9aa0a8', 0.35, -0.1); ctx.fill(); ctx.strokeStyle = '#4a4a50'; ctx.lineWidth = 0.6; ctx.stroke(); for (const x of [-3, 0, 3]) ell(ctx, x, -0.6 + Math.abs(x) * 0.3, 0.7, 0.7, '#e0e4ea'); return; }
     return pauldronV2(ctx, kind, c, sp);
   }
@@ -197,11 +295,16 @@
       for (let i = 0; i < 5; i++) { ctx.save(); ctx.translate(hemX + 2 + i * 4.2, -9.5 + (i % 2)); ctx.rotate(i % 2 ? 0.4 : -0.3); ell(ctx, 0, 0, 2.2, 3.6, i % 2 ? sh(c, 0.3) : sh(c, 0.12), sh(c, -0.55), 0.4); ctx.restore(); }
       return;
     }
-    if (kind === 'steampack') {   // 증기 기술자: 등에 멘 증기 통 + 파이프 + 김
+    if (kind === 'steampack') {   // 증기 기술자: 등에 멘 황동 통
       rr(ctx, -15, -36, 8, 15, 3, vgrad(ctx, -36, -21, '#b8862a', 0.3, -0.3), '#5a3a1a', 0.7);
       for (const y of [-32, -25]) line(ctx, [[-15, y], [-7, y]], '#5a3a1a', 0.9);
-      line(ctx, [[-13, -36], [-13, -42], [-10, -44]], '#9aa0a8', 1.6);
-      const p = ((o.t || 0) * 0.8) % 1; ell(ctx, -9 + p * 2, -46 - p * 6, 2 + p * 2, 1.6 + p * 1.6, `rgba(230,230,240,${0.6 * (1 - p)})`);
+      // 사용자: 파이프 · 김 삭제
+      return;
+    }
+    if (kind === 'stormcape') {   // 폭풍의 기수: 번개 밑단 망토 (빛남)
+      const pts = [[-6, -36], [hemX, -6]]; for (let i = 0; i < 4; i++) pts.push([hemX + 3 + i * 4.5, -6 + (i % 2 ? -4 : 0)]); pts.push([3, -9], [4, -36]);
+      poly(ctx, pts, vgrad(ctx, -36, -6, c, 0.15, -0.4), sh(c, -0.6), 0.7);
+      glowOn(ctx, sp.glow || '#fff09a', 6); line(ctx, pts.slice(1, -2), sp.trim || '#ffe060', 1.1); glowOff(ctx);
       return;
     }
     if (kind === 'shadow') {   // 공허: 어깨 반망토 (찢어진 끝)
