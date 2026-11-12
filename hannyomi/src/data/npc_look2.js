@@ -21,8 +21,9 @@
     ['valeria', 'long', 'f', 'intellectual', '#5a8ad0', { acc: 'circlet', hatOff: true }], ['artel', 'long', 'm', 'soft_gentle', '#5a7ab0'], ['heidel', 'halfup_v4', 'm', 'intense_strong', null], ['rok', 'tail', 'm', 'intellectual', '#5a4a2a'],
     ['fro_smith', 'part_v7', 'm', 'soft_gentle', '#5a6a8a'], ['fro_shop', 'twin', 'f', 'round_big', '#5a9ad0'], ['aurelion_npc', 'long', 'm', 'mystical', null], ['orion', 'long', 'm', 'intellectual', '#3a3a8a'],
     ['oriel', 'part_v7', 'm', 'intense_strong', '#c8a030'], ['yuna', 'twin', 'f', 'big', '#8a5ad0'], ['aer_smith', 'pony', 'f', 'intense_strong', '#5a6ab0'], ['aer_shop', 'bob', 'f', 'bright_smile', '#e08aa0'],
-    ['astra', 'long', 'm', 'mystical', null],
   ];
+  // 첫 번째 영웅의 잔영(아스트라)은 옛 그림체 그대로 (이야기 영상의 일곱 영웅 잔영도 이 모습) — 사용자 결정
+  if (G.NPCS.astra && G.NPCS.astra.look) G.NPCS.astra.look.oldHead = true;
   for (const [id, st, gd, eye, ec, ex] of T) {
     const n = G.NPCS[id]; if (!n || !n.look) continue;
     Object.assign(n.look, { style2: st === 'bun' ? 'bun' : st, eye2: eye, gender: gd }, ec ? { eyeColor: ec } : {}, ex || {});

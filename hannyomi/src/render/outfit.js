@@ -628,7 +628,7 @@ G.Outfit = (function () {
     if (o.hurt) ctx.filter = 'brightness(1.8)';
     D.shadow(ctx, 15);
     // 1번 꾸미기: 새 그림체 머리 (G.Head2). 사람 모양 몬스터(oldHead) · 가면은 옛 머리
-    const H2 = G.Head2 && !o.oldHead && !o.mask ? G.Head2 : null;
+    const H2 = G.Head2 && !o.oldHead && !lk.oldHead && !o.mask ? G.Head2 : null;
     if (H2) H2.back(ctx, lk, !!g.hat);
     const sw = o.moving && !o.air ? Math.sin(t * 14) * 0.55 : (o.air ? 0.45 : 0);
 
