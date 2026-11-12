@@ -32,7 +32,8 @@
     const look = typeof LOOK[who] === 'function' ? LOOK[who]() : LOOK[who];
     G.Draw.humanoid(c, Object.assign({ x, y, dir, t: 1, look, atk: -1, scale: s }, extra));
   };
-  const ghost = (c, x, y, s = 1, a = 0.55) => { c.save(); c.globalAlpha = a; person(c, 'echo', x, y, s, 1); c.restore(); glow(c, x, y - 30 * s, 24 * s, '#9ad8ff', 0.35); };
+  // 1번 꾸미기: 영웅의 잔영 얼굴 (기본 A 슬픔 · 봉인 장면 C 원망 · 잠드는 영웅들 B 감은 눈)
+  const ghost = (c, x, y, s = 1, a = 0.55, eye = 'sorrow_a') => { c.save(); c.globalAlpha = a; G.Draw.humanoid(c, { x, y, dir: 1, t: 1, atk: -1, scale: s, look: Object.assign(LOOK.echo(), { eye2: eye }) }); c.restore(); glow(c, x, y - 30 * s, 24 * s, '#9ad8ff', 0.35); };
   const nox = (c, x, y, s, ph, bg) => { c.save(); c.translate(x, y); c.scale(s, s); G.NoxArt.mix(c, 1.8, ph, bg || '#141432'); c.restore(); };
   const lighthouse = (c, x, y, s, lit) => { c.save(); c.translate(x, y); c.scale(s, s);
     poly(c, '#d8d0c0', [[-10, 0], [10, 0], [6, -60], [-6, -60]], '#6a6050', 1); for (const k of [-15, -35]) poly(c, '#b04a3a', [[-9 + k / -60 * -4, k], [9 - k / -60 * -4, k], [8, k - 8], [-8, k - 8]]);
@@ -73,7 +74,7 @@
         ground(c, 228, '#141830', '#2a3050');
         nox(c, 240, 228, 0.55, 0);
         shards(c, 240, 140, 70, 0.3);
-        [50, 100, 150, 196, 290, 340, 390, 440].slice(0, 3).concat([290, 340, 390, 440]).forEach(x => ghost(c, x, 228, 0.9, 0.7));
+        [50, 100, 150, 196, 290, 340, 390, 440].slice(0, 3).concat([290, 340, 390, 440]).forEach(x => ghost(c, x, 228, 0.9, 0.7, 'sorrow_c'));
       }],
       ['여덟 번째 별', '그러나 봉인은 완전하지 않았다. 영웅들은 마지막 열쇠를 남겼다. 사람의 모습을 한 별, 여덟 번째 별을.', c => {
         sky(c, '#0a1030', '#22305a', 70, 4);
@@ -160,7 +161,7 @@
       }],
       ['잠드는 영웅들', '일곱 영웅의 잔영은 그제야 고개를 숙이고, 편히 잠들었다. "고맙다, 여덟 번째 별이여."', c => {
         sky(c, '#141a3a', '#2a3460', 40, 15); ground(c, 226, '#18203a', '#2e3a64');
-        for (let i = 0; i < 7; i++) { const x = 70 + i * 57; ghost(c, x, 226, 1.0, 0.45 - Math.abs(i - 3) * 0.04); for (let k = 0; k < 4; k++) ell(c, x + sin(i + k) * 8, 150 - k * 22, 1.5, 1.5, 'rgba(200,230,255,.6)'); }
+        for (let i = 0; i < 7; i++) { const x = 70 + i * 57; ghost(c, x, 226, 1.0, 0.45 - Math.abs(i - 3) * 0.04, 'sorrow_b'); for (let k = 0; k < 4; k++) ell(c, x + sin(i + k) * 8, 150 - k * 22, 1.5, 1.5, 'rgba(200,230,255,.6)'); }
       }],
       ['등대와 등불', '바닷가의 등대에 불이 켜지고, 그 곁 밤하늘에는 녹스의 등불이 나란히 빛났다. 어둠 속에서 길을 잃지 않도록.', c => {
         sky(c, '#0c1430', '#24305a', 60, 16); sea(c, 200);
