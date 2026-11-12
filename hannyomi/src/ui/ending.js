@@ -53,7 +53,9 @@ G.Ending = {
           <span class="cr-title">과금없이 즐기는 연희의 RPG 대모험</span><br>기획 · 개발 : HC<br>플레이해 주셔서 감사합니다!<br><br>
           ${G.Hidden.creditNote(kind)}
           ${kind !== 'hidden' && !G.Hidden.ready() ? '' : `<button class="btn gold" data-act="title" data-arg="closehelp">계속 플레이</button>`}
+          <button class="btn gold" data-act="hidden" data-arg="redo">↩ 다른 선택 다시 하기</button>
           <button class="btn" data-act="menu" data-arg="title">타이틀로</button>
+          <div class="redo-note">↩ 다른 선택 다시 하기: 캐릭터 · 장비 · 레벨 그대로, 녹스를 쓰러뜨린 뒤 선택의 순간으로 (녹스게이트의 엘마에게서도 언제든)</div>
         </div>
       </div></div>`);
   },
