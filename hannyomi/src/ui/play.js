@@ -98,7 +98,7 @@ G.Play = {
       <div class="dim">${boss ? '한 마리에게 센 기술' : '여러 마리를 한 번에 치는 기술'} · 계속 쓰는 기술 1개 + 재사용마다 더 들어가는 피해가 큰 순</div>
       <div class="rec-h">지금</div>${row([0, 1, 2, 3, 4, 5].map(i => d.hot[i] || null))}
       <div class="rec-h">바뀐 뒤</div>${row(hot)}
-      <div class="dim" style="font-size:11.5px;line-height:1.5">${hot[5] && G.SKILLS[hot[5]].type === 'buff' ? '· 6번 칸은 각성 버프 (재사용이 짧아 칸에 둠)<br>' : ''}${buffs.length ? `· 칸에 없는 버프(${buffs.join(' · ')})는 <b>자동 사냥 · 자동 보스 중에 꺼지면 저절로 켜요</b>. 직접 할 때는 스킬 창에서 눌러 켜요` : ''}</div>
+      <div class="dim" style="font-size:11.5px;line-height:1.5">${hot[5] && G.SKILLS[hot[5]].type === 'buff' ? '· 6번 칸은 각성 버프 (재사용이 짧아 칸에 둠)<br>' : ''}${buffs.length ? (this.on && this.on() ? `· 칸에 없는 버프(${buffs.join(' · ')})는 <b>자동 사냥 · 자동 보스 중에 꺼지면 저절로 켜요</b>. 직접 할 때는 스킬 창에서 눌러 켜요` : `· 칸에 없는 버프(${buffs.join(' · ')})는 스킬 창에서 눌러 켜요`) : ''}</div>
       <div class="end">${same ? '<span class="dim" style="margin-right:8px">지금 배치와 같아요</span>' : ''}<button class="btn" data-act="ask" data-arg="no">취소</button> <button class="btn gold" data-act="ask" data-arg="c0" ${same ? 'disabled' : ''}>이대로 바꾸기</button></div>`,
       [() => { d.hot = hot.slice(); G.UI.log(`${boss ? '👑 보스' : '⚔ 사냥'} 추천 배치로 스킬 칸을 바꿨어요.`, '#ffe08a'); G.UI.dirty(); if (G.UI.isOpen('skill')) G.UI.renderWin('skill'); }], 'jobp');
   },

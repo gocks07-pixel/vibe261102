@@ -329,6 +329,7 @@ G.Mobile = {
       const v = Math.round(top) + 'px';
       if (v !== this.trkTop) { this.trkTop = v; G.UI.root.style.setProperty('--trk', v); }
     }
+    G.F.GDASH_HOLD = G.Touch.active();   // 3번 결정 (나): 누르고 있으면 계속 대쉬는 휴대폰 터치일 때만
     // 빌드 3 (17): 닫을 것이 있을 때만 ⟵ 뒤로
     if (this.backEl) { const show = inGame && (anyWin || busy); if (this.backEl.hidden === show) this.backEl.hidden = !show; }
     // 위쪽 창 버튼: 열린 창 표시

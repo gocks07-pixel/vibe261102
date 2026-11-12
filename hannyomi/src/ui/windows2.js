@@ -14,7 +14,8 @@
       // 빌드 1 (8번): 각성별 기술 포인트 · 지금 탭 각성의 마스터 진행
       const tt = G.SP.tierOf(this.tab), tl = tt ? G.SP.left(d, tt) : 0, [mc, mn] = tt ? G.SP.masterCount(d, tt) : [0, 0];
       const pools = chain.filter(j => G.SP.tierOf(j) > 0).map(j => { const t = G.SP.tierOf(j); return `${G.tierName(t)} <b style="display:inline;font-size:inherit">${G.SP.left(d, t)}</b>`; }).join(' · ');
-      h += `<div class="ap-box">남은 기술 포인트 ${tt ? `(${G.tierName(tt)})` : ''}<b>${tl}</b><span class="dim" style="margin-left:auto;font-size:11px">${tt ? `마스터 ${mc}/${mn} · ` : ''}${pools}</span></div>`;
+      h += `<div class="ap-box">남은 기술 포인트 ${tt ? `(${G.tierName(tt)})` : ''}<b>${tl}</b></div>`;   // 개선: 각성별 포인트는 아랫줄 (PC 창 폭에서 겹쳐 보였음)
+      h += `<div class="sp-pools">${tt ? `마스터 ${mc}/${mn} · ` : ''}${pools}</div>`;
       h += '<div class="rec-btns"><button class="btn gold sm" data-act="rec" data-arg="hunt">⚔ 사냥 추천 배치</button><button class="btn gold sm" data-act="rec" data-arg="boss">👑 보스 추천 배치</button></div>';   // 빌드 4 (13)
       h += '<div class="dim" style="font-size:11px;margin:-4px 0 6px">각성마다 받는 기술 포인트는 그 각성 스킬에만 쓸 수 있어요. 모두 마스터해야 다음 각성을 할 수 있어요.</div>';
       for (const sk of G.skillsOfJob(this.tab)) {
