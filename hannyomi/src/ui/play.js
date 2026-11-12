@@ -329,6 +329,8 @@ G.Play = {
       return { lo: z - r, hi: z + r, ground: true, kind: 'doom' };
     }
     if (w.zone) { const lim = Math.max(40, (w.zone.safe || 300) - 50); return { lo: cx - lim, hi: cx + lim, ground: false, kind: 'zone' }; }
+    // 빌드 1 (4-2): 끌어당기는 사슬(pull) 중에는 보스에게서 멀리 (보스 가까이 160 안에서만 피해)
+    if (w.pull && w.pull.src && !w.pull.src.dead) { const bx = w.pull.src.x; return bx < cx ? { lo: Math.min(W - 80, bx + 240), hi: W - 60, ground: false, kind: 'pull' } : { lo: 60, hi: Math.max(80, bx - 240), ground: false, kind: 'pull' }; }
     if (w.half) return w.half.side < 0 ? { lo: cx + 50, hi: W - 60, ground: false, kind: 'half' } : { lo: 60, hi: cx - 50, ground: false, kind: 'half' };
     return null;
   },
