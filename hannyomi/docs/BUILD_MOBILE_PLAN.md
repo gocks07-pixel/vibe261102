@@ -1387,3 +1387,5 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - **결정 (2026-11-12)**: 이름 "꾸밈 장인 하리" 그대로 · **여자** · **마을마다 1명** (새싹항 · 바람결 마을 · 엘렌하임 · 라그하르트 · 사하린 · 프로스트벨 · 아에로스 · 녹스게이트, 같은 하리) · **무료**
 - 하리 모습 시안 (`31a_hari_wind` · `31b_hari_sahrin_town`): 웨이브 분홍 머리 · 꽃 장식 · 화사한 웃음 눈 · 분홍 옷. 새 NPC id `hari` (npcs.js + npc_look2.js), 마을 맵 npc 목록에 빈자리로 추가
 - 구현 파일: `src/data/npcs.js` · `npc_look2.js` · 마을 맵(world.js · world2.js) · `src/ui/dialog.js`(메뉴) · `src/ui/creator.js`(바꾸기 모드). G.Play · G.Mobile · G.Touch 안 씀 (PC · EXE 같이)
+- **구현 (2026-11-12)**: 새 파일 `src/data/npc_hari.js` (index.html 에 npc_look2.js 다음) — `G.NPCS.hari`(restyle) + 마을 8곳 NPC 목록에 가장 넓은 빈자리로. `dialog.js` [💇 외모 바꾸기], `creator.js openRestyle · closeRestyle` (같은 화면 · 이름 칸 대신 안내 · 헤어 색 + 7 · 투톤 칸 · [처음 모습으로] [취소] [이대로 바꾸기] · 미리보기는 지금 장비 그대로, 모자만 빼고)
+- 확인: 휴대폰 · PC — 8마을 하리 자리 (다른 NPC 와 150px 넘게 · 포탈과 230px 넘게), 대화 메뉴, 바꾸기 → 처음 모습으로 · 취소(그대로) · 이대로 바꾸기(투톤 머리 · 여자 적용, 저장), 오류 0, 완주(궁수 a) 통과
