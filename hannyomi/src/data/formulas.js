@@ -2,6 +2,7 @@
 // 밸런스 공식. 숫자를 바꾸면 게임 전체 밸런스가 바뀐다.
 G.F = {
   MAX_LEVEL: 100,
+  BOSS_POT_GAP: 3,          // 빌드 1 (2-1): 보스 방에서 HP · MP 물약은 종류마다 3초에 한 번 (사냥터는 자동 물약 1초 그대로)
   QUEST_EXP_SCALE: 0.9,   // 퀘스트 보상 = 해당 레벨 필요 EXP × 비율 × 이 값
   AP_PER_LEVEL: 4,          // 1.6.1: 레벨당 능력 포인트 (직접 배분)
   AUTO_STAT: 1,             // 1.6.1: 각성 후 레벨당 직업 주스탯 자동 성장
@@ -49,7 +50,7 @@ G.F = {
   // 몬스터 레벨이 더 높으면 1레벨당 데미지 5% 감소
   dmgPenalty(pl, ml) { const d = ml - pl; return d > 0 ? Math.max(0.1, 1 - 0.05 * d) : 1; },
   // 레벨업 SP (1.5): Lv.10~29 3, 30~59 5, 60~ 6  → Lv.100까지 456 (스킬 전부 마스터 440)
-  spFor(L) { return L >= 60 ? 6 : L >= 30 ? 5 : L >= 10 ? 3 : 0; },
+  spFor(L) { return L >= 85 ? 6 : L >= 30 ? 4 : L >= 10 ? 5 : 0; },   // 빌드 1 (8번): 레벨업 표시용. 실제 SP 는 G.SP (각성 구간별, 각성 Ⅲ +20 · Ⅳ +4)
   spForOld(L) { return L >= 60 ? 5 : L >= 30 ? 4 : L >= 10 ? 3 : 0; },   // 1.4까지 (옛 세이브 보정용)
   gold(L) { return G.U.randi(Math.round(L * 2 + 3), Math.round(L * 4 + 8)); },
   deathExpLoss: 0.03,

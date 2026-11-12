@@ -12,6 +12,7 @@ G.Quest = {
     if (p.d.level < q.lv) return false;
     if (!q.pre.every(id => this.isDone(id))) return false;
     if (q.cond && !q.cond(p)) return false;
+    if (G.SP.blockedBy(p, q)) return false;   // 빌드 1 (8번): 지금 각성 스킬을 다 마스터해야 다음 각성
     return true;
   },
   // 레벨만 부족한 퀘스트 (퀘스트창 "곧 가능" 표시용)

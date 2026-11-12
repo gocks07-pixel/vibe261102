@@ -98,6 +98,9 @@ G.HUD = {
         const lv = id ? d.skills[id] || 0 : 0;
         el.classList.toggle('nomp', !!sk && (lv <= 0 || (sk.mp && p.mp < sk.mp(lv))));
       }
+      // 빌드 1: 보스 방 물약 재사용 대기
+      ['hp', 'mp'].forEach((k, j) => { const el = this.slotEls[7 + j]; if (!el) return; const cd = el.querySelector('.cd'), cdt = el.querySelector('.cdt'), left = p.potCd ? p.potCd[k] : 0;
+        if (cd) { cd.style.height = left > 0 ? (left / G.F.BOSS_POT_GAP * 100) + '%' : '0'; cdt.textContent = left > 0 ? Math.ceil(left) : ''; } });
     }
     // 버프 · 나쁜 효과 (0.1초마다)
     this.bt = (this.bt || 0) + 1;

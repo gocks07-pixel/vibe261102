@@ -259,7 +259,14 @@ G.BossAI = class {
           if (guard) { this.guarding = true; m.guard = 1; }
           if (pt.fly) m.soar = true;
           c.pillars = [];
-          for (let i = 0; i < n; i++) c.pillars.push(w.spawnMinion(pt.mon || 'void_pillar', w.map.width * (0.15 + 0.7 * i / Math.max(1, n - 1))));
+          // 빌드 1 (7번): near [가까운, 먼] 이면 캐릭터 양옆 그 거리 안에 (맵 밖이면 안쪽으로)
+          const near = pt.near, W = w.map.width, at = i => {
+            if (!near) return W * (0.15 + 0.7 * i / Math.max(1, n - 1));
+            const sg = i % 2 ? 1 : -1, d = near[0] + (near[1] - near[0]) * (i / Math.max(1, n - 1));
+            let x = p.x + sg * d; if (x < 80 || x > W - 80) x = p.x - sg * d;
+            return Math.max(80, Math.min(W - 80, x));
+          };
+          for (let i = 0; i < n; i++) c.pillars.push(w.spawnMinion(pt.mon || 'void_pillar', at(i)));
         }
         // 1.7.2: 녹스 3단계 — 하늘이 갈라지며 아우렐리온의 별빛 숨결이 기둥 하나를 부순다
         // 2.0: 날아와 기둥 위에 멈춰 브레스를 직접 쏘고 퇴장 (컷인 + 등장, 기둥은 1.45초 뒤 부서짐)
