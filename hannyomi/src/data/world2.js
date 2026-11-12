@@ -118,7 +118,7 @@
   M('kaien_clone', '카이엔의 분신', 75, 'kaien', '#2a2a4a', '#14141e', 42, 70, 130, { kind: 'minion', aggressive: true, noLoot: true, hpMul: 0.4, clone: true });
   M('corrupt_shard', '타락한 별조각', 90, 'pillar', '#c03050', '#5a1020', 50, 110, 0, { kind: 'minion', harmless: true, noLoot: true, noKb: true, chainPillar: true, hpMul: 0.3 });
   // 보스
-  const drops = (n, s30, pool, weapons, pity) => [{ scrolls: n, s30 }, { pool, ch: 0.7 }, { pool: weapons, ch: 0.5, pity }, { id: 'cube', ch: 0.5 }, { goldBag: 8, ch: 0.6 }];
+  const drops = (n, s30, pool, weapons, pity) => [{ scrolls: n, s30 }, { pool, ch: 0.7 }, { pool: weapons, ch: 0.5, pity }, { goldBag: 8, ch: 0.6 }];
   const wp = lv => Object.keys(WEAP).map(f => `wp${lv}_${f}`);
   M('morwen', '오염된 숲의 정령 모르웬', 30, 'spirit', '#5a8a3a', '#2a4a1a', 150, 170, 40, { kind: 'boss', ai: 'morwen',
     bossDrops: drops(5, 22, ['elen_hat', 'elen_top', 'elen_bottom', 'elen_shoes', 'elen_gloves'], wp(30)) });
@@ -209,7 +209,7 @@
 
   // ======================= NPC =======================
   const N = (id, name, title, look, o = {}) => { G.NPCS[id] = Object.assign({ name, title, look, greet: o.greet || ['...'] }, o); };
-  const potShop = (tier, candy) => ['pot_red', 'pot_orange', 'pot_white', 'pot_hp4', 'pot_hp5'].slice(0, 3 + tier).concat(['pot_blue', 'pot_elixir', 'pot_mp3', 'pot_mp4'].slice(0, 2 + tier), candy ? ['pot_candy'] : [], ['scroll_town', 'scroll_tele', 'scroll_100', 'flame', 'cube']);   // EXE 빌드: 라그하르트부터 별사탕
+  const potShop = (tier, candy) => ['pot_red', 'pot_orange', 'pot_white', 'pot_hp4', 'pot_hp5'].slice(0, 3 + tier).concat(['pot_blue', 'pot_elixir', 'pot_mp3', 'pot_mp4'].slice(0, 2 + tier), candy ? ['pot_candy'] : [], ['scroll_town', 'scroll_tele', 'scroll_100', 'flame']);   // EXE 빌드: 라그하르트부터 별사탕
   const eqShop = lvs => {
     const out = [];
     for (const lv of lvs) {

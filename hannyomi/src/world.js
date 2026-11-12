@@ -96,7 +96,6 @@ G.World = class {
     const pot = lv < 15 ? 'pot_orange' : lv < 40 ? 'pot_white' : lv < 70 ? 'pot_hp4' : 'pot_hp5';
     const out = [{ gold: lv * 40 }, { item: { tid: pot, qty: 5 } }];
     if (Math.random() < 0.3) out.push({ item: { tid: G.U.weighted(G.SCROLL_DROP.weights), qty: 1 } });
-    if (Math.random() < 0.18) out.push({ item: { tid: 'cube', qty: 1 } });   // 1.6.1: 불꽃석 대신 공명석
     if (Math.random() < 0.2) out.push({ item: { tid: 'scroll_tele', qty: 1 } });
     out.forEach((pl, i) => this.drops.push(new G.Drop(ch.x + (i - 1) * 26, y - 30, pl)));
     G.FX.pillar(ch.x, y, '#ffe680'); G.FX.stars(ch.x, y - 30, 12);
@@ -239,6 +238,7 @@ G.World = class {
       dr.dead = true;
       const g = pl.item.grade || 0;
       G.UI.log(`${t.name}${qty > 1 ? ' ×' + qty : ''} 획득${g ? ` (${G.GRADES[g].name})` : ''}`, g ? G.GRADES[g].color : '#dfe5f7');
+      if (t.quest && G.Clue) G.Clue.onPickup(pl.item.tid);   // 이야기 단서: 처음 주우면 설명 창
     }
     G.Audio.play('pickup'); G.UI.dirty();
   }

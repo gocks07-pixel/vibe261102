@@ -103,7 +103,8 @@ G.Game = {
     this.keys();
     if (this.world) {
       // 타격 순간 아주 잠깐 멈칫 (히트스톱)
-      if (this.hitstop > 0) { this.hitstop -= dt; this.world.update(dt * 0.08); }
+      if (G.UI.holdWorld) { /* 단서 설명 창이 떠 있는 동안 세계 멈춤 (G.Clue) */ }
+      else if (this.hitstop > 0) { this.hitstop -= dt; this.world.update(dt * 0.08); }
       else this.world.update(dt);
       G.Nav.update(dt);
       G.Tutorial.update();

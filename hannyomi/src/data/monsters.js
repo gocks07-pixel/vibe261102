@@ -34,7 +34,7 @@ G.MONSTERS = {
               bossDrops: [{ scrolls: 3, s30: 15 }, { id: 'relic_earring', ch: 1 }, { goldBag: 8, ch: 0.5 }, { id: 'pot_orange', ch: 1, qty: 10 },
                           { pool: ['sword_iron', 'bow_hunter', 'wand_novice', 'dagger_twin', 'sprout_hat', 'sprout_top', 'sprout_bottom', 'sprout_shoes'], ch: 0.6 }] },
   bark: { name: '붉은손 바르크', lv: 20, kind: 'boss', shape: 'bandit', big: true, color: '#b03030', color2: '#5a1a1a', w: 70, h: 112, speed: 80, ai: 'bark',
-          bossDrops: [{ scrolls: 4, s30: 20 }, { id: 'relic_ring', ch: 1 }, { id: 'relic_belt', ch: 0.6 }, { id: 'cube', ch: 0.3 }, { id: 'pot_white', ch: 1, qty: 10 },
+          bossDrops: [{ scrolls: 4, s30: 20 }, { id: 'relic_ring', ch: 1 }, { id: 'relic_belt', ch: 0.6 }, { id: 'pot_white', ch: 1, qty: 10 },
                       { pool: ['elen_hat', 'elen_top', 'elen_bottom', 'elen_shoes', 'elen_gloves'], ch: 0.4 },
                       { pool: ['sword_red', 'bow_red', 'wand_red', 'dagger_red'], ch: 0.5 }] },
 };

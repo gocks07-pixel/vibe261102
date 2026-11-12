@@ -40,7 +40,7 @@ G.NPCS = {
   gren:   { name: '그렌', title: '풍차지기', look: { hair: '#a07040', top: '#c0a070', bottom: '#5a4a32', style: 'bald', beard: true },
             greet: ['풍차가 돌아야 마을이 산다네.'] },
   penny:  { name: '페니', title: '잡화상', look: { hair: '#e07040', top: '#f0c070', bottom: '#8a5a32', style: 'twin' },
-            shop: ['pot_red', 'pot_orange', 'pot_white', 'pot_blue', 'pot_elixir', 'scroll_town', 'scroll_tele', 'cube'], greet: ['어서 오세요! 뭐든 다 있어요!'] },
+            shop: ['pot_red', 'pot_orange', 'pot_white', 'pot_blue', 'pot_elixir', 'scroll_town', 'scroll_tele'], greet: ['어서 오세요! 뭐든 다 있어요!'] },
   haro:   { name: '하로', title: '장비 상인', look: { hair: '#3a3a3a', top: '#6a6a72', bottom: '#3a3a42', style: 'short' },
             shop: ['sword_iron', 'bow_hunter', 'wand_novice', 'dagger_twin', 'sword_steel', 'bow_wind', 'wand_crystal', 'dagger_shadow',
                    'sprout_hat', 'sprout_top', 'sprout_bottom', 'sprout_shoes', 'traveler_cape', 'traveler_gloves', 'silver_ring', 'wind_belt'],
