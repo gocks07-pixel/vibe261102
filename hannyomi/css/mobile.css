@@ -172,3 +172,9 @@ body.touch-on #win-shop { width: 370px !important; }
 /* 빌드 3 (19): 각성 카드는 휴대폰 배율(--mz)로 키워도 화면 안에 (1280 / mz 보다 좁게) */
 body.touch-on #askov .ask.jobp { width: calc(1220px / var(--mz, 1)); max-width: none; max-height: calc(690px / var(--mz, 1)); overflow-y: auto; }
 body.touch-on #askov .jobp .jc-l { font-size: 12px; }
+/* 빌드 4: 휴대폰에서 추천 배치 · 일괄 판매의 아래 버튼이 화면 안에 */
+body.touch-on #askov .jobp .rec-h { margin: 3px 0 0; }
+body.touch-on #askov .jobp .rec-slots { margin: 0 0 2px; }
+body.touch-on #askov .jobp .rs img, body.touch-on #askov .jobp .rs .rs-e { width: 32px; height: 32px; }
+body.touch-on #askov .jobp h3 { margin-bottom: 0; }
+body.touch-on .bulk-list { max-height: 200px; }

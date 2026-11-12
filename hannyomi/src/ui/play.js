@@ -54,6 +54,70 @@ G.Play = {
     setTimeout(() => this.jobIntro(), 1200);   // 레벨업 연출이 끝난 뒤
   },
 
+  // ================= 빌드 4 (13): 스킬 칸 추천 배치 =================
+  // 익힌 공격 스킬을 1초당 피해로 줄 세움 (자동 사냥 skillScore 와 같은 값: 피해% × 타수 × 맞는 수 × 발 수 ÷ 재사용)
+  //  사냥 = 여러 마리 (범위 · 관통 · 대상 수, 5마리까지), 보스 = 한 마리 (비 내리기는 다 맞음)
+  // 한 번 쓸 때 피해 (피해% × 타수 × 맞는 수 × 발 수)
+  recValue(sk, lv, boss) {
+    const a = sk.atk; if (!a || !a.pct) return 0;
+    let n = 1, mult = a.count || 1;
+    if (!boss) {
+      if (a.kind === 'proj' || a.kind === 'back') n = Math.min(3, a.pierce || 1);
+      else if (a.kind === 'rain') { n = 1; mult = (a.count || 1) * 0.6; }
+      else n = Math.min(5, a.targets || 1);
+    }
+    return a.pct(lv) / 100 * (a.hits || 1) * n * mult;
+  },
+  //  1) 재사용 1초 안 기술 중 한 번 피해가 가장 센 것 = 기본으로 계속 쓰는 기술
+  //  2) 나머지는 "기본 기술 대신 썼을 때 더 들어가는 피해 ÷ 재사용" 순 (궁극기처럼 재사용이 길어도 세면 들어감)
+  recommend(boss) {
+    const p = G.Game.player, d = p.d, T = 0.8;
+    const learned = G.jobChain(d.job).flatMap(j => G.skillsOfJob(j)).filter(sk => (d.skills[sk.id] || 0) > 0);
+    const atk = learned.filter(sk => sk.type === 'attack').map(sk => ({ sk, v: this.recValue(sk, d.skills[sk.id], boss), cd: sk.cd || 0 }));
+    const awake = learned.filter(sk => sk.type === 'buff' && (sk.cd || 0) >= 30).pop();   // 각성 버프 (재사용 60초)
+    const nAtk = awake ? 5 : 6;
+    const fill = atk.filter(x => x.cd <= 1).sort((a, b) => b.v - a.v)[0];
+    const fv = fill ? fill.v : 0;
+    const rest = atk.filter(x => x !== fill).map(x => Object.assign(x, { s: (x.v - fv) / Math.max(T, x.cd) })).sort((a, b) => b.s - a.s || b.v - a.v);
+    const pick = (fill ? [fill] : []).concat(rest).slice(0, nAtk).map(x => x.sk);
+    // 칸 순서: 한 번 피해가 센 순 (기본 기술은 맨 뒤)
+    pick.sort((a, b) => (a === (fill && fill.sk)) - (b === (fill && fill.sk)) || this.recValue(b, d.skills[b.id], boss) - this.recValue(a, d.skills[a.id], boss));
+    if (awake) pick.push(awake);
+    const hot = pick.map(sk => sk.id);
+    while (hot.length < 6) hot.push(null);
+    return hot;
+  },
+  recPreview(kind) {
+    const p = G.Game.player; if (!p) return;
+    const d = p.d, boss = kind === 'boss', hot = this.recommend(boss), esc = G.U.esc;
+    const row = ids => '<div class="rec-slots">' + ids.map((id, i) => { const sk = id && G.SKILLS[id];
+      return `<div class="rs">${sk ? `<img src="${G.Icons.skill(sk)}">` : '<span class="rs-e"></span>'}<div>${i + 1}. ${sk ? esc(sk.name) : '(빈 칸)'}</div></div>`; }).join('') + '</div>';
+    const same = hot.every((id, i) => (d.hot[i] || null) === id);
+    const buffs = G.jobChain(d.job).flatMap(j => G.skillsOfJob(j)).filter(sk => sk.type === 'buff' && (d.skills[sk.id] || 0) > 0 && !hot.includes(sk.id)).map(sk => esc(sk.name));
+    G.UI.panel(`<h3>${boss ? '👑 보스 추천 배치' : '⚔ 사냥 추천 배치'}</h3>
+      <div class="dim">${boss ? '한 마리에게 센 기술' : '여러 마리를 한 번에 치는 기술'} · 계속 쓰는 기술 1개 + 재사용마다 더 들어가는 피해가 큰 순</div>
+      <div class="rec-h">지금</div>${row([0, 1, 2, 3, 4, 5].map(i => d.hot[i] || null))}
+      <div class="rec-h">바뀐 뒤</div>${row(hot)}
+      <div class="dim" style="font-size:11.5px;line-height:1.5">${hot[5] && G.SKILLS[hot[5]].type === 'buff' ? '· 6번 칸은 각성 버프 (재사용이 짧아 칸에 둠)<br>' : ''}${buffs.length ? `· 칸에 없는 버프(${buffs.join(' · ')})는 <b>자동 사냥 · 자동 보스 중에 꺼지면 저절로 켜요</b>. 직접 할 때는 스킬 창에서 눌러 켜요` : ''}</div>
+      <div class="end">${same ? '<span class="dim" style="margin-right:8px">지금 배치와 같아요</span>' : ''}<button class="btn" data-act="ask" data-arg="no">취소</button> <button class="btn gold" data-act="ask" data-arg="c0" ${same ? 'disabled' : ''}>이대로 바꾸기</button></div>`,
+      [() => { d.hot = hot.slice(); G.UI.log(`${boss ? '👑 보스' : '⚔ 사냥'} 추천 배치로 스킬 칸을 바꿨어요.`, '#ffe08a'); G.UI.dirty(); if (G.UI.isOpen('skill')) G.UI.renderWin('skill'); }], 'jobp');
+  },
+  // 자동 사냥 · 자동 보스 중: 칸에 없는 버프도 꺼지면 켬 (빌드 4 · 13)
+  autoBuff(p, ready) {
+    if (!ready) return false;
+    const d = p.d, bt = (this.buffTry || (this.buffTry = {}));
+    for (const j of G.jobChain(d.job)) for (const sk of G.skillsOfJob(j)) {
+      const id = sk.id, lv = d.skills[id] || 0;
+      if (sk.type !== 'buff' || lv <= 0 || d.hot.includes(id) || p.buffs[id] || p.cd[id] > 0) continue;
+      if (bt[id] && this.gt - bt[id] < 30) continue;   // 켜지지 않는 버프는 30초 쉼
+      const mp = sk.mp ? sk.mp(lv) : 0; if (mp && p.mp < mp) continue;
+      bt[id] = this.gt; this.skT = this.gt; this.lastSkill = id;
+      p.buf = { what: id, left: 0.35 };
+      return true;
+    }
+    return false;
+  },
+
   // ================= ② 스탯 안내 =================
   statBox() {
     const p = G.Game.player, d = p.d, J = G.JOBS[d.job], N = G.STAT_NAMES;
@@ -516,6 +580,7 @@ G.Play = {
     if (!(p.silence > 0)) {
       const list = this.targets(p, w), boss = list.some(m => m.isBoss && Math.abs(m.x - p.x) < 600);
       const lowMp = p.mp < p.st.maxMP * 0.3;
+      if (this.autoBuff(p, ready)) return;   // 빌드 4 (13): 칸 밖 버프
       let best = null, bestS = 1.0001;   // 기본 공격 = 100% × 1마리
       for (let i = 0; i < 6; i++) {
         const id = d.hot[i], sk = id && G.SKILLS[id], lv = id ? d.skills[id] || 0 : 0;

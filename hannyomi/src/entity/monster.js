@@ -7,6 +7,7 @@ G.Monster = class {
     const st = G.F.monsterStats(d.lv, d.kind);
     this.id = id; this.lv = d.lv;
     let hp = d.fixedHp || st.hp * (d.hpMul || 1);
+    if (d.flying && d.kind === 'normal' && !d.fixedHp) hp *= G.F.FLY_HP;   // 빌드 4 (18): 보통 나는 몬스터 체력 (원거리로도 잡기 쉽게)
     this.maxHp = this.hp = Math.round(hp); this.atk = st.atk; this.exp = st.exp; this.defense = st.def;
     this.w = d.w; this.h = d.h; this.plat = plat; this.y = plat.y; this.slot = slot;
     this.minX = plat.x + this.w / 2 + 4; this.maxX = plat.x + plat.w - this.w / 2 - 4;
@@ -14,7 +15,7 @@ G.Monster = class {
     this.x = G.U.clamp(x, this.minX, this.maxX);
     this.isBoss = d.kind === 'boss' || d.kind === 'final';
     this.flying = !!d.flying;
-    if (this.flying) { this.baseY = plat.y - 110; this.y = this.baseY; }
+    if (this.flying) { this.baseY = plat.y - (d.kind === 'normal' ? G.F.FLY_H : 110); this.y = this.baseY; }   // 빌드 4 (18): 보통 나는 몬스터는 낮게 (전 110)
     this.dir = Math.random() < 0.5 ? -1 : 1;
     this.moving = false; this.tm = G.U.rand(0.5, 2.5); this.aggro = 0;
     this.hurtT = 0; this.dead = false; this.deadT = 0; this.kb = 0; this.t = Math.random() * 10;

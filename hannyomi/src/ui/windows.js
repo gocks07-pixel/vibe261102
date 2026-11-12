@@ -84,13 +84,65 @@ G.Win = {};
       let h = '<div class="tabs">' + Object.keys(G.Inv.TABS).map(t => `<span class="t ${this.tab === t ? 'on' : ''}" data-act="tab" data-arg="inv:${t}">${G.Inv.TABS[t]}</span>`).join('') + '</div>';
       if (tgt) h += `<div class="tgtline">✨ <b>${tgt.kind === 'smith' ? '장비 단련' : esc(G.ITEMS[tgt.tid].name)}</b>: 대상 장비를 고르세요${tgt.kind === 'smith' ? ' <span class="dim">(비용: 장비 레벨 × 60 + 500 G)</span>' : ''} <button class="btn" data-act="tgtcancel">취소</button></div>`;   // 빌드 3 (11): 고르는 중 띠 + [취소]
       if (G.UI.storageOpen) h += `<div style="color:#9ad8ff;font-size:12px;margin-bottom:6px">창고 이용 중: 더블클릭하면 창고에 맡깁니다.</div>`;
-      else if (G.UI.shopNpc) h += `<div style="color:#ffd54a;font-size:12px;margin-bottom:6px">상점 이용 중: 더블클릭하면 판매합니다.</div>`;
+      else if (G.UI.shopNpc) {   // 빌드 4 (14): 두 번 누르면 판매 + 여러 개 골라 한 번에 + 장비 일괄 판매
+        const ms = G.UI.msel, sum = ms ? G.UI.mselTotal() : null;
+        h += `<div style="color:#ffd54a;font-size:12px;margin-bottom:6px">상점 이용 중: ${ms ? '눌러서 고른 뒤 [선택 판매]' : '두 번 누르면 판매합니다.'}</div>`;
+        h += `<div class="sellbar"><button class="btn sm ${ms ? 'gold' : ''}" data-act="msel" data-arg="toggle">☑ 여러 개 고르기: ${ms ? '켬' : '끔'}</button>`
+          + (ms ? `<span class="sb-n">${sum.n}개 · <b>${fmt(sum.gold)} G</b></span><button class="btn sm gold" data-act="msel" data-arg="sell" ${sum.n ? '' : 'disabled'}>선택 판매</button>` : '<span class="sb-n"></span>')
+          + `<button class="btn sm" data-act="bulk">🧹 장비 일괄 판매</button></div>`;
+      }
       h += '<div class="grid">';
+      const ms = G.UI.shopNpc && G.UI.msel;
       d.inv[this.tab].forEach((it, i) => {
-        const attrs = `data-tip="inv:${this.tab}:${i}" data-dbl="inv:${this.tab}:${i}"` + (this.tab === 'equip' && it ? ` data-tgt="inv:${i}"` : '');
-        h += cell(it, attrs).replace('class="cell"', `class="cell${tgt && this.tab === 'equip' && it ? ' target' : ''}"`);
+        const attrs = ms ? (it ? `data-act="msel" data-arg="${this.tab}:${i}"` : '') : `data-tip="inv:${this.tab}:${i}" data-dbl="inv:${this.tab}:${i}"` + (this.tab === 'equip' && it ? ` data-tgt="inv:${i}"` : '');
+        const on = ms && it && ms.has(it);
+        h += cell(it, attrs).replace('class="cell"', `class="cell${tgt && this.tab === 'equip' && it ? ' target' : ''}${on ? ' msel-on' : ''}"`).replace(/<\/div>$/, on ? '<span class="msel-ck">✓</span></div>' : '</div>');
       });
       h += `</div><div class="row" style="margin-top:8px"><span style="color:#ffd54a;font-weight:700">💰 ${fmt(d.gold)} G</span><span class="dim" style="margin-left:auto;font-size:11px">더블클릭: 착용/사용</span></div>`;
+      return h;
+    },
+  };
+
+  // ---------------- 빌드 4 (14): 장비 일괄 판매 ----------------
+  G.Win.bulk = {
+    title: '🧹 장비 일괄 판매', x: 380, y: 60, w: 520, checked: null,
+    onOpen() { this.checked = new Set(this.list().filter(r => r.on).map(r => r.it)); },
+    onClose() { this.checked = null; },
+    // 판매 후보: 다른 직업 장비 · 지금보다 약한 장비 (체크) / 세트 · 찬란 이상 · 각인 · 단련 · 내 레벨보다 높음 (처음엔 뺌)
+    list() {
+      const p = P(), d = p.d, fam = G.familyOf(d.job), PL = G.Play, out = [];
+      const base = PL.statsWith(d.eq);
+      d.inv.equip.forEach(it => {
+        if (!it) return;
+        const t = G.ITEMS[it.tid];
+        if (t.quest || t.gift || t.noSell) return;
+        let keep = null;
+        if (t.set) keep = '세트 장비';
+        else if ((it.grade || 0) >= 3) keep = `${G.GRADES[it.grade].name} 등급`;
+        else if (it.up > 0) keep = '각인한 장비';
+        else if (it.tm) keep = '단련한 장비';
+        else if (t.lv > d.level) keep = '내 레벨보다 높음';
+        const other = t.job !== 'any' && t.job !== fam;
+        let why = null;
+        if (other) why = '다른 직업 장비';
+        else if (!keep) { const s = PL.statsWith(Object.assign({}, d.eq, { [PL.slotFor(it, d.eq)]: it })); if (!PL.better(s, base)) why = '지금 낀 것보다 약함'; }
+        if (!why && !keep) return;   // 지금보다 좋은 장비는 목록에 없음
+        out.push({ it, t, why: keep ? `${why ? why + ' · ' : ''}${keep} (빠짐)` : why, on: !keep && !!why });
+      });
+      return out.sort((a, b) => (b.on - a.on));
+    },
+    render() {
+      const rows = this.list(), ck = this.checked || new Set();
+      let n = 0, gold = 0;
+      let h = '<div class="dim" style="font-size:11.5px;margin-bottom:6px">☑ 체크된 것만 팔아요. 눌러서 넣거나 뺄 수 있어요.<br>처음부터 빠지는 것: 세트 장비 · 찬란 이상 등급 · 각인 · 단련한 장비 · 내 레벨보다 높은 장비</div>';
+      if (!rows.length) h += '<div class="dim">팔 만한 장비가 없어요.</div>';
+      h += '<div class="bulk-list">';
+      for (const r of rows) {
+        const on = ck.has(r.it); if (on) { n++; gold += G.Items.sellPrice(r.it); }
+        const g = r.it.grade || 0;
+        h += `<div class="bulk-row ${on ? 'on' : ''}" data-act="bulkt" data-arg="${r.it.uid}"><span class="bk">${on ? '☑' : '☐'}</span><img src="${G.Icons.item(r.t)}"><span class="bn" style="color:${G.GRADES[g].color}">${esc(G.Items.displayName(r.it))}</span><span class="bw">${esc(r.why)}</span><span class="bp">${fmt(G.Items.sellPrice(r.it))} G</span></div>`;
+      }
+      h += `</div><div class="row" style="margin-top:8px"><span>${n}개 · <b style="color:#ffd54a">${fmt(gold)} G</b></span><span style="margin-left:auto"></span><button class="btn" data-act="close" data-arg="bulk">취소</button> <button class="btn gold" data-act="bulksell" ${n ? '' : 'disabled'}>팔기</button></div>`;
       return h;
     },
   };
@@ -134,7 +186,7 @@ G.Win = {};
   // ---------------- 상점 ----------------
   G.Win.shop = {
     title: '상점', x: 380, y: 60, w: 440,
-    onClose() { G.UI.shopNpc = null; G.UI.dirty(); },
+    onClose() { G.UI.shopNpc = null; G.UI.msel = null; if (G.UI.isOpen('bulk')) G.UI.closeWin('bulk'); if (G.UI.isOpen('inv')) G.UI.renderWin('inv'); G.UI.dirty(); },
     render() {
       const p = P(), npc = G.NPCS[G.UI.shopNpc];
       if (!npc) return '';
