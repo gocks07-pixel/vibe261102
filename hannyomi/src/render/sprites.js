@@ -354,14 +354,14 @@ G.Draw = (function () {
       humanoid(ctx, {
         x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee',
         look: { skin: '#cfe6ff', hair: '#e8f4ff', top: '#5a8ad0', bottom: '#3a5aa0', style: 'long', eye: 'sharp', eyeColor: '#bfe6ff' },
-        weapon: 'sword', wcolor: '#e8f4ff', cape: '#7ab8ff',
+        weapon: 'sword', wcolor: '#e8f4ff', cape: '#7ab8ff', oldHead: true,
       });
     },
     kaien(ctx, m, t) {
       if (m.d.clone) ctx.globalAlpha *= 0.6;
       humanoid(ctx, {
         x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee',
-        look: { skin: '#f0d8c0', hair: '#1a1a2a', top: '#2a2a4a', bottom: '#14141e', style: 'side', eye: 'sharp', eyeColor: '#c03050' },
+        look: { skin: '#f0d8c0', hair: '#1a1a2a', top: '#2a2a4a', bottom: '#14141e', style: 'side', eye: 'sharp', eyeColor: '#c03050', style2: 'dandy_n', eye2: 'intense_strong' },   // 1번 꾸미기: 카이엔 보스 · 분신은 NPC 카이엔과 같은 새 머리
         weapon: 'sword', wcolor: '#8a5aff', cape: '#5a1a3a', scale: m.h / 70,
       });
     },
@@ -369,7 +369,7 @@ G.Draw = (function () {
       humanoid(ctx, {
         x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'proj',
         look: { skin: '#e8d8d0', hair: '#c0c0d0', top: m.d.color, bottom: m.d.color2, style: 'long', beard: true, eye: 'sharp', eyeColor: '#ff3060', hat: '#2a1a4a' },
-        weapon: 'wand', wcolor: '#c040ff', cape: '#1a0a3a', scale: m.h / 66,
+        weapon: 'wand', wcolor: '#c040ff', cape: '#1a0a3a', scale: m.h / 66, oldHead: true,
       });
     },
     bandit(ctx, m, t) {

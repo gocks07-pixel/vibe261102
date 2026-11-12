@@ -25,7 +25,7 @@ G.MonArt = {};
   };
   const A = (id, die, sh, draw) => { G.MonArt[id] = { die, sh, draw }; };
   // 사람형 몬스터: 기존 사람 그리기에 전용 옷차림을 입힌다
-  const human = (m, t, look, o = {}) => Object.assign({ x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee', look }, o);
+  const human = (m, t, look, o = {}) => Object.assign({ x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee', look, oldHead: true }, o);   // 사람 모양 몬스터는 옛 머리 (1번 꾸미기)
 
   // ======================= 새싹항 섬 =======================
   // 풀잎 젤리: 말랑한 젤리 + 새싹 두 장. 움직일 때 통통 튀며 찌그러진다

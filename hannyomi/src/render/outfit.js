@@ -605,7 +605,12 @@ G.Outfit = (function () {
       case 'sailor':     return { top: 'sailor', leg: 'wide', shoe: 'shoe', skirt: 'pleat', sleeve: 'sailor', navy: lk.bottom };
       case 'traveler':   return { top: 'traveler', leg: 'pants', shoe: 'tallboot', skirt: 'plain', cape: 'travel', mantle: true };
       case 'apprentice': return { top: 'apprentice', leg: 'robe', shoe: 'shoe', robe: true, sleeve: 'apprentice', sash: '#e8c060' };
-      case 'casual':     return { top: 'casual', leg: 'shorts', shoe: 'sneaker', sleeve: 'casual', hood: true, noSkirt: true };
+      // 1번 꾸미기: casual = 초보 모험가 복장 (조끼), 새 처음 옷 4종
+      case 'casual':     return { top: 'vest', leg: 'pants', shoe: 'boot', skirt: 'plain' };
+      case 'ranger':     return { top: 'tunic', leg: 'pants', shoe: 'tallboot', skirt: 'plain' };
+      case 'scholar':    return { top: 'vest', leg: 'pants', shoe: 'shoe', skirt: 'pleat' };
+      case 'explorer':   return { top: 'tunic', leg: 'pants', shoe: 'tallboot', skirt: 'plain', mantle: true };
+      case 'squire':     return { top: 'plate', leg: 'pants', shoe: 'boot', skirt: 'plain' };
       default:           return { top: 'plain', leg: 'pants', shoe: 'shoe', skirt: 'plain' };
     }
   }
@@ -622,6 +627,9 @@ G.Outfit = (function () {
     if (o.alpha != null) ctx.globalAlpha = o.alpha;
     if (o.hurt) ctx.filter = 'brightness(1.8)';
     D.shadow(ctx, 15);
+    // 1번 꾸미기: 새 그림체 머리 (G.Head2). 사람 모양 몬스터(oldHead) · 가면은 옛 머리
+    const H2 = G.Head2 && !o.oldHead && !o.mask ? G.Head2 : null;
+    if (H2) H2.back(ctx, lk, !!g.hat);
     const sw = o.moving && !o.air ? Math.sin(t * 14) * 0.55 : (o.air ? 0.45 : 0);
 
     // 망토 (장비 망토가 우선, 여행자 복장은 기본 어깨 망토)
@@ -655,6 +663,8 @@ G.Outfit = (function () {
     if (e.mantle && !g.top && !o.cape) mantle(ctx, sh(topC, -0.3));
 
     // 머리
+    if (H2) H2.front(ctx, lk, t, !!g.hat);
+    else {
     D.hairBack(ctx, lk);
     ell(ctx, 1, -50, 13, 13, skin, sh(skin, -0.25), 1);
     D.hair(ctx, lk);
@@ -664,8 +674,10 @@ G.Outfit = (function () {
       ctx.fillStyle = o.mask; ctx.beginPath(); ctx.moveTo(-12, -54); ctx.lineTo(-20, -60); ctx.lineTo(-19, -50); ctx.closePath(); ctx.fill();
     } else D.face(ctx, lk, t);
     if (lk.beard) { ctx.fillStyle = lk.hair || '#ddd'; ctx.beginPath(); ctx.arc(4, -42, 8, 0, PI); ctx.fill(); }
+    }
     const hc = o.hatColor || lk.hat;
-    if (hc) hat(ctx, g.hat ? g.hat.k : 'plain', hc, g.hat ? g.hat.sp : {}, t);
+    if (hc && !H2) hat(ctx, g.hat ? g.hat.k : 'plain', hc, g.hat ? g.hat.sp : {}, t);
+    else if (hc && (g.hat || o.hatColor)) { ctx.save(); H2.hatSpace(ctx); hat(ctx, g.hat ? g.hat.k : 'plain', hc, g.hat ? g.hat.sp : {}, t); ctx.restore(); }   // 장비 모자는 새 머리 크기로
 
     // 팔 + 장갑 + 무기
     let arm = -0.3;
