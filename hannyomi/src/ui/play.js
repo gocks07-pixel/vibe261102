@@ -594,25 +594,57 @@ G.Play = {
 
   // ================= 2차-1.6 퀘스트 "▶ 이동" (오른쪽 퀘스트 알림, 터치 모드) =================
   //  가는 곳 = 길 안내(G.Nav.targets)와 같은 기준, 가장 가까운 곳. 보스 방이면 그 앞 맵. 확인 창 없이 바로 · 공짜 · 처음 가는 맵도 됨
+  // 빌드 2 (9-1 · 9-3): ▶ 이동 목적지 { map, portal(보스 방 포탈 id), npc(보고할 NPC) }. 이미 그 자리 가까이면 null
   questDest(q) {
-    const w = G.Game.world; if (!w || !q || !G.Quest.isActive(q.id)) return null;
+    const w = G.Game.world, p = G.Game.player; if (!w || !p || !q || !G.Quest.isActive(q.id)) return null;
     const tg = G.Nav.targets(q), maps = new Set([...(tg.maps || [])].filter(id => id && G.MAPS[id] && !G.MAPS[id].hidden));   // 2단계 보스(엘드리크)도 2.1.4 길 안내가 찾음
-    if (!maps.size || maps.has(w.mapId)) return null;
-    const r = G.Nav.route(w.mapId, maps);
-    let dest = r ? r.path[r.path.length - 1] : [...maps][0];
-    if (G.MAPS[dest].bossRoom) {   // 보스 방 바로 앞 맵 (보스 방으로 들어가는 포탈이 있는 맵)
-      const front = r && r.path.length >= 2 ? r.path[r.path.length - 2] : null;
-      dest = front && !G.MAPS[front].bossRoom ? front : Object.keys(G.MAPS).find(id => !G.MAPS[id].bossRoom && !G.MAPS[id].hidden && (G.MAPS[id].portals || []).some(pt => pt.to === dest)) || null;
+    if (!maps.size) return null;
+    const near = x => x != null && Math.abs(p.x - x) < 160;
+    if (maps.has(w.mapId)) {   // 같은 맵: 보고할 NPC 가 멀면 옆으로
+      if (!tg.npc) return null;
+      const n = w.npcs.find(n => n.id === tg.npc);
+      return n && !near(n.x) ? { map: w.mapId, npc: tg.npc } : null;
     }
-    return dest && dest !== w.mapId ? dest : null;
+    const r = G.Nav.route(w.mapId, maps);
+    let dest = r ? r.path[r.path.length - 1] : [...maps][0], portal = null;
+    if (G.MAPS[dest].bossRoom) {   // 보스 방 바로 앞 맵 (보스 방으로 들어가는 포탈이 있는 맵)
+      const boss = dest, front = r && r.path.length >= 2 ? r.path[r.path.length - 2] : null;
+      dest = front && !G.MAPS[front].bossRoom ? front : Object.keys(G.MAPS).find(id => !G.MAPS[id].bossRoom && !G.MAPS[id].hidden && (G.MAPS[id].portals || []).some(pt => pt.to === boss)) || null;
+      if (!dest) return null;
+      const po = (G.MAPS[dest].portals || []).find(pt => pt.to === boss);
+      portal = po ? po.id : null;
+      if (dest === w.mapId) { const wp = portal && w.portals.find(x => x.id === portal); return wp && !near(wp.x) ? { map: dest, portal } : null; }
+    }
+    if (!dest || dest === w.mapId) return null;
+    return { map: dest, portal, npc: tg.npc && G.Nav.npcMap(tg.npc) === dest ? tg.npc : null };
+  },
+  // 맵 안에서 x 자리(발판 번호 pi)로 옮김
+  placeAt(x, pi) {
+    const w = G.Game.world, p = G.Game.player, M = G.MAPS[w.mapId];
+    const plat = M.platforms[pi || 0] || M.platforms[0];
+    p.x = G.U.clamp(x, 40, M.width - 40); p.y = plat.y; p.plat = plat; p.onGround = true;
+    p.vx = p.vy = p.kbX = 0; p.dash = null; p.gdash = 0; p.adash = 0;
+    w.cam = G.U.clamp(p.x - 640, 0, Math.max(0, M.width - 1280));
   },
   questGo(qid) {
     const p = G.Game.player, w = G.Game.world, q = G.QUESTS[qid];
     if (!p || !w || p.dead || G.MAPS[w.mapId].bossRoom || this.paused() || G.Dialog.isOpen()) return;
-    const dest = this.questDest(q); if (!dest) return;
-    G.Game.changeMap(dest, null);
+    const d = this.questDest(q); if (!d) return;
+    if (d.map !== w.mapId) G.Game.changeMap(d.map, null);
+    const W = G.Game.world, M = G.MAPS[W.mapId];
+    let where = M.name;
+    if (d.portal) {   // 9-1: 보스 방 포탈 바로 앞 (맵 안쪽으로 70px)
+      const po = W.portals.find(x => x.id === d.portal);
+      if (po) { const side = po.x > M.width / 2 ? -1 : 1; this.placeAt(po.x + side * 70, po.p); p.dir = -side; where += ' 보스 포탈 앞'; }
+    } else if (d.npc) {   // 9-3: 보고할 NPC 바로 옆 + 대화
+      const n = W.npcs.find(x => x.id === d.npc), mn = M.npcs.find(x => x.id === d.npc);
+      if (n) {
+        const side = n.x > 120 ? -1 : 1; this.placeAt(n.x + side * 60, mn && mn.p); p.dir = -side; where = G.NPCS[d.npc].name + ' 앞';
+        if (!G.Dialog.isOpen()) G.Dialog.open(d.npc);
+      }
+    }
     if (G.Nav.qid !== qid) { G.Nav.qid = qid; G.Nav.t = 0; }
-    G.Nav.refresh(); G.UI.log(`📍 [${q.name}] ${G.MAPS[dest].name}(으)로 이동했어요.`, '#9fd8ff'); G.UI.dirty();
+    G.Nav.refresh(); G.UI.log(`📍 [${q.name}] ${where}(으)로 이동했어요.`, '#9fd8ff'); G.UI.dirty();
   },
   decorateTracker(el) {
     const w = G.Game.world; if (!el || !w || G.MAPS[w.mapId].bossRoom) return;   // 보스 방 안에서는 숨김

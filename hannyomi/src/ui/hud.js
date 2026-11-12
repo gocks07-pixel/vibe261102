@@ -156,7 +156,8 @@ G.HUD = {
       const s = p.d.quests[id];
       if (s.s !== 'active') continue;
       const q = G.QUESTS[id], ready = G.Quest.ready(q), nav = G.Nav.qid === id;
-      let h = `<div class="tq pe ${nav ? 'nav' : ''}" data-dbl="nav:${id}" title="더블클릭: 길 안내 ${nav ? '끄기' : '켜기'}"><b class="${ready ? 'ok' : q.type}">${nav ? '🧭 ' : ''}${q.type === 'main' ? '[메인]' : '[서브]'} ${G.U.esc(q.name)}</b>`;
+      if (s.h) { if (ready) delete s.h; else continue; }   // 빌드 2 (9-2): 화면에서만 숨김 (완료할 수 있게 되면 다시 보임)
+      let h = `<div class="tq pe ${nav ? 'nav' : ''}" data-dbl="nav:${id}" title="더블클릭: 길 안내 ${nav ? '끄기' : '켜기'}"><div class="tqh"><b class="${ready ? 'ok' : q.type}">${nav ? '🧭 ' : ''}${q.type === 'main' ? '[메인]' : '[서브]'} ${G.U.esc(q.name)}</b><span class="tqx" data-qx="${id}" title="숨기기 · 포기">✕</span></div>`;
       if (ready) h += `<div class="ok">완료 가능 → ${G.NPCS[q.end].name}</div>`;
       else if (!q.obj.length) h += `<div>${G.NPCS[q.end].name}에게 말을 걸자</div>`;
       else h += q.obj.map(o => `<div>${G.Quest.objText(q, o)}</div>`).join('');

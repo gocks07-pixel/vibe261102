@@ -19,7 +19,7 @@ const { chromium, devices } = require('playwright'); const fs = require('fs');
           Q.isActive = id => id === q.id || act0(id);
           Q.ready = qq => qq.id === q.id ? !!stt.ready : ready0(qq);
           Q.progress = (qq, o) => { if (qq.id !== q.id) return prog0(qq, o); const i = q.obj.indexOf(o), n = o.n || 1; return stt.ready || i < stt.i ? [n, n] : [0, n]; };
-          let dest = null, err = null; try { dest = G.Play.questDest(q); } catch (e) { err = String(e); }
+          let dest = null, err = null; try { const d = G.Play.questDest(q); dest = d && d.map; } catch (e) { err = String(e); }
           const tg = G.Nav.targets(q), maps = [...(tg.maps || [])];
           out.checked++;
           const o = stt.ready ? null : q.obj[stt.i], nx = o && Object.keys(G.MONSTERS).find(id => G.MONSTERS[id].next === o.mon), isBoss = o && o.t === 'kill' && (bossOf[o.mon] || (nx && bossOf[nx]));

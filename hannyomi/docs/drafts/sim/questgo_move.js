@@ -13,8 +13,12 @@ const r=await pg.evaluate(async(dump)=>{G.Mobile.closeModal();const d=JSON.parse
    G.Game.changeMap('sprout_port',null); step(5);
    Q.isActive=id=>id===q.id||act0(id); Q.ready=qq=>qq.id===q.id?!!stt.ready:ready0(qq);
    Q.progress=(qq,o)=>{if(qq.id!==q.id)return prog0(qq,o);const i=q.obj.indexOf(o),n=o.n||1;return stt.ready||i<stt.i?[n,n]:[0,n];};
-   const dest=G.Play.questDest(q); if(!dest) continue;
-   p.dead=false; p.hp=p.st.maxHP; G.Play.questGo(q.id); step(180);   // 3초
+   const D=G.Play.questDest(q); if(!D) continue; const dest=D.map;
+   p.dead=false; p.hp=p.st.maxHP; G.Play.questGo(q.id); const dlg=G.Dialog.isOpen(); const w0=G.Game.world;
+   const nx=D.npc&&w0.npcs.find(n=>n.id===D.npc), px=D.portal&&w0.portals.find(x=>x.id===D.portal);
+   const off=nx?Math.abs(p.x-nx.x):px?Math.abs(p.x-px.x):null; out.near=(out.near||0)+(off!=null&&off<100?1:0); if(D.npc)out.npc=(out.npc||0)+1; if(D.portal)out.portal=(out.portal||0)+1; if(D.npc&&!dlg)out.bad.push({q:q.id,stt,why:'no-dialog'});
+   if(off!=null&&off>=100)out.bad.push({q:q.id,stt,why:'far:'+Math.round(off)});
+   step(180);   // 3초
    const w=G.Game.world; out.moves++; out.maps.add(w.mapId); out.byCh[q.ch]=(out.byCh[q.ch]||0)+1;
    const why = w.mapId!==dest?'not-moved:'+w.mapId : !p.onGround&&p.y>2000?'fell' : null;
    if(why) out.bad.push({q:q.id,stt,dest,why});
