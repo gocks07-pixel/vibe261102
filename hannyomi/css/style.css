@@ -363,3 +363,27 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 #askov .jobp .jc-b .btn { padding: 6px 16px; }
 #askov .jobp .jc-st { color: #9aa6c8; font-size: 12px; }
 #askov .jobp .end { text-align: right; margin-top: 10px; }
+
+/* 빌드 4 (13): 스킬 추천 배치 */
+.rec-btns { display: flex; gap: 6px; margin: 0 0 8px; }
+#askov .jobp .rec-h { font-weight: 800; margin: 8px 0 2px; }
+#askov .jobp .rec-slots { display: flex; gap: 8px; margin: 2px 0 6px; }
+#askov .jobp .rs { width: 88px; text-align: center; font-size: 11.5px; line-height: 1.3; }
+#askov .jobp .rs img, #askov .jobp .rs .rs-e { display: block; width: 42px; height: 42px; margin: 0 auto 3px; border-radius: 9px; border: 1px solid #6b7aa8; background: #0b0e18; }
+
+/* 빌드 4 (14): 여러 개 판매 · 장비 일괄 판매 */
+.sellbar { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; padding: 5px 6px; border-radius: 8px; background: #122a1c; border: 1px solid #3f8a5a; font-size: 12px; flex-wrap: wrap; }
+.sellbar .sb-n { flex: 1; min-width: 60px; }
+.sellbar .sb-n b { color: #ffd54a; }
+.cell.msel-on { outline: 2px solid #8ff0b0; outline-offset: -2px; position: relative; }
+.cell .msel-ck { position: absolute; right: 1px; top: 1px; width: 14px; height: 14px; border-radius: 4px; background: #1f7a3e; border: 1.5px solid #8ff0b0; color: #fff; font: 900 10px/12px sans-serif; text-align: center; z-index: 3; }
+.cell[data-act="msel"] { cursor: pointer; }
+.bulk-list { max-height: 360px; overflow-y: auto; }
+.bulk-row { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px solid #283050; font-size: 12px; cursor: pointer; color: #8d97b5; }
+.bulk-row.on { color: #e8ecf6; }
+.bulk-row img { width: 24px; height: 24px; }
+.bulk-row .bk { width: 16px; font-size: 14px; }
+.bulk-row .bn { flex: 1.3; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bulk-row:not(.on) .bn { opacity: .6; }
+.bulk-row .bw { flex: 1.2; font-size: 11px; }
+.bulk-row .bp { width: 70px; text-align: right; color: #ffd54a; }

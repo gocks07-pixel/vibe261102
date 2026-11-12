@@ -140,7 +140,7 @@ G.Items = {
   },
   // ---------- 대장장이 단련 (옛 추가 옵션 재설정) ----------
   temperCost(it) { return G.ITEMS[it.tid].lv * 60 + 500; },
-  temper(it) { it.add = this.rollAdd(G.ITEMS[it.tid], false); },
+  temper(it) { it.add = this.rollAdd(G.ITEMS[it.tid], false); it.tm = 1; },   // 빌드 4 (14): tm = 단련한 장비 (일괄 판매에서 뺌)
 
   canEquip(p, t) {
     if (t.cat !== 'equip') return '장비가 아닙니다.';

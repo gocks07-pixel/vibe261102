@@ -118,6 +118,11 @@ G.UI = {
     const act = el.dataset.act, arg = el.dataset.arg, p = G.Game.player;
     switch (act) {
       case 'close': this.closeWin(arg); break;
+      case 'rec': G.Play.recPreview(arg); break;
+      case 'msel': this.mselAct(arg); break;
+      case 'bulk': if (this.shopNpc) this.openWin('bulk'); break;
+      case 'bulkt': { const B = G.Win.bulk, it = p.d.inv.equip.find(x => x && x.uid === arg); if (B.checked && it) { if (B.checked.has(it)) B.checked.delete(it); else B.checked.add(it); this.renderWin('bulk'); } break; }
+      case 'bulksell': { const B = G.Win.bulk; if (!B.checked) break; const list = [...B.checked]; this.sellMany(list.map(it => ['equip', p.d.inv.equip.indexOf(it)]).filter(x => x[1] >= 0)); this.closeWin('bulk'); break; }
       case 'tgtcancel': this.clearTarget(); this.log('대상 고르기를 취소했어요.', '#9aa6c8'); break;
       case 'toggle': this.toggle(arg); break;
       case 'ap': p.addAP(arg, e.shiftKey ? 5 : 1); break;
@@ -247,6 +252,52 @@ G.UI = {
     p.d.gold -= cost;
     this.log(`${t.name}${n > 1 ? ' ×' + n : ''} 구매 (-${G.U.fmt(cost)} G)`, '#ffd54a');
     G.Audio.play('buy'); this.dirty();
+  },
+  // 빌드 4 (14): 여러 개 고르기 (상점이 열려 있을 때). msel = 고른 아이템(Set), null = 끔
+  mselAct(arg) {
+    const p = G.Game.player;
+    if (arg === 'toggle') this.msel = this.msel ? null : new Set();
+    else if (arg === 'sell') {
+      if (!this.msel) return;
+      const list = [];
+      for (const it of this.msel) for (const tab in p.d.inv) { const i = p.d.inv[tab].indexOf(it); if (i >= 0) { list.push([tab, i]); break; } }
+      this.sellMany(list, () => { if (this.msel) this.msel.clear(); });
+      return;
+    } else if (this.msel) {
+      const [tab, i] = arg.split(':'), it = p.d.inv[tab][+i];
+      if (!it) return;
+      const t = G.ITEMS[it.tid];
+      if (t.quest || t.gift || t.noSell) { this.log(`${t.name}은(는) 팔 수 없어요.`, '#ff9a9a'); return; }
+      if (this.msel.has(it)) this.msel.delete(it); else this.msel.add(it);
+    }
+    this.renderWin('inv');
+  },
+  mselTotal() {
+    let n = 0, gold = 0;
+    for (const it of this.msel || []) { const t = G.ITEMS[it.tid]; n++; gold += t.cat === 'equip' ? G.Items.sellPrice(it) : Math.floor(t.price * 0.3) * (it.qty || 1); }
+    return { n, gold };
+  },
+  // 여러 개 한 번에 판매 (빛남 이상이 있으면 한 번만 물어봄)
+  sellMany(list, after) {
+    const p = G.Game.player;
+    const items = list.map(([tab, i]) => [tab, i, p.d.inv[tab][i]]).filter(x => x[2]);
+    if (!items.length) return;
+    const go = () => {
+      let n = 0, gold = 0;
+      for (const [tab, i, it] of items) {
+        if (p.d.inv[tab][i] !== it) continue;
+        const t = G.ITEMS[it.tid];
+        if (t.quest || t.gift || t.noSell) continue;
+        const v = t.cat === 'equip' ? G.Items.sellPrice(it) : Math.floor(t.price * 0.3) * (it.qty || 1);
+        p.d.inv[tab][i] = null; p.d.gold += v; n++; gold += v;
+      }
+      if (n) { this.log(`${n}개 판매 (+${G.U.fmt(gold)} G)`, '#ffd54a'); G.Audio.play('buy'); G.Game.save(true); }
+      if (after) after();
+      this.dirty(); if (this.isOpen('inv')) this.renderWin('inv');
+    };
+    const rare = items.filter(([, , it]) => (it.grade || 0) >= 2).length;
+    if (rare) this.ask(`빛남 이상 등급 <b>${rare}개</b>가 들어 있어요.<br>모두 <b>${items.length}개</b>를 판매할까요?`, '판매', go);
+    else go();
   },
   sell(tab, idx, ok) {
     const p = G.Game.player, it = p.d.inv[tab][idx], t = it && G.ITEMS[it.tid];
