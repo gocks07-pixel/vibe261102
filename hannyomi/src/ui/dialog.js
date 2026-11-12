@@ -13,7 +13,7 @@ G.Dialog = {
     const entries = G.Quest.entriesFor(npcId);
     // 할 일이 퀘스트 하나뿐이면 바로 진행
     const pick = npcId === 'astra' && p.d.flags.heroPick > 0;   // 1.7.12 아직 고르지 않은 갑옷
-    if (entries.length === 1 && !pick && !n.shop && !n.travel && !n.storage && entries[0].mode !== 'progress') { this.quest(entries[0]); return; }
+    if (entries.length === 1 && !pick && !n.shop && !n.travel && !n.storage && !n.restyle && entries[0].mode !== 'progress') { this.quest(entries[0]); return; }
     const opts = entries.map(e => ({
       label: `${e.q.type === 'main' ? '★ [메인]' : '◆ [서브]'} ${e.q.name}${e.mode === 'end' ? ' (완료 가능)' : e.mode === 'progress' ? ' (진행 중)' : ''}`,
       fn: () => this.quest(e),
@@ -22,6 +22,7 @@ G.Dialog = {
     if (pick) opts.unshift({ label: `✦ 영웅의 갑옷 고르기 (남은 ${p.d.flags.heroPick}개)`, fn: () => { this.close(); G.UI.openWin('heroset'); } });
     if (n.shop) opts.push({ label: '🛒 상점 열기', fn: () => { this.close(); G.UI.openShop(npcId); } });
     if (n.shop && n.shop.some(id => G.ITEMS[id] && G.ITEMS[id].cat === 'equip')) opts.push({ label: '🔨 장비 단련 (골드로 단련 효과 다시 굴리기)', fn: () => { this.close(); G.UI.setTarget('smith', null); } });
+    if (n.restyle) opts.push({ label: '💇 외모 바꾸기', fn: () => { this.close(); G.Creator.openRestyle(); } });   // 꾸밈 장인 하리
     if (n.storage) opts.push({ label: '📦 창고 열기', fn: () => { this.close(); G.Storage.open(); } });
     if (n.travel === 'all') opts.push({ label: '🧭 다른 마을로 이동', fn: () => this.travelMenu() });
     else if (n.travel) opts.push({ label: `⛵ ${n.travel.label}`, fn: () => this.travel(n) });
