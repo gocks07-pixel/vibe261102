@@ -15,7 +15,7 @@
     ctx.globalAlpha *= a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, PI * 2); ctx.fill(); ctx.restore();
   };
   const eyes = (ctx, x, y, gap, r, pupil) => { for (const ex of [x, x + gap]) { ell(ctx, ex, y, r, r * 1.1, '#fff'); ell(ctx, ex + r * 0.3, y, r * 0.55, r * 0.7, pupil || '#1a1a22'); } };
-  const human = (m, t, look, o = {}) => Object.assign({ x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee', look }, o);
+  const human = (m, t, look, o = {}) => Object.assign({ x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee', look, oldHead: true }, o);   // 사람 모양 몬스터는 옛 머리 (1번 꾸미기)
   const legs4 = (ctx, w, c, run, len = 12, wd = 5, y = -12) => {
     for (const [x, ph] of [[-w * 0.45, 0], [-w * 0.22, PI], [w * 0.25, PI * 0.5], [w * 0.47, PI * 1.5]]) {
       ctx.save(); ctx.translate(x, y); ctx.rotate(sin(run + ph) * 0.55); rrect(ctx, -wd / 2, 0, wd, len, 2, c); ctx.restore();

@@ -1,5 +1,5 @@
 'use strict';
-// 캐릭터 만들기 화면 (성별, 헤어, 눈, 피부, 의상)
+// 캐릭터 만들기 화면 (성별, 헤어, 눈, 피부, 액세서리, 처음 옷) — 1번 꾸미기: 성별은 몸 · 옷 모양과 속눈썹만
 G.Creator = {
   look: null, name: '', raf: 0, slot: 'A',
 
@@ -26,14 +26,14 @@ G.Creator = {
         <h3>캐릭터 만들기 <span class="dim" style="font-size:13px">· 슬롯 ${this.slot}</span></h3>
         <input id="nameInput" maxlength="8" placeholder="캐릭터 이름 (최대 8자)" value="${esc(this.name)}">
         <div class="cc-row"><span class="cc-l">성별</span>${LK.gender.map(([g, n]) => `<button class="btn ${L.gender === g ? 'gold' : ''}" data-act="cc" data-arg="gender=${g}">${n}</button>`).join('')}</div>
-        ${cycle('헤어', 'hairStyle', LK.hair[L.gender])}
+        ${cycle('헤어', 'hairStyle', LK.hairList)}
         ${sw('헤어 색', 'hairColor', LK.hairColor)}
-        ${cycle('얼굴', 'eye', LK.eye)}
+        ${cycle('눈 모양', 'eye', LK.eye)}
         ${sw('눈 색', 'eyeColor', LK.eyeColor)}
         ${sw('피부', 'skin', LK.skin)}
-        ${cycle('의상', 'outfit', LK.outfit)}
+        ${cycle('액세서리', 'acc', LK.acc)}
+        ${cycle('처음 옷', 'outfit', LK.outfit)}
         <div class="cc-btns">
-          <button class="btn" data-act="cc" data-arg="random">🎲 랜덤</button>
           <button class="btn" data-act="cc" data-arg="back">뒤로</button>
           <button class="btn gold" data-act="cc" data-arg="start">모험 시작!</button>
         </div>
@@ -59,14 +59,12 @@ G.Creator = {
       G.Cutscene.play('intro', () => { G.Game.begin(data); G.Game.save(true); }, { look: data.look });
       return;
     }
-    if (arg === 'random') this.look = LK.random();
-    else if (arg.includes('=')) {
+    if (arg.includes('=')) {   // 1번 꾸미기: 랜덤 버튼 없앰 · 머리 목록은 성별과 상관없음
       const [f, v] = arg.split('=');
       L[f] = v;
-      if (f === 'gender' && !LK.hair[v].some(h => h[0] === L.hairStyle)) L.hairStyle = LK.hair[v][0][0];
     } else {
       const [f, d] = arg.split(':');
-      const list = (f === 'hairStyle' ? LK.hair[L.gender] : LK[f]).map(x => x[0]);
+      const list = (f === 'hairStyle' ? LK.hairList : LK[f]).map(x => x[0]);
       const i = list.indexOf(L[f]);
       L[f] = list[(i + +d + list.length) % list.length];
     }
