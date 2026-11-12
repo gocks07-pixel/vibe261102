@@ -20,7 +20,14 @@ s=s.replace(old,"""    red: {}, steel: {}, wind: {}, crystal: {}, shadow: {},
   Object.assign(S, {
     mithril:  { hat: 'plume', top: 'surcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'long', trim: '#e8ecf4', cloth: '#2a4a9a' },
     frost:    { hat: 'frostcrown', top: 'furcoat', bottom: 'pants', shoes: 'boot', gloves: 'glove', cape: 'fur', trim: '#d8f0ff', glow: '#bfe8ff' },
-    void:     { hat: 'hood', top: 'longcoat', bottom: 'pants', shoes: 'tallboot', gloves: 'glove', cape: 'shadow', trim: '#c890ff', glow: '#b070ff' },
+    void:     { hat: 'voidhalo', top: 'longcoat', bottom: 'pants', shoes: 'tallboot', gloves: 'glove', cape: 'shadow', trim: '#c890ff', glow: '#b070ff' },
+    sprout:   { hat: 'beret', top: 'jerkin', emblem: 'leaf', shoes: 'boot', trim: '#f4e27a' },
+    traveler: { cape: 'capelet', gloves: 'glove' },
+    elen:     { hat: 'leafcrown', top: 'ranger', shoes: 'tallboot', gloves: 'bracer', cape: 'leafcape', trim: '#e2c66a' },
+    rag:      { hat: 'engineer', top: 'apron', bottom: 'pants', shoes: 'boot', gloves: 'gauntlet', cape: 'steampack', trim: '#d0843e', rivet: true },
     starheir: { hat: 'starcirclet', top: 'knightcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'starflow', trim: '#e8c050', glow: '#ffe680' },
   });""")
+old2="    // 후드 (캐주얼)\n    if (e.hood && !g.top) hood(ctx, topC);"
+assert old2 in s, 'hood'
+s=s.replace(old2, old2+"\n    if (g.top) backItem(ctx, o, g.top.k, topC, sTop);")
 open('outfit_v3.js','w').write(s); print('ok')
