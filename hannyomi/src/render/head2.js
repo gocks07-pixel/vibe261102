@@ -605,6 +605,7 @@ G.Head2 = (function () {
     soft_gentle_f: { rx: 9, ry: 5.5, irs: [0.7, 0.75], top: null, bot: '#B45309', pu: 2.2, hl: 1.0, lift: -6, lw: 2.0, browY: -14, mouth: 'smile' },
     clear_sharp:   { rx: 9, ry: 5.2, irs: [0.7, 0.75], top: null, bot: '#2563EB', pu: 2.2, hl: 1.0, lift: -6, lw: 2.0, browY: -14, mouth: 'small' },
   });
+  let LID_UP = 0.45;
   let BROW_DY = 4;   // 눈썹을 조금 아래로 (앞머리 아래로 보이게, 사용자 확인 2026-11-12)
   function f4eye(ctx, S, ec, out, fem) {
     // 눈썹
@@ -629,8 +630,10 @@ G.Head2 = (function () {
     ctx.fillStyle = grad(ctx, 0, -S.ry, 0, -S.ry + 3, [[0, 'rgba(50,30,40,0.25)'], [1, 'rgba(50,30,40,0)']]); ctx.fillRect(-S.rx, -S.ry, S.rx * 2, 3);
     ctx.restore();
     // 윗눈꺼풀 선 + 바깥 속눈썹 1개
+    ctx.save(); ctx.translate(0, -S.ry * LID_UP);   // 윗눈꺼풀 선을 흰자 위쪽 테두리로 (눈동자를 덮지 않게)
     ctx.beginPath(); ctx.moveTo(-S.rx, -1); ctx.quadraticCurveTo(0, S.lift, S.rx, -1); ctx.lineWidth = S.lw; ctx.strokeStyle = '#1E1B18'; ctx.stroke();
     if (S.lash !== 0 && fem) { ctx.beginPath(); ctx.moveTo(S.rx - 0.8, -1.6); ctx.lineTo(S.rx + 2.6, -4.6); ctx.lineWidth = 1.6; ctx.stroke(); }
+    ctx.restore();
   }
   function faceF4(ctx, p, L) {
     const { hr, hy } = p, ey = hy + hr * p.eyeY, ew = hr * p.eyeW, eh = hr * p.eyeH, S = F4[L.eye], ec = L.eyeColor || '#451A03';
@@ -645,7 +648,55 @@ G.Head2 = (function () {
     else { ctx.moveTo(mx - hr * 0.06, my); ctx.quadraticCurveTo(mx, my + eh * 0.14, mx + hr * 0.07, my); }
     ctx.stroke();
   }
+
+  // ---------- 영웅의 잔영 전용 얼굴 (한 · 슬픔 · 원망) — 시안 ----------
+  //  v: 'sorrow_a' 슬픔 (눈썹 안쪽이 올라간 처진 눈 · 반쯤 감김 · 아래를 봄)
+  //     'sorrow_b' 감은 눈 (잠드는 영웅들, 눈물 없음 · 입은 A 와 같음)
+  //     'sorrow_c' 원망 (짙은 눈 그늘 · 빛 없는 눈동자 · 꽉 다문 입)
+  function faceSorrow(ctx, p, L, v) {
+    const { hr, hy } = p, ey = hy + hr * p.eyeY, ew = hr * p.eyeW, eh = hr * p.eyeH, ec = L.eyeColor || '#9ab8d8';
+    const XS = [[-hr * 0.34, -1], [hr * 0.46, 1]], lash = '#1a1420';
+    for (const [ex, out] of XS) {
+      ctx.save(); ctx.translate(ex, ey);
+      // 눈 그늘
+      ctx.fillStyle = radial(ctx, 0, eh * 0.15, ew * 1.6, [[0, rgba('#2a1a3a', v === 'sorrow_c' ? 0.38 : 0.2)], [1, rgba('#2a1a3a', 0)]]);
+      ctx.fillRect(-ew * 1.8, -eh * 1.2, ew * 3.6, eh * 2.4);
+      // 눈썹: 안쪽이 올라가고 바깥이 처짐 (슬픔) · 원망은 안쪽이 내려가고 짧고 굵게
+      ctx.beginPath();
+      if (v === 'sorrow_c') { ctx.moveTo(-out * ew * 0.9, -eh * 0.62); ctx.quadraticCurveTo(0, -eh * 0.82, out * ew * 1.0, -eh * 0.9); ctx.lineWidth = 2.2; }
+      else { ctx.moveTo(-out * ew * 0.9, -eh * 1.1); ctx.quadraticCurveTo(0, -eh * 0.95, out * ew * 1.05, -eh * 0.62); ctx.lineWidth = 1.7; }
+      ctx.strokeStyle = sh(L.hair, -0.45); ctx.lineCap = 'round'; ctx.stroke();
+      if (v === 'sorrow_b') {   // 감은 눈: 아래로 휜 곡선 + 속눈썹
+        ctx.beginPath(); ctx.moveTo(-ew * 1.05, eh * 0.02); ctx.quadraticCurveTo(0, eh * 0.38, ew * 1.05, eh * 0.02); ctx.strokeStyle = lash; ctx.lineWidth = 1.9; ctx.stroke();
+        for (const k of [-0.5, 0, 0.5]) { ctx.beginPath(); ctx.moveTo(ew * k, eh * (0.2 + 0.08 * (1 - Math.abs(k)))); ctx.lineTo(ew * k * 1.1, eh * 0.42); ctx.lineWidth = 0.9; ctx.stroke(); }
+        ctx.restore(); continue;
+      }
+      const w = ew * 1.05, h = eh * (v === 'sorrow_c' ? 0.9 : 1.0);
+      ctx.save(); ctx.rotate(out * 0.12);   // 눈꼬리가 처짐
+      ctx.beginPath(); ctx.ellipse(0, 0, w, h * 0.6, 0, 0, PI * 2); ctx.fillStyle = '#f4f0f6'; ctx.fill(); ctx.save(); ctx.clip();
+      const iy = h * (v === 'sorrow_a' ? 0.18 : 0.08);   // 슬픔은 아래를 봄
+      ctx.beginPath(); ctx.ellipse(0, iy, w * 0.62, h * 0.6, 0, 0, PI * 2);
+      ctx.fillStyle = grad(ctx, 0, iy - h * 0.6, 0, iy + h * 0.6, [[0, sh(ec, -0.6)], [0.6, sh(ec, -0.2)], [1, sh(ec, 0.15)]]); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0, iy, w * 0.3, h * 0.3, 0, 0, PI * 2); ctx.fillStyle = sh(ec, -0.8); ctx.fill();
+      // 윗눈꺼풀이 반쯤 덮음 (피부색) + 그림자
+      const lidY = -h * 0.6 + h * (v === 'sorrow_c' ? 0.5 : 0.42);
+      ctx.beginPath(); ctx.moveTo(-w * 1.2, -h); ctx.lineTo(w * 1.2, -h); ctx.lineTo(w * 1.2, lidY + h * 0.08); ctx.quadraticCurveTo(0, lidY - h * 0.1, -w * 1.2, lidY - h * 0.04); ctx.closePath(); ctx.fillStyle = sh(L.skin, -0.06); ctx.fill();
+      ctx.fillStyle = grad(ctx, 0, lidY, 0, lidY + h * 0.4, [[0, 'rgba(40,20,50,0.4)'], [1, 'rgba(40,20,50,0)']]); ctx.fillRect(-w * 1.2, lidY, w * 2.4, h * 0.45);
+      ctx.restore();
+      if (v === 'sorrow_a') { ctx.beginPath(); ctx.arc(-w * 0.18, iy + h * 0.02, w * 0.09, 0, PI * 2); ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.fill(); }   // 작고 흐린 반짝임 하나 (원망은 없음)
+      ctx.beginPath(); ctx.moveTo(-w * 1.05, lidY + h * 0.02); ctx.quadraticCurveTo(0, lidY - h * 0.12, w * 1.05, lidY + h * 0.1); ctx.strokeStyle = lash; ctx.lineWidth = 2.0; ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(0, 0, w * 0.95, h * 0.58, 0, PI * 0.15, PI * 0.85); ctx.strokeStyle = rgba('#3a2a3a', 0.45); ctx.lineWidth = 0.8; ctx.stroke();   // 아랫눈꺼풀
+      ctx.restore();
+      if (v === 'sorrow_a') { ctx.save(); ctx.translate(ex, ey); ctx.beginPath(); ctx.ellipse(out * ew * 0.2, eh * 0.55, ew * 0.6, eh * 0.12, 0, 0, PI); ctx.fillStyle = 'rgba(200,230,255,0.55)'; ctx.fill(); ctx.restore(); }   // 고인 눈물
+      ctx.restore();
+    }
+    const mx = hr * 0.1, my = ey + eh * 1.05; ctx.beginPath(); ctx.lineCap = 'round'; ctx.strokeStyle = '#7a4a5a'; ctx.lineWidth = 1.3;
+    if (v === 'sorrow_c') { ctx.moveTo(mx - hr * 0.09, my + eh * 0.08); ctx.lineTo(mx + hr * 0.1, my + eh * 0.04); }
+    else { ctx.moveTo(mx - hr * 0.08, my + eh * 0.12); ctx.quadraticCurveTo(mx, my - eh * 0.06, mx + hr * 0.09, my + eh * 0.12); }
+    ctx.stroke();
+  }
   function face(ctx, p, L) {
+    if (/^sorrow_/.test(L.eye)) return faceSorrow(ctx, p, L, L.eye);
     if (M5[L.eye]) return faceM5(ctx, p, L);
     if (F4[L.eye]) return faceF4(ctx, p, L);
     if (EYE2[L.eye]) return face2(ctx, p, L);
@@ -770,5 +821,5 @@ G.Head2 = (function () {
   }
   // 장비 모자 · 투구: 옛 머리(중심 (1,-50) 반지름 13) 기준으로 그린 것을 새 머리에 맞게 옮김
   function hatSpace(ctx) { ctx.translate(1, CY); ctx.scale(R / 13, R / 13); ctx.translate(-1, 50); }
-  return { back, front, hatSpace, toL, headOnly, STY, EYE, setBrow: v => { BROW_DY = v; cache.clear(); } };
+  return { back, front, hatSpace, toL, headOnly, STY, EYE, setBrow: v => { BROW_DY = v; cache.clear(); }, setLid: v => { LID_UP = v; cache.clear(); } };
 })();
