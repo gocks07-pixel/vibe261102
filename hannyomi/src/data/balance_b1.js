@@ -14,6 +14,11 @@
   for (const id in B) for (const pt of B[id].patterns || []) {
     if (pt.warn && pt.dmg >= 30 && (pt.count || 1) <= 2) pt.dmg = Math.min(60, Math.round(pt.dmg * 1.25));   // 여러 번 떨어지는 기술(하늘 낙하 등)은 제외
   }
+  // 4-2 (가 안, 2026-11-12): 후반 보스의 여러 번 떨어지는 기술을 낮춤 — 피하면 깨고, 물약으로 버티기만 해서는 못 깸
+  const tune = (bid, pid, o) => { const pt = (B[bid].patterns || []).find(x => x.id === pid); if (pt) Object.assign(pt, o); };
+  tune('aurelion', 'starfall', { dmg: 22, count: 5 });   // 28% × 7 → 22% × 5
+  tune('aurelion', 'gust', { dmg: 18 });                 // 24 → 18
+  tune('eldrick', 'skyfall', { dmg: 20, count: 4 });     // 30% × 5 → 20% × 4
   const fruit = (B.morwen.patterns || []).find(x => x.id === 'fruit');
   if (fruit) Object.assign(fruit, { count: 2, dur: 6, near: [150, 250] });
 })();
