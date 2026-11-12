@@ -217,8 +217,12 @@ G.Play = {
   guardMul() {
     if (!this.autoOn || !this.bossMode || !this.on()) return 1;
     const w = G.Game.world;
+    const b = w.monsters.find(m => m.isBoss && !m.dead && this.AUTO_GUARD_BOSS[m.id] != null);
+    if (b) return this.AUTO_GUARD_BOSS[b.id];
     return (this.AUTO_GUARD[w.mapId] != null ? this.AUTO_GUARD[w.mapId] : 1);
   },
+  // 빌드 1 (물약 2초 확정 뒤): 보스 하나만 따로 보정 (엘드리크는 전사 자동 2/4 → 조금 더)
+  AUTO_GUARD_BOSS: { eldrick: 0.45 },
   // 보스를 지키는 것 (부숴야 보스 무적이 풀리는 기둥 · 잔영 등, 2.1 시뮬레이터와 같은 목록)
   GUARD: ['void_pillar', 'hero_echo', 'corrupt_shard', 'cool_valve', 'forgotten_star', 'rot_fruit', 'mummy_guard'],
   isGuard(m) { return !!(m.d && m.d.chainPillar) || this.GUARD.includes(m.id); },
