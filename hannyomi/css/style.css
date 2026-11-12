@@ -56,6 +56,11 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 #tracker { position: absolute; right: 14px; top: 48px; width: 250px; display: flex; flex-direction: column; gap: 6px; }
 #tracker .tq { background: #0d1120b3; border: 1px solid #2f3854; border-radius: 6px; padding: 6px 9px; font-size: 12px; }
 #tracker .tq b { display: block; font-size: 12px; }
+/* 빌드 2 (9-2): 퀘스트 알림 ✕ (숨기기 · 포기). 글자는 작게, 누르는 곳은 넓게 */
+#tracker .tq .tqh b { display: inline; }
+#tracker .tq .tqx { position: relative; display: inline-block; margin-left: 7px; color: #ff9a9a; font-size: 0.8em; font-weight: 900; line-height: 1; vertical-align: middle; cursor: pointer; pointer-events: auto; touch-action: manipulation; text-shadow: 0 0 2px #000; }
+#tracker .tq .tqx::after { content: ''; position: absolute; inset: -9px -8px; }
+#tracker .tq .tqx:hover { color: #ffd0d0; }
 #tracker .tq .main { color: #ffcf4a; }
 #tracker .tq .sub { color: #7fc8ff; }
 #tracker .tq .ok { color: #7dff9a; }
@@ -283,6 +288,10 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 #askov { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
 #askov:empty { display: none; }
 #askov .ask-bg { pointer-events: auto; }
+#askov .qch { max-width: 460px; }
+#askov .qch .btn { display: block; width: 100%; margin: 6px 0 0; }
+#askov .qch .btn.bad { background: #5a2030; border-color: #ff9a9a; }
+#askov .qch .note { font-size: 11px; color: #c8c0e0; margin-top: 8px; line-height: 1.45; }
 
 /* ---------- 1.5: 창고 / 순간이동 ---------- */
 .grid.sto { grid-template-columns: repeat(6, 42px); }

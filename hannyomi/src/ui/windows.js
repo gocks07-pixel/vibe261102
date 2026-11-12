@@ -114,7 +114,7 @@ G.Win = {};
       if (!list.length) h += '<div class="dim">없음</div>';
       for (const q of list) {
         const soon = this.tab === 'avail' && !Q.available(q);
-        h += `<div class="ql ${this.sel === q.id ? 'on' : ''}" data-act="qsel" data-arg="${q.id}"><span class="tag ${q.type}">${q.type === 'main' ? '메인' : '서브'}</span>${esc(q.name)}${soon ? ` <span class="dim">(Lv.${q.lv})</span>` : ''}${Q.ready(q) ? ' <span style="color:#7dff9a">✔</span>' : ''}</div>`;
+        h += `<div class="ql ${this.sel === q.id ? 'on' : ''}" data-act="qsel" data-arg="${q.id}"><span class="tag ${q.type}">${q.type === 'main' ? '메인' : '서브'}</span>${esc(q.name)}${soon ? ` <span class="dim">(Lv.${q.lv})</span>` : ''}${Q.ready(q) ? ' <span style="color:#7dff9a">✔</span>' : ''}${this.tab === 'active' && p.d.quests[q.id] && p.d.quests[q.id].h ? ' <span class="dim">(숨김)</span>' : ''}</div>`;
       }
       h += '</div><div style="flex:1;font-size:12px">';
       const q = G.QUESTS[this.sel];
@@ -125,6 +125,7 @@ G.Win = {};
         if (q.obj.length && this.tab !== 'done') h += '<div class="sep"></div>' + q.obj.map(o => `<div>• ${Q.objText(q, o)}</div>`).join('');
         h += `<div class="sep"></div><div class="rew">보상: ${Q.rewardText(q)}</div>`;
         if (Q.isActive(q.id)) h += `<button class="btn ${G.Nav.qid === q.id ? 'gold' : ''}" style="margin-top:8px" data-act="nav" data-arg="${q.id}">🧭 길 안내 ${G.Nav.qid === q.id ? '끄기' : '켜기'}</button>`;
+        if (Q.isActive(q.id)) { const hid = !!p.d.quests[q.id].h; h += ` <button class="btn" style="margin-top:8px" data-act="qhide" data-arg="${q.id}">👁 ${hid ? '목록에 다시 보이기' : '목록에서 숨기기'}</button>`; }
       }
       return h + '</div></div>';
     },

@@ -15,6 +15,13 @@ G.UI = {
 
     r.addEventListener('click', e => this.onClick(e));
     r.addEventListener('dblclick', e => this.onDbl(e));
+    // 빌드 2 (9-2): 퀘스트 알림 ✕ — 한 번 누름 (길 안내 더블클릭 · 설명 보기와 겹치지 않게 여기서 끝냄)
+    document.addEventListener('pointerdown', e => {
+      const x = e.target.closest && e.target.closest('[data-qx]');
+      if (!x) return;
+      e.preventDefault(); e.stopPropagation();
+      this.questX(x.dataset.qx);
+    }, true);
     // 음량 슬라이더
     r.addEventListener('input', e => { const k = e.target.dataset && e.target.dataset.snd; if (k) G.Win.sound.input(k, e.target.value); });
     r.addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.snd; if (k) { G.Win.sound.change(k); e.target.blur(); } });
@@ -119,7 +126,8 @@ G.UI = {
       case 'buy': { const [tid, n] = arg.split(':'); this.buy(tid, +n); break; }
       case 'dlg': G.Dialog.choose(+arg); break;
       case 'menu': G.Win.menu.act(arg); break;
-      case 'ask': this.answer(arg === 'yes'); break;
+      case 'ask': if (/^c\d+$/.test(arg)) this.chosen(+arg.slice(1)); else this.answer(arg === 'yes'); break;
+      case 'qhide': { const st = p.d.quests[arg]; if (st) { if (st.h) delete st.h; else st.h = 1; this.renderWin('quest'); this.dirty(); } break; }
       case 'sto': G.Win.storage.act(arg); break;
       case 'reso': G.Win.cube.act(arg); break;
       case 'tele': G.Teleport.go(arg); break;
@@ -288,6 +296,39 @@ G.UI = {
     this.askFn = null;
     if (ok && fn) fn();
   },
+  // 빌드 2 (9-2): 여러 개 중 고르기 (ask 와 같은 자리 · 같은 모양). btns: [[글, 버튼 class, 함수], ...] 마지막에 취소
+  choose(msg, btns, note) {
+    this.chooseFns = btns.map(b => b[2]); this.askFn = null;
+    let el = document.getElementById('askov');
+    if (!el) { el = document.createElement('div'); el.id = 'askov'; this.root.appendChild(el); }
+    el.innerHTML = `<div class="ask-bg"><div class="ask qch"><div>${msg}</div>
+      ${btns.map((b, i) => `<button class="btn ${b[1] || ''}" data-act="ask" data-arg="c${i}">${G.U.esc(b[0])}</button>`).join('')}
+      <button class="btn" data-act="ask" data-arg="no">취소</button>${note ? `<div class="note">${note}</div>` : ''}</div></div>`;
+  },
+  chosen(i) {
+    const fn = this.chooseFns && this.chooseFns[i];
+    this.answer(false); this.chooseFns = null;
+    if (fn) fn();
+  },
+  // 빌드 2 (9-2): 퀘스트 알림 ✕ → 숨기기 / 포기 (서브 퀘스트만, 각성 퀘스트 제외)
+  canAbandon(q) { return q.type === 'sub' && !(q.act && q.act.job); },
+  questX(id) {
+    const p = G.Game.player, q = G.QUESTS[id];
+    if (!p || !q || !G.Quest.isActive(id) || this.asking() || G.Dialog.isOpen()) return;
+    const title = `<b style="color:#ffe08a">${q.type === 'main' ? '[메인]' : '[서브]'} ${G.U.esc(q.name)}</b><br>`;
+    const hide = () => { const st = p.d.quests[id]; if (!st) return; st.h = 1; G.UI.log(`[${q.name}] 퀘스트 알림을 숨겼어요. (퀘스트 창에서 다시 보이기)`, '#9aa6c8'); this.dirty(); };
+    const quit = () => {
+      if (!G.Quest.isActive(id)) return;
+      delete p.d.quests[id];
+      if (G.Nav.qid === id) G.Nav.clear();
+      G.UI.log(`[퀘스트 포기] ${q.name} — ${G.NPCS[q.start].name}에게서 다시 받을 수 있어요.`, '#ff9a9a');
+      this.dirty(); G.Game.save(true);
+    };
+    if (this.canAbandon(q)) this.choose(title + '이 퀘스트를 어떻게 할까요?', [['👁 화면에서만 숨기기', 'gold', hide], ['🗑 퀘스트 포기', 'bad', quit]],
+      '숨기기: 퀘스트 창에서 다시 보이게 할 수 있어요. 완료할 수 있게 되면 저절로 다시 보여요.<br>포기: 잡은 수가 처음으로 돌아가요. 모은 아이템은 가방에 남아요. 같은 NPC에게 다시 받을 수 있어요.');
+    else this.choose(title + '목록에서 숨길까요?', [['👁 화면에서만 숨기기', 'gold', hide]],
+      `${q.type === 'main' ? '메인' : '각성'} 퀘스트는 이야기가 이어져야 해서 포기할 수 없어요.<br>퀘스트 창에서 다시 보이게 할 수 있어요.`);
+  },
   asking() { const el = document.getElementById('askov'); return !!(el && el.innerHTML); },
   showDeath(lose) {
     this.overlay(`<div class="overlay"><h1 style="color:#ff8a8a">쓰러졌습니다</h1>
@@ -317,7 +358,7 @@ G.UI = {
         ${row([J, J], '2단 점프: 공중에서 앞으로 살짝')}
         ${row([J, '↑+' + J], '2단 점프: 공중에서 위로 한 번 더')}
         ${row(['↓', J], '발판 아래로 내려가기')}
-        ${row([L('dash')], '대쉬 (땅에서, 재사용 1초)')}
+        ${row([L('dash')], '대쉬 (땅에서, 누르고 있으면 계속)')}
         ${row(['←←', '→→'], '방향키 두 번 대쉬 (메뉴에서 켜기)')}
         ${row([L('attack')], '기본 공격 (누르고 있으면 연속)')}
         ${row([L('skill1'), '~', L('skill6')], '스킬 단축키')}

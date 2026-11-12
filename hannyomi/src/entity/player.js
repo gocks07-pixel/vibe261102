@@ -153,16 +153,20 @@ G.Player = class {
     }
     // 땅 대쉬: 대쉬 키(기본 Shift) 또는 방향키 두 번(메뉴에서 켰을 때)
     if (this.gdashCd > 0) this.gdashCd -= dt;
+    // 빌드 2 (10): 재사용 1초 없앰 · 대쉬 키를 누르고 있으면 끊기지 않고 이어짐 (G.F.GDASH_CD)
     if (!frozen && !this.dash && this.onGround && this.lock <= 0 && this.gdashCd <= 0) {
-      let want = 0;
+      let want = 0, chain = false;
       if (K.hit('dash')) want = move || this.dir;
       else if (G.Settings.dtapDash && I.dtap) want = I.dtap === 'ArrowLeft' ? -1 : 1;
+      else if (this.gdash <= 0 && this.gdHold && K.down('dash')) { want = move || this.dir; chain = true; }
       if (want) {
-        this.dir = want; this.gdash = 0.12; this.gdashCd = 1;
-        G.Audio.play('dash'); G.FX.wind(this.x, this.y - 30, this.dir); G.FX.ghost(this.drawOpts(0.6));
+        this.dir = want; this.gdash = 0.12; this.gdashCd = G.F.GDASH_CD; this.gdHold = true;
+        if (!chain) { G.Audio.play('dash'); G.FX.wind(this.x, this.y - 30, this.dir); }
+        G.FX.ghost(this.drawOpts(0.6));
         G.Tutorial.ev('gdash');
       }
     }
+    if (!K.down('dash')) this.gdHold = false;
     if (this.gdash > 0) {
       this.gdash -= dt;
       this.vx = this.dir * 820;   // 0.12초 × 820 ≈ 100px
