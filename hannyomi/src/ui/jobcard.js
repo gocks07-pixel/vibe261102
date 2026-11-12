@@ -3,19 +3,19 @@
 // 빌드 3 (19): 각성 직업 설명 카드
 //  각성 시험을 받을 때 · 완료할 때(직업을 고를 때) 대화 대신 먼저 카드를 보여 준다
 //  각성 Ⅱ: 두 갈래를 나란히 → [이 직업으로 각성] → 마지막 확인 / 각성 Ⅰ · Ⅲ · Ⅳ: 카드 1장
-//  이름 · 이어지는 길 · 스킬은 데이터(G.JOBS · G.JOB_TREE · G.skillsOfJob)에서, 형 설명은 G.Play.FAM, 잘하는 것 · 난이도는 아래 LINE
+//  이름 · 이어지는 길 · 스킬은 데이터(G.JOBS · G.JOB_TREE · G.skillsOfJob)에서, 형 설명은 G.Play.FAM, 주요 기술 · 난이도는 아래 LINE
 // ============================================================
 G.JobCard = {
-  // 갈래마다 잘하는 것 · 난이도 (★ 1~3)
+  // 갈래마다 주요 기술 · 난이도 (★ 1~3) — 카드 문구 "주요 기술:" (사용자 결정: "잘하는 것" 대신)
   LINE: {
-    warrior_a: { good: '넓은 범위 · 빠른 사냥', diff: 2 },
-    warrior_b: { good: '버티기 · 보스전', diff: 1 },
-    archer_a: { good: '여러 마리 · 빠른 사냥', diff: 2 },
-    archer_b: { good: '한 마리에게 센 한 방 · 보스전', diff: 3 },
-    mage_a: { good: '아주 넓은 범위 · 사냥', diff: 1 },
-    mage_b: { good: '꿰뚫기 · 치명타 · 보스전', diff: 2 },
+    warrior_a: { good: '넓은 범위 베기 · 빠른 사냥', diff: 2 },
+    warrior_b: { good: '방패로 버티기 · 보스전', diff: 1 },
+    archer_a: { good: '여러 발 연사 · 여러 마리 사냥', diff: 2 },
+    archer_b: { good: '한 방 저격 · 보스전', diff: 3 },
+    mage_a: { good: '넓은 불비 · 사냥', diff: 1 },
+    mage_b: { good: '얼음 꿰뚫기 · 치명타 · 보스전', diff: 2 },
     thief_a: { good: '돌진 연타 · 보스전', diff: 3 },
-    thief_b: { good: '독 쌓기 · 여러 마리', diff: 2 },
+    thief_b: { good: '독 단검 쌓기 · 여러 마리', diff: 2 },
   },
   star(n) { return '★'.repeat(n) + '☆'.repeat(3 - n); },
   famOf(id) { const J = G.JOBS[id]; return J.tier === 1 ? id : J.family; },
@@ -39,7 +39,7 @@ G.JobCard = {
       const rest = tree.slice(J.tier - 1);
       h += `<div class="jc-h">${F.ic} <b>${esc(J.name)}</b>${rest.length ? ` <span class="dim">→ ${rest.map(esc).join(' → ')}</span>` : ''}</div>
         <div class="jc-l">${esc(F.lines[li])}</div>
-        <div class="jc-l">잘하는 것: <b>${esc(L.good || '-')}</b> &nbsp; 난이도 ${this.star(L.diff || 2)}</div>`;
+        <div class="jc-l">주요 기술: <b>${esc(L.good || '-')}</b> &nbsp; 난이도 ${this.star(L.diff || 2)}</div>`;
     }
     h += this.skills(id);
     h += `<div class="jc-b">${btn != null ? btn : `<span class="jc-st">${status || ''}</span>`}</div></div>`;
