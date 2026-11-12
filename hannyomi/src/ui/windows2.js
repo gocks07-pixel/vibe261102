@@ -11,10 +11,14 @@
       if (!this.tab || !chain.includes(this.tab)) this.tab = chain[chain.length - 1];
       const tabName = j => j === 'beginner' ? '표류자' : `${G.tierName(G.JOBS[j].tier)} ${G.JOBS[j].name}`;
       let h = '<div class="tabs" style="flex-wrap:wrap">' + chain.map(j => `<span class="t ${this.tab === j ? 'on' : ''}" data-act="tab" data-arg="skill:${j}">${tabName(j)}</span>`).join('') + '</div>';
-      h += `<div class="ap-box">남은 기술 포인트<b>${d.sp}</b><span class="dim" style="margin-left:auto;font-size:11px">레벨업 기술 포인트: Lv.10~ 3 · 30~ 5 · 60~ 6</span></div>`;
+      // 빌드 1 (8번): 각성별 기술 포인트 · 지금 탭 각성의 마스터 진행
+      const tt = G.SP.tierOf(this.tab), tl = tt ? G.SP.left(d, tt) : 0, [mc, mn] = tt ? G.SP.masterCount(d, tt) : [0, 0];
+      const pools = chain.filter(j => G.SP.tierOf(j) > 0).map(j => { const t = G.SP.tierOf(j); return `${G.tierName(t)} <b style="display:inline;font-size:inherit">${G.SP.left(d, t)}</b>`; }).join(' · ');
+      h += `<div class="ap-box">남은 기술 포인트 ${tt ? `(${G.tierName(tt)})` : ''}<b>${tl}</b><span class="dim" style="margin-left:auto;font-size:11px">${tt ? `마스터 ${mc}/${mn} · ` : ''}${pools}</span></div>`;
+      h += '<div class="dim" style="font-size:11px;margin:-4px 0 6px">각성마다 받는 기술 포인트는 그 각성 스킬에만 쓸 수 있어요. 모두 마스터해야 다음 각성을 할 수 있어요.</div>';
       for (const sk of G.skillsOfJob(this.tab)) {
         const lv = d.skills[sk.id] || 0;
-        const canUp = !sk.fixed && d.sp > 0 && lv < sk.maxLv;
+        const canUp = !sk.fixed && tl > 0 && lv < sk.maxLv;
         h += `<div class="sk"><img src="${G.Icons.skill(sk)}" data-tip="skill:${sk.id}" style="${lv ? '' : 'filter:grayscale(1) brightness(.6)'}">
           <div class="info"><b>${sk.name}</b> <span class="dim">Lv.${lv}/${sk.maxLv}</span><div class="d">${sk.desc(Math.max(1, lv))}</div></div>`;
         if (sk.type === 'toggle') {
@@ -33,7 +37,8 @@
       else if (J.tier < 4) {
         const next = { 1: [30, '엘렌하임의 세렌'], 2: [60, '프로스트벨의 아르텔'], 3: [85, '아에로스의 오리엘'] }[J.tier];
         const opts = Object.keys(G.JOBS).filter(k => G.JOBS[k].prev === d.job).map(k => G.JOBS[k].name).join(' / ');
-        h += `<b>다음 각성</b> <span class="dim">Lv.${next[0]} · ${next[1]}</span><div class="dim">→ ${opts}</div>`;
+        const [c1, c2] = G.SP.masterCount(d, J.tier);
+        h += `<b>다음 각성</b> <span class="dim">Lv.${next[0]} · ${next[1]} · 지금 각성 스킬 모두 마스터 (${c1}/${c2})</span><div class="dim">→ ${opts}</div>`;
       } else h += '<b style="color:#ffe08a">최종 각성을 마쳤습니다.</b>';
       return h + '</div>';
     },

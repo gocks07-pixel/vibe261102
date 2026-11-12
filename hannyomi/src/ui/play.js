@@ -193,8 +193,8 @@ G.Play = {
     if (!m || m.town || m.hidden || w.mapId === 'dream_beach') return false;
     return !m.bossRoom || this.bossLeft() <= 0;
   },
-  // ④ 2차-1.3: 보스 방은 같은 방에서 5번 쓰러지면 자동 허용 (캐릭터 · 보스 방마다, hny_touch 에 기억)
-  BOSS_TRIES: 5,
+  // ④ 2차-1.3: 보스 방은 같은 방에서 3번 쓰러지면 자동 허용 (빌드 1: 5 → 3 · 캐릭터 · 보스 방마다, hny_touch 에 기억)
+  BOSS_TRIES: 3,
   bossKey() { const w = G.Game.world, p = G.Game.player; return p && w ? `${G.Save.slot}:${p.d.name}:${w.mapId}` : ''; },
   bossLeft() {
     const w = G.Game.world, m = w && G.MAPS[w.mapId];

@@ -283,7 +283,7 @@ G.Mobile = {
       const total = s ? d.inv.use.reduce((n, x) => n + (x && x.tid === s.tid ? x.qty : 0), 0) : 0;
       B[kind].classList.toggle('auto', !!ap[kind]);
       B[kind].innerHTML = (s ? `<img src="${G.Icons.item(G.ITEMS[s.tid])}" style="border-radius:20%">` : '') +
-        `<span class="lb">${kind.toUpperCase()}</span><span class="ct">${total || ''}</span>${ap[kind] ? '<span class="au">자동</span>' : ''}`;
+        `<span class="lb">${kind.toUpperCase()}</span><span class="ct">${total || ''}</span>${ap[kind] ? '<span class="au">자동</span>' : ''}<div class="cd"></div><div class="cdt"></div>`;
     }
     const ba = this.el.querySelector('[data-badge="ap"]'), bs = this.el.querySelector('[data-badge="sp"]');
     ba.hidden = !d.ap; ba.textContent = d.ap; bs.hidden = !d.sp; bs.textContent = d.sp;
@@ -333,6 +333,9 @@ G.Mobile = {
         const lv = id ? p.d.skills[id] || 0 : 0;
         el.classList.toggle('nomp', !!sk && (lv <= 0 || (sk.mp && p.mp < sk.mp(lv))));
       }
+      // 빌드 1: 보스 방 물약 재사용 대기
+      for (const k of ['hp', 'mp']) { const b = this.btn && this.btn[k]; const cd = b && b.querySelector('.cd'), cdt = b && b.querySelector('.cdt'); if (!cd) continue;
+        const left = p.potCd ? p.potCd[k] : 0; cd.style.height = left > 0 ? (left / G.F.BOSS_POT_GAP * 100) + '%' : '0'; cdt.textContent = left > 0 ? Math.ceil(left) : ''; }
     }
   },
   checkPortrait() {

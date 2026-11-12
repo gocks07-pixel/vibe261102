@@ -21,6 +21,7 @@ G.Player = class {
   constructor(d) {
     this.d = d; this.w = 30; this.h = 62;
     d.look = G.LOOKS.normalize(d.look);
+    if (d.skills) G.SP.sync(d);   // 빌드 1 (8번): 불러올 때 각성별 SP 로 다시 계산
     if (d.skills.b_djump == null) d.skills.b_djump = 1;
     d.djump = d.djump || 'fwd'; d.chests = d.chests || {}; d.flags = d.flags || {};
     this.gdash = 0; this.gdashCd = 0;
@@ -107,6 +108,9 @@ G.Player = class {
 
     // 보스 디버프: 침묵(스킬 봉인) / 반전(좌우 반대) / 저주(물약 금지)
     for (const k of ['silence', 'invert', 'noPotion']) if (this[k] > 0) this[k] -= dt;
+    if (!this.potCd) this.potCd = { hp: 0, mp: 0 };
+    for (const k of ['hp', 'mp']) if (this.potCd[k] > 0) this.potCd[k] -= dt;
+    if (this.potMsgT > 0) this.potMsgT -= dt;
     const frozen = this.dead || G.UI.blocking();
     const move = frozen ? 0 : I.horizontal() * (this.invert > 0 ? -1 : 1);
     const px = this.x;
@@ -479,7 +483,7 @@ G.Player = class {
     // 1.6.1: 레벨당 능력 포인트 4 + 직업 주스탯 자동 +1 (표류자는 5를 직접 배분)
     if (d.job === 'beginner') d.ap += G.F.AP_PER_LEVEL + G.F.AUTO_STAT;
     else { d.ap += G.F.AP_PER_LEVEL; d.base[G.JOBS[d.job].main] += G.F.AUTO_STAT; }
-    d.sp += G.F.spFor(d.level);
+    G.SP.sync(d);   // 빌드 1 (8번): 각성 구간별 SP (sp_b1.js)
     this.recalc();
     this.hp = this.st.maxHP; this.mp = this.st.maxMP;
     G.FX.pillar(this.x, this.y, '#ffe06a'); G.FX.ring(this.x, this.y - 30, 120, '#ffe06a', 0.8);
@@ -500,10 +504,10 @@ G.Player = class {
   }
   addSP(id) {
     const sk = G.SKILLS[id], d = this.d;
-    if (!sk || sk.fixed || d.sp <= 0 || !G.jobChain(d.job).includes(sk.job)) return;
+    if (!sk || sk.fixed || !G.jobChain(d.job).includes(sk.job) || G.SP.left(d, G.SP.tierOf(sk.job)) <= 0) return;   // 빌드 1: 그 각성 몫 SP 만
     const lv = d.skills[id] || 0;
     if (lv >= sk.maxLv) return;
-    d.skills[id] = lv + 1; d.sp--;
+    d.skills[id] = lv + 1; G.SP.sync(d);
     if (lv === 0 && sk.type !== 'passive' && sk.type !== 'toggle' && !d.hot.includes(id)) {
       const i = d.hot.indexOf(null);
       if (i >= 0) { d.hot[i] = id; G.UI.log(`${sk.name} → 단축키 ${i + 1}번에 등록`, '#ffe08a'); }
@@ -526,7 +530,7 @@ G.Player = class {
     }
     d.job = job;
     for (const sk of G.skillsOfJob(job)) if (d.skills[sk.id] == null) d.skills[sk.id] = 0;
-    if (!first) d.sp += 5;
+    G.SP.sync(d);   // 빌드 1 (8번): 각성 때 SP 는 G.SP 표대로 (각성 Ⅲ +20 · Ⅳ +4)
     this.recalc();
     this.hp = this.st.maxHP; this.mp = this.st.maxMP;
     const J = G.JOBS[job];
@@ -574,6 +578,11 @@ G.Player = class {
     const hA = u.hp || (u.hpP ? Math.round(this.st.maxHP * u.hpP / 100) : 0);
     const mA = u.mp || (u.mpP ? Math.round(this.st.maxMP * u.mpP / 100) : 0);
     if ((hA || mA) && this.noPotion > 0) { G.UI.log('저주 상태: 물약을 쓸 수 없습니다.', '#c08cff'); return; }
+    // 빌드 1 (2-1): 보스 방 물약 재사용 대기 (재사용 대기가 따로 있는 별의 정수 등은 그 규칙대로)
+    const kinds = (hA || mA) && !u.cd && this.inBossRoom() ? [hA && 'hp', mA && 'mp'].filter(Boolean) : [];
+    if (!this.potCd) this.potCd = { hp: 0, mp: 0 };
+    const wait = Math.max(0, ...kinds.map(k => this.potCd[k]));
+    if (wait > 0) { if (!(this.potMsgT > 0)) { G.UI.log(`보스 방에서는 물약을 ${G.F.BOSS_POT_GAP}초에 한 번만 먹을 수 있어요. (${Math.ceil(wait)}초)`, '#ffe08a'); this.potMsgT = 1.5; } return; }
     if (u.cd && (this.itemCd[s.tid] || 0) > 0) { G.UI.log(`${t.name}은(는) ${Math.ceil(this.itemCd[s.tid])}초 뒤에 다시 쓸 수 있어요.`, '#ffe08a'); return; }
     if (hA || mA) {
       const needH = hA > 0 && this.hp < this.st.maxHP, needM = mA > 0 && this.mp < this.st.maxMP;
@@ -587,6 +596,7 @@ G.Player = class {
         this.healMp(mA);
         G.FX.rise(this.x, this.y - 10, '#8ab8ff', 6);
       }
+      for (const k of kinds) this.potCd[k] = G.F.BOSS_POT_GAP;
       if (u.cd) { this.itemCd[s.tid] = u.cd; if (u.hpP >= 100) G.FX.pillar(this.x, this.y, '#ffe68a'); }
     }
     if (u.town) G.Game.changeMap(this.d.town || 'sprout_port', null);
@@ -595,6 +605,7 @@ G.Player = class {
     G.Audio.play('pickup'); G.UI.dirty();
   }
   // H·J 칸과 자동 물약이 먹을 물약: 그 종류 물약 → 없으면 별사탕 (별의 정수처럼 재사용 대기가 있는 건 제외)
+  inBossRoom() { const w = G.Game.world, m = w && G.MAPS[w.mapId]; return !!(m && m.bossRoom); }
   potionIdx(kind) {
     const arr = this.d.inv.use;
     const idx = arr.findIndex(s => s && G.ITEMS[s.tid].use[kind]);

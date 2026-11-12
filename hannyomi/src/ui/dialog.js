@@ -26,7 +26,10 @@ G.Dialog = {
     if (n.travel === 'all') opts.push({ label: '🧭 다른 마을로 이동', fn: () => this.travelMenu() });
     else if (n.travel) opts.push({ label: `⛵ ${n.travel.label}`, fn: () => this.travel(n) });
     opts.push({ label: '대화 종료', fn: () => this.close() });
-    this.show({ text: G.U.pick(n.greet || ['...']), opts, list: true });
+    // 빌드 1 (8번): 다음 각성이 스킬 마스터 때문에 막혔으면 알려 줌
+    const blk = Object.values(G.QUESTS).map(q => q.start === npcId && !G.Quest.st(q.id) && p.d.level >= q.lv && q.pre.every(id => G.Quest.isDone(id)) && (!q.cond || q.cond(p)) && G.SP.blockedBy(p, q)).find(x => x);
+    const greet = blk ? `다음 각성을 하려면 지금 각성의 스킬을 모두 익혀야 한다. 아직 ${blk.join(', ')}을(를) 다 익히지 못했군. (스킬 창에서 기술 포인트를 올려라)` : G.U.pick(n.greet || ['...']);
+    this.show({ text: greet, opts, list: true });
   },
 
   quest(e) {

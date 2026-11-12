@@ -20,7 +20,7 @@ G.AutoPot = {
     for (const k of ['hp', 'mp']) if (p.autoT[k] > 0) p.autoT[k] -= dt;
     if (p.dead || p.noPotion > 0 || G.UI.blocking()) return;
     for (const k of ['hp', 'mp']) {
-      if (!a[k] || p.autoT[k] > 0) continue;
+      if (!a[k] || p.autoT[k] > 0 || (p.potCd && p.potCd[k] > 0)) continue;   // 빌드 1: 보스 방 물약 대기 중이면 기다림
       const cur = k === 'hp' ? p.hp : p.mp, max = k === 'hp' ? p.st.maxHP : p.st.maxMP;
       if (cur > max * a[k + 'At'] / 100) continue;
       p.autoT[k] = this.GAP;
