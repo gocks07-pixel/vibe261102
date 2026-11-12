@@ -1389,3 +1389,7 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - 구현 파일: `src/data/npcs.js` · `npc_look2.js` · 마을 맵(world.js · world2.js) · `src/ui/dialog.js`(메뉴) · `src/ui/creator.js`(바꾸기 모드). G.Play · G.Mobile · G.Touch 안 씀 (PC · EXE 같이)
 - **구현 (2026-11-12)**: 새 파일 `src/data/npc_hari.js` (index.html 에 npc_look2.js 다음) — `G.NPCS.hari`(restyle) + 마을 8곳 NPC 목록에 가장 넓은 빈자리로. `dialog.js` [💇 외모 바꾸기], `creator.js openRestyle · closeRestyle` (같은 화면 · 이름 칸 대신 안내 · 헤어 색 + 7 · 투톤 칸 · [처음 모습으로] [취소] [이대로 바꾸기] · 미리보기는 지금 장비 그대로, 모자만 빼고)
 - 확인: 휴대폰 · PC — 8마을 하리 자리 (다른 NPC 와 150px 넘게 · 포탈과 230px 넘게), 대화 메뉴, 바꾸기 → 처음 모습으로 · 취소(그대로) · 이대로 바꾸기(투톤 머리 · 여자 적용, 저장), 오류 0, 완주(궁수 a) 통과
+
+## 정식 배포 (2026-11-12)
+- 배포 번호 20261112-154708 · 2.1.8 · 모바일 847731c 기준 (1번 꾸미기 · 빌드 1~5 · EXE 질문 1~3 · F1 대쉬 줄 · 외모 바꾸기 NPC) → rpg-adventure main 92fe185, Pages 배포 성공. beta/ 는 그대로 둠
+- 올리기 전 확인: 배포판 파일로 휴대폰 · PC 열기 — 버전 2.1.8 · 테스트 모드 없음 · 하리 · 각성 카드 · 나는 몬스터 70 · 물약 2초 · 다른 선택 다시 하기 있음, 오류 0
