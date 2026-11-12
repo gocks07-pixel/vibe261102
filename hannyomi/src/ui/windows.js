@@ -82,7 +82,7 @@ G.Win = {};
     render() {
       const p = P(), d = p.d, tgt = G.UI.target;
       let h = '<div class="tabs">' + Object.keys(G.Inv.TABS).map(t => `<span class="t ${this.tab === t ? 'on' : ''}" data-act="tab" data-arg="inv:${t}">${G.Inv.TABS[t]}</span>`).join('') + '</div>';
-      if (tgt) h += `<div style="color:#d9b0ff;font-size:12px;margin-bottom:6px">▶ ${tgt.kind === 'smith' ? `장비 단련 (비용: 장비 레벨 × 60 + 500 G)` : G.ITEMS[tgt.tid].name}을(를) 사용할 장비를 클릭 (우클릭: 취소)</div>`;
+      if (tgt) h += `<div class="tgtline">✨ <b>${tgt.kind === 'smith' ? '장비 단련' : esc(G.ITEMS[tgt.tid].name)}</b>: 대상 장비를 고르세요${tgt.kind === 'smith' ? ' <span class="dim">(비용: 장비 레벨 × 60 + 500 G)</span>' : ''} <button class="btn" data-act="tgtcancel">취소</button></div>`;   // 빌드 3 (11): 고르는 중 띠 + [취소]
       if (G.UI.storageOpen) h += `<div style="color:#9ad8ff;font-size:12px;margin-bottom:6px">창고 이용 중: 더블클릭하면 창고에 맡깁니다.</div>`;
       else if (G.UI.shopNpc) h += `<div style="color:#ffd54a;font-size:12px;margin-bottom:6px">상점 이용 중: 더블클릭하면 판매합니다.</div>`;
       h += '<div class="grid">';

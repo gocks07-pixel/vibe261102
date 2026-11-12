@@ -21,6 +21,7 @@
 - `src/entity/` 플레이어, 몬스터, 보스 AI, 투사체, 드롭, 이펙트
 - `src/ui/` HUD, 창들, 대화, 지도, 캐릭터 만들기, 엔딩, `cutscene.js` 이야기 영상(1.7.7) (최종 보스 체험 모드는 1.6에서 제거)
 - `electron/` 창 생성과 세이브 파일 입출력
+- 빌드 1~3 (모바일, 2026-11-12): 계획 · 결과 `docs/BUILD_MOBILE_PLAN.md`. 새 파일 `src/data/balance_b1.js` · `quest_sets_b1.js` · `src/systems/sp_b1.js`(각성별 기술 포인트) · `src/ui/jobcard.js`(각성 카드)
 - 1번 꾸미기 (모바일, 2026-11-12): 새 그림체 머리 `src/render/head2.js` (`G.Head2`, outfit.js 의 머리 자리만) · 사용자 머리 코드 `hair_user.js` · NPC 머리 배정 `src/data/npc_look2.js`. 사람 모양 몬스터는 `oldHead` (카이엔 보스만 새 머리). 세이브 형식 그대로 (옛 id 를 그릴 때만 새 모양으로). 시안 · 결정 `docs/drafts/design/`
 - `src/dev.js` 테스트 모드 (Lv.100 4차 8직업 선택·직업만 바꾸기, 장 선택 시작, 어디든 순간이동, 엔딩 미리보기). 다른 파일을 고치지 않고 덧붙이는 방식. **지우지 않는다**: 플레이어용 EXE 빌드(`electron/build-player.json`)가 이 파일을 빼고 포장하고, index.html 은 EXE 가 테스트용일 때만 불러온다. 메인 프로세스는 이 파일이 있는지로 테스트용을 구분한다
 

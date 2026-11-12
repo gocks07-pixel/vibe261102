@@ -73,6 +73,7 @@ G.UI = {
     const el = this.wins[name];
     if (!el) return;
     el.remove(); delete this.wins[name];
+    if (name === 'inv' && this.target) this.clearTarget();   // 빌드 3 (11): 인벤을 닫으면 고르기도 끝
     const def = G.Win[name];
     if (def && def.onClose) def.onClose();
     this.hideTip();
@@ -117,6 +118,7 @@ G.UI = {
     const act = el.dataset.act, arg = el.dataset.arg, p = G.Game.player;
     switch (act) {
       case 'close': this.closeWin(arg); break;
+      case 'tgtcancel': this.clearTarget(); this.log('대상 고르기를 취소했어요.', '#9aa6c8'); break;
       case 'toggle': this.toggle(arg); break;
       case 'ap': p.addAP(arg, e.shiftKey ? 5 : 1); break;
       case 'sp': p.addSP(arg); break;
@@ -170,8 +172,11 @@ G.UI = {
     this.openWin('inv'); G.Win.inv.tab = 'equip'; this.renderWin('inv');
     this.log(`${kind === 'smith' ? '장비 단련' : G.ITEMS[tid].name}: 대상 장비를 클릭하세요. (우클릭/ESC 취소)`, '#d9b0ff');
     document.body.style.cursor = 'crosshair';
+    this.tgtBar();
   },
-  clearTarget() { this.target = null; document.body.style.cursor = ''; this.dirty(); },
+  clearTarget() { this.target = null; document.body.style.cursor = ''; this.tgtBar(); this.dirty(); },
+  // 빌드 3 (11): 고르는 중 띠 + [취소] 는 인벤 창 맨 위 (windows.js). 인벤을 닫으면 고르기도 끝 (closeWin)
+  tgtBar() {},
   applyTarget(ref) {
     const p = G.Game.player, [where, key] = ref.split(':');
     const it = where === 'eq' ? p.d.eq[key] : p.d.inv.equip[+key];
@@ -304,6 +309,13 @@ G.UI = {
     el.innerHTML = `<div class="ask-bg"><div class="ask qch"><div>${msg}</div>
       ${btns.map((b, i) => `<button class="btn ${b[1] || ''}" data-act="ask" data-arg="c${i}">${G.U.esc(b[0])}</button>`).join('')}
       <button class="btn" data-act="ask" data-arg="no">취소</button>${note ? `<div class="note">${note}</div>` : ''}</div></div>`;
+  },
+  // 빌드 3 (19): 버튼이 들어 있는 html 패널 (ask 자리 · 같은 규칙). 버튼은 data-act="ask" data-arg="c번호", 취소는 data-arg="no"
+  panel(html, fns, cls) {
+    this.chooseFns = fns; this.askFn = null;
+    let el = document.getElementById('askov');
+    if (!el) { el = document.createElement('div'); el.id = 'askov'; this.root.appendChild(el); }
+    el.innerHTML = `<div class="ask-bg"><div class="ask ${cls || ''}">${html}</div></div>`;
   },
   chosen(i) {
     const fn = this.chooseFns && this.chooseFns[i];

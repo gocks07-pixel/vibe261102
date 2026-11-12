@@ -346,3 +346,20 @@ body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', san
 .bug-ok { margin-top: 10px; font-size: 13px; line-height: 1.6; color: #9affc0; }
 .bug-bt { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
 .bug-bt .btn { min-width: 0; margin: 0; }
+
+/* 빌드 3 (11): 대상 고르기 띠 (인벤 창 맨 위) */
+.tgtline { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 6px 5px 10px; background: rgba(60,20,90,.95); border: 1.5px solid #d9b0ff; border-radius: 9px; color: #f0e0ff; font-size: 12.5px; font-weight: 700; }
+.tgtline b { color: #ffe08a; }
+.tgtline .btn { margin-left: auto; background: #5a2030; border-color: #ff9a9a; padding: 3px 12px; }
+/* 빌드 3 (19): 각성 직업 카드 */
+#askov .ask.jobp { max-width: 920px; width: 92%; text-align: left; }
+#askov .jobp h3 { margin: 0 0 4px; color: #ffe08a; font-size: 17px; }
+#askov .jobp .jcards { display: flex; gap: 10px; margin-top: 8px; }
+#askov .jobp .job-card { flex: 1; background: #161c33; border: 1px solid #3a4466; border-radius: 10px; padding: 10px 12px; }
+#askov .jobp .job-card.mine { border-color: #ffd54a; }
+#askov .jobp .jc-h { font-size: 15px; margin-bottom: 4px; }
+#askov .jobp .jc-l { font-size: 12.5px; line-height: 1.55; }
+#askov .jobp .jc-b { margin-top: 8px; text-align: center; }
+#askov .jobp .jc-b .btn { padding: 6px 16px; }
+#askov .jobp .jc-st { color: #9aa6c8; font-size: 12px; }
+#askov .jobp .end { text-align: right; margin-top: 10px; }
