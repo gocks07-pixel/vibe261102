@@ -69,19 +69,18 @@
     if (E && E.silA) { oc.save(); oc.globalAlpha = E.silA; for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy); oc.restore(); }
     else if (!E || E.sil !== false) for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy);
     if (E && E.fade) {   // 가장자리 띠 = 실루엣 − 2px 안으로 줄인 실루엣 → 밝은 색으로 살짝 덮어 배경에 스며들게 (빌드 10 기본: 테두리 옅게 "나")
-      const [mk, ec, bc] = scratch(W, H), mx2 = mk.getContext('2d'), ex = ec.getContext('2d'), bx = bc.getContext('2d');
-      mx2.globalCompositeOperation = 'copy'; mx2.drawImage(sil, 0, 0); mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = '#000'; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) mx2.drawImage(mk, 0, 0);   // 불투명 마스크 (실루엣은 0.92 라 겹쳐 진하게)
-      ex.globalCompositeOperation = 'copy'; ex.drawImage(mk, 0, 0);
-      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1]]) { ex.globalCompositeOperation = 'destination-in'; ex.drawImage(mk, dx, dy); }
-      bx.globalCompositeOperation = 'copy'; bx.drawImage(mk, 0, 0); bx.globalCompositeOperation = 'destination-out'; bx.drawImage(ec, 0, 0);
-      if (E.tint) { bx.globalCompositeOperation = 'source-in'; bx.fillStyle = E.tint; bx.fillRect(0, 0, W, H); bx.globalCompositeOperation = 'source-over';
-        o.save(); o.globalCompositeOperation = 'source-atop'; o.globalAlpha = E.fade; o.drawImage(bc, 0, 0); o.restore(); }   // 가장자리를 밝은 색으로 덮음 (모양은 그대로)
-      else { o.save(); o.globalCompositeOperation = 'destination-out'; o.globalAlpha = E.fade; o.drawImage(bc, 0, 0); o.restore(); }
+      const [mk, ec] = scratch(W, H), mx2 = mk.getContext('2d'), ex = ec.getContext('2d'), d = (c, src, x, y) => c.drawImage(src, 0, 0, W, H, x || 0, y || 0, W, H);   // 계산 그림판은 W×H 만큼만 씀
+      mx2.globalCompositeOperation = 'copy'; d(mx2, sil); mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = '#000'; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over'; d(mx2, mk);   // 불투명 마스크 (실루엣 0.92 → 한 번 겹쳐 0.99)
+      ex.globalCompositeOperation = 'copy'; d(ex, mk); ex.globalCompositeOperation = 'destination-in'; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) d(ex, mk, dx, dy);   // 2px 안으로 줄임
+      mx2.globalCompositeOperation = 'destination-out'; d(mx2, ec);   // 띠만 남김
+      if (E.tint) { mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = E.tint; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over';
+        o.save(); o.globalCompositeOperation = 'source-atop'; o.globalAlpha = E.fade; d(o, mk); o.restore(); }   // 가장자리를 밝은 색으로 덮음 (모양은 그대로)
+      else { o.save(); o.globalCompositeOperation = 'destination-out'; o.globalAlpha = E.fade; d(o, mk); o.restore(); }
     }
     oc.drawImage(off, 2, 2);
   }
-  // 가장자리 계산용 그림판 3장 (매번 새로 만들지 않고 다시 씀)
-  const SCR = [0, 0, 0].map(() => document.createElement('canvas'));
+  // 가장자리 계산용 그림판 2장 (매번 새로 만들지 않고 다시 씀)
+  const SCR = [0, 0].map(() => document.createElement('canvas'));
   function scratch(W, H) { for (const c of SCR) { if (c.width < W) c.width = W; if (c.height < H) c.height = H; } return SCR; }
   let shared = null;
   G.MonRefine = function (ctx, m, t) {

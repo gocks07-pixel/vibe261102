@@ -125,7 +125,9 @@
     prewarm() { const list = [['storm', 1], ['thunder', 1], ['gateL', 0], ['gateR', 0], ['nightC', 0], ['judge', 1]]; let i = 0;
       const step = () => { if (i >= list.length) { moonImg(); return; } const [n, lit] = list[i++]; cloudImg(n, SPEC[n], false); if (lit) cloudImg(n, SPEC[n], true); setTimeout(step, 30); };
       step(); },
-    CACHE, SPEC,
+    // 같은 하늘 효과가 아직 앞부분(수명의 60%)이면 새로 만들지 않음 — 여러 번 때리는 스킬(천둥 신의 분노 6타)이 구름을 겹쳐 쌓아 느려지지 않게
+    once(kind, life) { const now = performance.now(), L = SK.last[kind] || -1e9; if (now - L < life * 600) return false; SK.last[kind] = now; return true; },
+    last: {}, CACHE, SPEC,
   };
   if (typeof window !== 'undefined') window.addEventListener('load', () => setTimeout(() => SK.prewarm(), 1500));
 })();
