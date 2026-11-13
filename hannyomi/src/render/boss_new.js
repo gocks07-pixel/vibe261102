@@ -9,6 +9,17 @@
 (function () {
   const D = G.Draw;
   let off = null, sil = null, rim = null, busy = false;
+  // 빌드 9 이음새 없이: 채운 도형의 테두리 선(채우기 바로 뒤 같은 경로의 선)은 긋지 않음 → 겹친 원 · 네모의 경계가 사라지고 바깥 테두리만 남음
+  const noSeam = o => { const f = o.fill, s = o.stroke, b = o.beginPath; let filled = false;
+    o.beginPath = function () { filled = false; return b.apply(this, arguments); };
+    o.fill = function () { filled = true; return f.apply(this, arguments); };
+    o.stroke = function () { if (filled) return; return s.apply(this, arguments); };
+    return () => { o.fill = f; o.stroke = s; o.beginPath = b; }; };
+  // 실루엣용: 빛(lighter)은 빼고 그림 → 빛 둘레가 어둡게 번지지 않음
+  const noGlow = o => { const f = o.fill, fr = o.fillRect;
+    o.fill = function () { if (this.globalCompositeOperation === 'lighter') return; return f.apply(this, arguments); };
+    o.fillRect = function () { if (this.globalCompositeOperation === 'lighter') return; return fr.apply(this, arguments); };
+    return () => { o.fill = f; o.fillRect = fr; }; };
   const size = (c, w, h) => { if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } else c.getContext('2d').clearRect(0, 0, w, h); };
   // 보스마다 그림이 차지하는 범위(발밑 기준)를 처음 한 번 재 둠 → 화면 밖 캔버스를 그만큼만 씀 (빠르게)
   const BB = {};
@@ -19,44 +30,61 @@
     let l = 1e9, r = -1e9, top = 1e9, bot = -1e9;
     try {
       busy = true;
-      for (const [tt, mv, at, rs] of [[0.3, 0, -1, 0], [1.1, 1, -1, 0], [1.9, 0, 0.5, 1], [2.7, 1, 1, 0.5], [3.5, 0, 0.2, 0], [4.4, 1, -1, 1]]) {
+      for (const [tt, mv, at, rs] of (m.isBoss ? [[0.3, 0, -1, 0], [1.1, 1, -1, 0], [1.9, 0, 0.5, 1], [2.7, 1, 1, 0.5], [3.5, 0, 0.2, 0], [4.4, 1, -1, 1]] : [[0.3, 0, -1, 0], [1.4, 1, 0.6, 0], [2.6, 1, 1, 0]])) {
         x.clearRect(0, 0, bw, bh); m.x = bw / 2; m.y = bh - pad; m.dir = 1; m.moving = !!mv; m.atkAnim = at; m.soarY = 0; m.boss = Object.assign({}, save.boss || {}, { raise: rs });
         G.Draw.monster(x, m, tt);
         const D = x.getImageData(0, 0, bw, bh).data;
-        for (let yy = 0; yy < bh; yy += 2) for (let xx = 0; xx < bw; xx += 2) if (D[(yy * bw + xx) * 4 + 3] > 8) { if (xx < l) l = xx; if (xx > r) r = xx; if (yy < top) top = yy; if (yy > bot) bot = yy; }
+        for (let yy = 0; yy < bh; yy += 3) for (let xx = 0; xx < bw; xx += 3) if (D[(yy * bw + xx) * 4 + 3] > 8) { if (xx < l) l = xx; if (xx > r) r = xx; if (yy < top) top = yy; if (yy > bot) bot = yy; }
       }
     } finally { busy = false; Object.assign(m, save); A.sh = keep; }
     const cx = bw / 2, cy = bh - pad, M = 28;   // 여유 (기술 예고 · 움찔 · 흔들림)
     return { hw: Math.ceil(Math.max(cx - l, r - cx) + M), up: Math.ceil(cy - top + M), dn: Math.ceil(bot - cy + M) };
   }
+  // 빌드 9: 필터 결과(외곽선 + 본그림)를 한 장으로 합쳐 둠. 일반 몬스터는 마리마다 저장해 1/30초 동안 다시 씀 (한 화면에 여러 마리라 가볍게)
+  const RE = 1 / 30;
+  function build(m, t, A, hw, up, dn, out) {
+    const bw = hw * 2, bh = up + dn, W = bw, H = bh;
+    if (!off) { off = document.createElement('canvas'); sil = document.createElement('canvas'); rim = document.createElement('canvas'); }
+    size(off, W, H); size(sil, W, H); size(rim, W, H); size(out, W + 4, H + 4);
+    const o = off.getContext('2d'), sc = sil.getContext('2d'), rc = rim.getContext('2d'), oc = out.getContext('2d');
+    o.setTransform(1, 0, 0, 1, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over'; o.filter = 'none';
+    const keep = A.sh; A.sh = 0; const mx = m.x, my = m.y; m.x = hw; m.y = up;
+    const seam = A.refine !== 'keep', dark = !!A.dark;
+    let u1 = seam ? noSeam(o) : null;
+    try { busy = true; G.Draw.monster(o, m, t); } finally { if (u1) u1(); busy = false; }
+    // 실루엣 그림 (빛 뺀 것)
+    sc.setTransform(1, 0, 0, 1, 0, 0); u1 = seam ? noSeam(sc) : null; const u2 = noGlow(sc);
+    try { busy = true; G.Draw.monster(sc, m, t); } finally { u2(); if (u1) u1(); busy = false; m.x = mx; m.y = my; A.sh = keep; }
+    // 음영: 위 밝게 · 아래 어둡게 (몸 키 기준)
+    o.globalCompositeOperation = 'source-atop';
+    const g = o.createLinearGradient(0, up - m.h - (m.soarY || 0), 0, up - (m.soarY || 0)); g.addColorStop(0, dark ? 'rgba(255,255,255,0)' : 'rgba(255,255,255,.16)'); g.addColorStop(0.55, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(20,10,40,.30)');
+    o.fillStyle = g; o.fillRect(0, 0, W, H);
+    // 실루엣
+    sc.globalCompositeOperation = 'source-in'; sc.fillStyle = 'rgba(28,18,40,.92)'; sc.fillRect(0, 0, W, H); sc.globalCompositeOperation = 'source-over';
+    // 빛 테두리: 실루엣을 아래로 밀어 위쪽 가장자리만 남김
+    rc.globalCompositeOperation = 'source-over'; rc.drawImage(sil, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = '#fff'; rc.fillRect(0, 0, W, H); rc.globalCompositeOperation = 'destination-out'; rc.drawImage(sil, 0, 2.5); rc.globalCompositeOperation = 'source-over';
+    o.globalCompositeOperation = 'source-atop'; o.globalAlpha = dark ? 0.12 : 0.35; o.drawImage(rim, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over';
+    // 한 장으로: 외곽선(실루엣 8방향) → 본그림
+    for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy);
+    oc.drawImage(off, 2, 2);
+  }
+  let shared = null;
   G.MonRefine = function (ctx, m, t) {
     const A = G.MonArt[m.id];
     let hw, up, dn;
     if (m.dead) { hw = Math.ceil(m.w * 1.2 + 60); up = Math.ceil(m.h * 1.8 + 60); dn = 140; }   // 쓰러질 때는 넓게
     else { const b = BB[m.id] || (BB[m.id] = measure(m, t)); hw = b.hw; up = b.up + Math.ceil(Math.max(0, m.soarY || 0)); dn = b.dn; }
-    const bw = hw * 2, bh = up + dn, S = 1, W = bw * S, H = bh * S;   // 게임 화면이 1280×720 고정이라 같은 배율
-    if (!off) { off = document.createElement('canvas'); sil = document.createElement('canvas'); rim = document.createElement('canvas'); }
-    size(off, W, H); size(sil, W, H); size(rim, W, H);
-    const o = off.getContext('2d'), sc = sil.getContext('2d'), rc = rim.getContext('2d');
-    o.setTransform(S, 0, 0, S, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over'; o.filter = 'none';
-    const keep = A.sh; A.sh = 0; const mx = m.x, my = m.y; m.x = hw; m.y = up;
-    try { busy = true; G.Draw.monster(o, m, t); } finally { busy = false; m.x = mx; m.y = my; A.sh = keep; }
-    o.setTransform(1, 0, 0, 1, 0, 0);
-    // 음영: 위 밝게 · 아래 어둡게 (몸 키 기준)
-    o.globalCompositeOperation = 'source-atop';
-    const g = o.createLinearGradient(0, (up - m.h - (m.soarY || 0)) * S, 0, (up - (m.soarY || 0)) * S); g.addColorStop(0, 'rgba(255,255,255,.16)'); g.addColorStop(0.55, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(20,10,40,.30)');
-    o.fillStyle = g; o.fillRect(0, 0, W, H);
-    // 실루엣
-    sc.globalCompositeOperation = 'source-over'; sc.drawImage(off, 0, 0); sc.globalCompositeOperation = 'source-in'; sc.fillStyle = 'rgba(28,18,40,.92)'; sc.fillRect(0, 0, W, H); sc.globalCompositeOperation = 'source-over';
-    // 빛 테두리: 실루엣을 아래로 밀어 위쪽 가장자리만 남김
-    rc.globalCompositeOperation = 'source-over'; rc.drawImage(sil, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = '#fff'; rc.fillRect(0, 0, W, H); rc.globalCompositeOperation = 'destination-out'; rc.drawImage(sil, 0, 2.5 * S); rc.globalCompositeOperation = 'source-over';
-    o.globalCompositeOperation = 'source-atop'; o.globalAlpha = 0.35; o.drawImage(rim, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over';
-    // 그림자 → 외곽선 → 본그림 (쓰러질 때 흐려짐은 본그림에 이미 들어 있음)
+    let out;
+    if (m.isBoss) { out = shared || (shared = document.createElement('canvas')); build(m, t, A, hw, up, dn, out); }
+    else {
+      const key = (m.dir > 0 ? 1 : 0) + '|' + (m.hurtT > 0 ? 1 : 0) + '|' + (m.dead ? 1 : 0) + '|' + hw + '|' + up + '|' + dn;
+      let c = m.__rf; if (!c) c = m.__rf = { cv: document.createElement('canvas'), t: -9, key: '' };
+      if (c.key !== key || Math.abs(t - c.t) >= RE || m.dead) { build(m, t, A, hw, up, dn, c.cv); c.t = t; c.key = key; }
+      out = c.cv;
+    }
     ctx.save();
     if (A.sh && !(A.die === 'fall' && m.dead)) { ctx.save(); ctx.translate(m.x, m.y); D.shadow(ctx, m.w * 0.45 * A.sh); ctx.restore(); }
-    const x0 = m.x - hw, y0 = m.y - up;
-    for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) ctx.drawImage(sil, x0 + dx, y0 + dy, bw, bh);
-    ctx.drawImage(off, x0, y0, bw, bh);
+    ctx.drawImage(out, m.x - hw - 2, m.y - up - 2);
     ctx.restore();
   };
   // G.Draw.monster 를 감쌈: refine 몬스터는 필터를 거쳐 그림 (필터 안에서 부를 때는 그대로)
@@ -355,5 +383,6 @@
   // 엘드리크 (빌드 8: 여자 · 차가운 냉미녀 흑마법사, 다듬기 필터 없음)
   G.MonArt.eldrick.draw = (ctx, m, t, s) => ELD(ctx, m, t, s, { eye: 'f_mystic', face: ELF });
 })();
-// 다듬기 필터를 씌울 보스 (엘드리크 · 녹스 빼고)
-for (const id of ['shellock', 'bark', 'morwen', 'grounder', 'parakan', 'kaien_boss', 'aurelion']) if (G.MonArt[id]) G.MonArt[id].refine = true;
+// 다듬기 필터를 씌울 보스 (녹스 빼고)
+for (const id of ['shellock', 'bark', 'morwen', 'grounder', 'parakan', 'kaien_boss', 'aurelion', 'eldrick']) if (G.MonArt[id]) G.MonArt[id].refine = 'seam';   // 빌드 9: 이음새 없이 · 엘드리크도
+if (G.MonArt.eldrick) G.MonArt.eldrick.dark = true;   // 어두운 옷: 위쪽 밝힘 · 빛 테두리 약하게

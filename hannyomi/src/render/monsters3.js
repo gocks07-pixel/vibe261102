@@ -737,7 +737,8 @@
     for (const [x, ph, col] of [[-8, 0, LAV], [6, PI, LAV], [-2, PI, W], [12, 0, W]]) {
       c.save(); c.translate(x, -15); c.rotate(s.walk ? sin(run + ph) * 0.45 : 0); rrect(c, -2.4, 0, 4.8, 15, 2.4, col, LN); ell(c, 0.8, 14.6, 3, 1.6, col, LN, 1); c.restore();
     }
-    // 몸 + 가슴털
+    // 몸 + 가슴털 (빌드 9: 꼬리 뿌리를 덮는 살 덩어리로 몸 · 꼬리 이음)
+    c.beginPath(); c.moveTo(-4, -13); c.bezierCurveTo(-16, -14, -20, -30, -12, -35); c.bezierCurveTo(-6, -36, -1, -32, 2, -28); c.closePath(); c.fillStyle = W; c.fill();
     ell(c, 0, -21, 15, 9.5, W, LN, 1.4);
     poly(c, W, [[6, -30], [16, -32], [20, -24], [18, -19], [16, -14], [13, -18], [11, -13], [8, -18], [5, -15]], LN, 1.1);
     // 머리 (크게)
