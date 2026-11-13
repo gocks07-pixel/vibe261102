@@ -515,15 +515,17 @@ G.Head2 = (function () {
       ctx.restore();
     });
     // 볼터치
-    for (const bx of [-hr * 0.55, hr * 0.7]) { ctx.beginPath(); ctx.ellipse(bx, ey + eh * 0.75, ew * 0.9, eh * 0.22, 0, 0, PI * 2); ctx.fillStyle = `rgba(255,120,140,${D.blush || (L.gender === 'f' ? 0.38 : 0.25)})`; ctx.fill(); }
+    if (!L.cool) for (const bx of [-hr * 0.55, hr * 0.7]) { ctx.beginPath(); ctx.ellipse(bx, ey + eh * 0.75, ew * 0.9, eh * 0.22, 0, 0, PI * 2); ctx.fillStyle = `rgba(255,120,140,${D.blush || (L.gender === 'f' ? 0.38 : 0.25)})`; ctx.fill(); }
     // 입
     const mx = hr * 0.1, my = ey + eh * 1.0; ctx.strokeStyle = '#a0505a'; ctx.lineWidth = 1.4; ctx.lineCap = 'round'; ctx.beginPath();
+    if (!L.cool) {   // 빌드 8: cool = 볼터치 · 기본 입 없음 (엘드리크 냉미녀, 입은 따로 그림)
     if (D.mouth === 'grin') { ctx.moveTo(mx - hr * 0.13, my - eh * 0.05); ctx.quadraticCurveTo(mx, my + eh * 0.45, mx + hr * 0.13, my - eh * 0.05); ctx.closePath(); ctx.fillStyle = '#c04a5a'; ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(mx, my + eh * 0.18, hr * 0.06, eh * 0.08, 0, 0, PI); ctx.fillStyle = '#ff8a9a'; ctx.fill(); }
     else if (D.mouth === 'smirk') { ctx.moveTo(mx - hr * 0.08, my + eh * 0.05); ctx.quadraticCurveTo(mx + hr * 0.04, my + eh * 0.12, mx + hr * 0.14, my - eh * 0.1); ctx.stroke(); }
     else if (D.mouth === 'flat') { ctx.moveTo(mx - hr * 0.06, my + eh * 0.05); ctx.lineTo(mx + hr * 0.07, my + eh * 0.05); ctx.stroke(); }
     else if (D.mouth === 'firm') { ctx.moveTo(mx - hr * 0.08, my + eh * 0.08); ctx.quadraticCurveTo(mx, my + eh * 0.0, mx + hr * 0.09, my + eh * 0.08); ctx.stroke(); }
     else if (D.mouth === 'small') { ctx.moveTo(mx - hr * 0.05, my); ctx.quadraticCurveTo(mx, my + eh * 0.12, mx + hr * 0.06, my); ctx.stroke(); }
     else { ctx.moveTo(mx - hr * 0.08, my - eh * 0.03); ctx.quadraticCurveTo(mx, my + eh * 0.2, mx + hr * 0.1, my - eh * 0.03); ctx.stroke(); }
+    }
     if (L.stubble) {   // 수염: 점 대신 턱 · 윗입술에 은은한 그림자
       ctx.save(); ctx.beginPath(); ctx.ellipse(0, hy, hr, hr * 0.96, 0, 0, PI * 2); ctx.clip();
       ctx.fillStyle = radial(ctx, mx, hy + hr * 0.85, hr * 0.75, [[0, rgba(sh(L.hair, -0.3), 0.3)], [0.6, rgba(sh(L.hair, -0.3), 0.18)], [1, rgba(sh(L.hair, -0.3), 0)]]); ctx.fillRect(-hr * 1.2, hy, hr * 2.4, hr * 1.2);
@@ -639,7 +641,7 @@ G.Head2 = (function () {
     const { hr, hy } = p, ey = hy + hr * p.eyeY, ew = hr * p.eyeW, eh = hr * p.eyeH, S = F4[L.eye], ec = L.eyeColor || '#451A03';
     const u = ew * 1.2 / 9;
     for (const [ex, out] of [[-hr * 0.34, -1], [hr * 0.46, 1]]) { ctx.save(); ctx.translate(ex, ey); ctx.scale(out * u, u * 1.3); f4eye(ctx, S, ec, out, L.gender === 'f'); ctx.restore(); }
-    for (const bx of [-hr * 0.55, hr * 0.7]) { ctx.beginPath(); ctx.ellipse(bx, ey + eh * 0.75, ew * 0.9, eh * 0.22, 0, 0, PI * 2); ctx.fillStyle = `rgba(255,120,140,${S.smile ? 0.5 : 0.36})`; ctx.fill(); }
+    if (!L.cool) for (const bx of [-hr * 0.55, hr * 0.7]) { ctx.beginPath(); ctx.ellipse(bx, ey + eh * 0.75, ew * 0.9, eh * 0.22, 0, 0, PI * 2); ctx.fillStyle = `rgba(255,120,140,${S.smile ? 0.5 : 0.36})`; ctx.fill(); }
     const mx = hr * 0.1, my = ey + eh * 1.0; ctx.strokeStyle = '#a0505a'; ctx.lineWidth = 1.4; ctx.lineCap = 'round'; ctx.beginPath();
     if (S.mouth === 'grin') { ctx.moveTo(mx - hr * 0.12, my - eh * 0.04); ctx.quadraticCurveTo(mx, my + eh * 0.42, mx + hr * 0.12, my - eh * 0.04); ctx.closePath(); ctx.fillStyle = '#c04a5a'; ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(mx, my + eh * 0.17, hr * 0.055, eh * 0.07, 0, 0, PI); ctx.fillStyle = '#ff8a9a'; ctx.fill(); return; }
     if (S.mouth === 'smirk') { ctx.moveTo(mx - hr * 0.08, my + eh * 0.05); ctx.quadraticCurveTo(mx + hr * 0.04, my + eh * 0.12, mx + hr * 0.14, my - eh * 0.1); }
@@ -733,7 +735,7 @@ G.Head2 = (function () {
       ctx.restore();
     }
     // 볼터치 · 입
-    for (const bx of [-hr * 0.55, hr * 0.7]) { ctx.beginPath(); ctx.ellipse(bx, ey + eh * 0.75, ew * 0.9, eh * 0.22, 0, 0, PI * 2); ctx.fillStyle = 'rgba(255,120,140,0.35)'; ctx.fill(); }
+    if (!L.cool) for (const bx of [-hr * 0.55, hr * 0.7]) { ctx.beginPath(); ctx.ellipse(bx, ey + eh * 0.75, ew * 0.9, eh * 0.22, 0, 0, PI * 2); ctx.fillStyle = 'rgba(255,120,140,0.35)'; ctx.fill(); }
     ctx.beginPath(); ctx.moveTo(hr * 0.02, ey + eh * 0.95); ctx.quadraticCurveTo(hr * 0.1, ey + eh * 1.15, hr * 0.2, ey + eh * 0.95); ctx.strokeStyle = '#a0505a'; ctx.lineWidth = 1.4; ctx.stroke();
     if (L.mask) { ctx.fillStyle = L.mask; rr(ctx, -hr * 0.95, ey - eh * 0.5, hr * 1.95, eh * 1.0, 3); ctx.fill(); for (const ex of [-hr * 0.34, hr * 0.46]) { ctx.beginPath(); ctx.ellipse(ex, ey, ew * 0.7, eh * 0.28, 0, 0, PI * 2); ctx.fillStyle = '#ffe9a0'; ctx.fill(); } }
   }
@@ -781,6 +783,7 @@ G.Head2 = (function () {
     if (lk.hair2) L.hair2 = lk.hair2;
     if (ext) { L.hk = 1.04; L.fw = 0.94; }
     if (lk.beard) L.beard = 1;
+    if (lk.cool) L.cool = 1;
     if (lk.hat && !noHat && !lk.hatOff) L.hat = lk.hat;   // hatOff: 실리안 · 발레리아는 두건 대신 머리장식
     if (lk.acc) L.acc = lk.acc;
     return L;

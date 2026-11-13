@@ -160,7 +160,7 @@ G.World = class {
     b.dir = -1; this.monsters.push(b);
     G.FX.burst(b.x, b.y - 60, '#8a5aff', 40, 300); G.FX.pillar(b.x, b.y, '#8a5aff'); this.shake(8);
     G.Audio.play('boss');
-    G.UI.banner(`${b.d.name} 등장!`, '엘드리크: 쓸모없는 짐승 같으니... 내가 직접 상대해 주마!');
+    G.UI.banner(`${b.d.name} 등장!`, '엘드리크: 쓸모없는 짐승이로군... 좋아요, 내가 직접 상대해 드리죠.');
   }
   aurelionWakes() {
     if (this.mapId !== 'sky_sanctum' || this.npcs.some(n => n.id === 'aurelion_npc')) return;
