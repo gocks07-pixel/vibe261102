@@ -7,7 +7,7 @@ G.MONSTERS = {
   dummy:      { name: '훈련용 허수아비', lv: 1, kind: 'normal', shape: 'golem', color: '#e8d8a0', color2: '#9a8050', w: 50, h: 76, speed: 0, harmless: true, noLoot: true, fixedHp: 8 },
   jelly:      { name: '풀잎 젤리', lv: 1, kind: 'normal', shape: 'blob', color: '#7bd36a', color2: '#4e9e42', w: 44, h: 34, speed: 40, quest: ['q_jelly'] },
   crab:       { name: '꼬마 게', lv: 3, kind: 'normal', shape: 'crab', color: '#f08a4b', color2: '#c0582a', w: 50, h: 36, speed: 70, quest: ['q_shell'] },
-  spore:      { name: '포자 방울', lv: 4, kind: 'normal', shape: 'spore', color: '#b38ad9', color2: '#7d55a8', w: 42, h: 42, speed: 50, quest: ['q_spore'] },
+  spore:      { name: '민들레 솜털 정령', lv: 4, kind: 'normal', shape: 'spore', color: '#b38ad9', color2: '#7d55a8', w: 42, h: 42, speed: 50, quest: ['q_spore'] },
   capshroom:  { name: '갓버섯 전사', lv: 6, kind: 'normal', shape: 'mushroom', color: '#b5651d', color2: '#f1e0c0', w: 48, h: 58, speed: 55, quest: ['q_cap'] },
   spikeshell: { name: '가시 조개', lv: 7, kind: 'normal', shape: 'shell', color: '#8aa5c8', color2: '#5a7598', w: 54, h: 40, speed: 30, quest: ['q_pearl'] },
   sealizard:  { name: '바다 도마뱀', lv: 9, kind: 'normal', shape: 'lizard', color: '#3fb8a8', color2: '#24806f', w: 72, h: 36, speed: 90, aggressive: true },
