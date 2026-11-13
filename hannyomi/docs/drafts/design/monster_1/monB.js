@@ -173,11 +173,11 @@
       ell(ctx, sg * 7, h * 0.37, 4, 2.4, '#e070c0'); if (cast > 0) glow(ctx, 0, h * 0.34, 24, '#c060ff', 0.8); ctx.restore();
     }
     // 얼굴 (나무껍질 가면 같은 고운 얼굴)
-    ell(ctx, 0, -h * 0.79, w * 0.17, h * 0.085, vg(ctx, -h * 0.87, -h * 0.71, '#c8b088', 0.15, -0.2), '#4a3a20', 1.4);
+    ell(ctx, 0, -h * 0.79, w * 0.2, h * 0.095, vg(ctx, -h * 0.87, -h * 0.71, '#c8b088', 0.15, -0.2), '#4a3a20', 1.4);
     ctx.save(); ctx.shadowColor = ec; ctx.shadowBlur = 10; ell(ctx, -w * 0.06, -h * 0.8, 3.4, 2, ec); ell(ctx, w * 0.06, -h * 0.8, 3.4, 2, ec); ctx.restore();
     line(ctx, '#4a2a3a', 1.2, [[-w * 0.04, -h * 0.75], [w * 0.04, -h * 0.75]]);
     // 흐르는 잎 머리
-    for (let i = 0; i < 12; i++) { const sg = i < 6 ? -1 : 1, j = i % 6; ctx.save(); ctx.translate(sg * (w * 0.2 + j * 2.2), -h * 0.86 + j * h * 0.07); ctx.rotate(sg * (0.3 + j * 0.08) + sin(t * 2 + i) * 0.08);
+    for (let i = 0; i < 12; i++) { const sg = i < 6 ? -1 : 1, j = i % 6; ctx.save(); ctx.translate(sg * (w * 0.26 + j * 2.2), -h * 0.84 + j * h * 0.075); ctx.rotate(sg * (0.3 + j * 0.08) + sin(t * 2 + i) * 0.08);
       ell(ctx, 0, 6, 3.4, 9, j % 3 === 2 ? (ph ? '#8a3aa0' : '#8a9a4a') : (j % 2 ? '#5a7a3a' : '#6a9a4a'), '#2a3a1a', 0.5); ctx.restore(); }
     // 가지 뿔 왕관
     for (const sg of [-1, 1]) { line(ctx, '#4a3a22', 3.4, [[sg * w * 0.08, -h * 0.87], [sg * w * 0.2, -h * 1.0], [sg * w * 0.16, -h * 1.1]]); line(ctx, '#4a3a22', 2.4, [[sg * w * 0.2, -h * 1.0], [sg * w * 0.34, -h * 1.06], [sg * w * 0.4, -h * 1.15]]); line(ctx, '#4a3a22', 2, [[sg * w * 0.3, -h * 1.04], [sg * w * 0.3, -h * 1.12]]);
