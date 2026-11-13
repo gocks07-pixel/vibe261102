@@ -51,3 +51,11 @@
   S.s7a = (c, f, k, t) => { R.meteor(c, f.x, f.y, 2.2, 30, t, 'a'); };   // 가: 용암 바위 유성
   S.s7b = (c, f, k, t) => { R.meteor(c, f.x, f.y, 2.2, 26, t, 'b'); };   // 나: 하얗게 빛나는 별똥 (바위 대신 빛 덩어리)
 })();
+// 6 나 수정: 하늘 번쩍 + 먹구름에서 번개 세 줄기가 나옴
+(function () { const R = G.SkyReal, S = R.opt, PI = Math.PI;
+  const STORM3 = { top: '#6a7090', mid: '#353a56', base: '#14162a', rim: 'rgba(170,200,255,.55)' };
+  S.s6c = (c, f, k, t) => { const a = 1 - k, top = f.y - 440; c.save(); c.globalAlpha = a * 0.3; c.fillStyle = '#fffbe0'; c.fillRect(f.x - 1400, f.y - 900, 2800, 1000); c.restore();
+    R.BR = 0.9; [[0, 91, 0], [-130, 33, 1], [140, 57, 2]].forEach(([dx, sd, i]) => R.bolt(c, f.x + dx, top + 40, f.x + dx * 0.25, i ? f.y - 130 + i * 40 : f.y, sd, { glow: 'rgba(255,240,150,.95)', core: '#fff8d0' }, a * (i ? 0.75 : 1))); R.BR = 0;
+    R.cloud(c, f.x, top + 40, 520, 150, STORM3, 83, t, { alpha: Math.min(1, a * 1.5), flat: 0.8, inner: (k2, cx, by, w, h) => { for (const dx of [-130, 0, 140]) { const g = k2.createRadialGradient(cx + dx, by - h * 0.15, 0, cx + dx, by - h * 0.15, h * 0.7); g.addColorStop(0, 'rgba(255,250,200,.75)'); g.addColorStop(1, 'rgba(255,250,200,0)'); k2.fillStyle = g; k2.fillRect(0, 0, k2.canvas.width, k2.canvas.height); } } });
+    c.save(); c.globalCompositeOperation = 'lighter'; c.translate(f.x, f.y); c.scale(1, 0.3); const g = c.createRadialGradient(0, 0, 0, 0, 0, 160); g.addColorStop(0, `rgba(255,250,210,${a})`); g.addColorStop(1, 'rgba(255,240,150,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, 160, 0, PI * 2); c.fill(); c.restore(); };
+})();
