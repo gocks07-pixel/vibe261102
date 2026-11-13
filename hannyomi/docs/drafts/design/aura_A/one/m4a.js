@@ -17,9 +17,9 @@
     const ox = m.e / (c.getTransform().a || 1), oy = m.f / (c.getTransform().d || 1); c.save(); c.setTransform(c.getTransform()); flick(c, ox, oy - 3, 11, 3.4, t, 1); c.restore(); };
   S.na = () => {};
   // 다: 따라다니는 불씨 — 작은 불덩이 하나가 몸 둘레를 천천히 돎 (앞 · 뒤)
-  const orb = (front) => (c, p, t) => { const a = t * 1.6, x = p.x + cos(a) * 30, y = p.y - 50 + sin(a) * 8 + sin(t * 3) * 2; if ((sin(a) > 0) !== front) return;
+  const orb = (front) => (c, p, t) => { const a = t * 1.6, x = p.x + cos(a) * 42, y = p.y - 26 + sin(a) * 6 + sin(t * 3) * 2; if ((sin(a) > 0) !== front) return;
     soft(c, x, y, 14, 'rgba(255,120,30,.6)', 1); flick(c, x, y + 2, 12, 4, t, 3); ell(c, x, y + 1, 4, 4, '#ffb030'); ell(c, x - 0.6, y + 0.4, 2, 2, '#fff6d0');
-    for (let i = 1; i <= 3; i++) { const b = a - i * 0.22; c.save(); c.globalAlpha = 0.5 - i * 0.12; ell(c, p.x + cos(b) * 30, p.y - 50 + sin(b) * 8, 2.4 - i * 0.4, 2.4 - i * 0.4, '#ff8a30'); c.restore(); } };
+    for (let i = 1; i <= 3; i++) { const b = a - i * 0.22; c.save(); c.globalAlpha = 0.5 - i * 0.12; ell(c, p.x + cos(b) * 42, p.y - 26 + sin(b) * 6, 2.4 - i * 0.4, 2.4 - i * 0.4, '#ff8a30'); c.restore(); } };
   S.da = orb(false); S.daFront = orb(true);
   // 라: 업화 발판 — 발밑 붉은 원 + 불꽃 문양 네 개가 천천히 도는 작은 마법진
   S.ra = (c, p, t) => { c.save(); c.translate(p.x, p.y - 1); c.scale(1, 0.3); c.globalAlpha = 0.85 + 0.15 * sin(t * 3); c.lineWidth = 2.6; c.strokeStyle = '#e8501a'; c.beginPath(); c.arc(0, 0, 32, 0, PI * 2); c.stroke();
