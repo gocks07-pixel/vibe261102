@@ -65,20 +65,24 @@
     rc.globalCompositeOperation = 'source-over'; rc.drawImage(sil, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = '#fff'; rc.fillRect(0, 0, W, H); rc.globalCompositeOperation = 'destination-out'; rc.drawImage(sil, 0, 2.5); rc.globalCompositeOperation = 'source-over';
     o.globalCompositeOperation = 'source-atop'; o.globalAlpha = dark ? 0.12 : 0.35; o.drawImage(rim, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over';
     // 한 장으로: 외곽선(실루엣 8방향) → 본그림
-    const E = G.MonRefine.EDGE;   // 시안용: { sil: 외곽선 그림, fade: 가장자리 2px 를 배경에 스며들게 (0~1) }
+    const E = G.MonRefine.EDGE;   // { sil: false 외곽선 안 그림 · silA: 외곽선 투명도 · fade: 가장자리 2px 덮는 정도 (0~1) · tint: 덮는 색 }
     if (E && E.silA) { oc.save(); oc.globalAlpha = E.silA; for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy); oc.restore(); }
     else if (!E || E.sil !== false) for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy);
-    if (E && E.fade) {   // 가장자리 띠 = 실루엣 − 2px 안으로 줄인 실루엣 → 그만큼 본그림을 투명하게 (그림에 그어진 바깥 선이 배경색으로 스며듦)
-      const mk = document.createElement('canvas'); mk.width = W; mk.height = H; const mx2 = mk.getContext('2d'); mx2.drawImage(sil, 0, 0); mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = '#000'; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) mx2.drawImage(mk, 0, 0);   // 불투명 마스크 (실루엣은 0.92 라 겹쳐 진하게)
-      const ec = document.createElement('canvas'); ec.width = W; ec.height = H; const ex = ec.getContext('2d'); ex.drawImage(mk, 0, 0);
+    if (E && E.fade) {   // 가장자리 띠 = 실루엣 − 2px 안으로 줄인 실루엣 → 밝은 색으로 살짝 덮어 배경에 스며들게 (빌드 10 기본: 테두리 옅게 "나")
+      const [mk, ec, bc] = scratch(W, H), mx2 = mk.getContext('2d'), ex = ec.getContext('2d'), bx = bc.getContext('2d');
+      mx2.globalCompositeOperation = 'copy'; mx2.drawImage(sil, 0, 0); mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = '#000'; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) mx2.drawImage(mk, 0, 0);   // 불투명 마스크 (실루엣은 0.92 라 겹쳐 진하게)
+      ex.globalCompositeOperation = 'copy'; ex.drawImage(mk, 0, 0);
       for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1]]) { ex.globalCompositeOperation = 'destination-in'; ex.drawImage(mk, dx, dy); }
-      const bc = document.createElement('canvas'); bc.width = W; bc.height = H; const bx = bc.getContext('2d'); bx.drawImage(mk, 0, 0); bx.globalCompositeOperation = 'destination-out'; bx.drawImage(ec, 0, 0);
-      if (E.tint) { const tc = document.createElement('canvas'); tc.width = W; tc.height = H; const tx = tc.getContext('2d'); tx.drawImage(bc, 0, 0); tx.globalCompositeOperation = 'source-in'; tx.fillStyle = E.tint; tx.fillRect(0, 0, W, H);
-        o.save(); o.globalCompositeOperation = 'source-atop'; o.globalAlpha = E.fade; o.drawImage(tc, 0, 0); o.restore(); }   // 가장자리를 밝은 색으로 덮음 (모양은 그대로)
+      bx.globalCompositeOperation = 'copy'; bx.drawImage(mk, 0, 0); bx.globalCompositeOperation = 'destination-out'; bx.drawImage(ec, 0, 0);
+      if (E.tint) { bx.globalCompositeOperation = 'source-in'; bx.fillStyle = E.tint; bx.fillRect(0, 0, W, H); bx.globalCompositeOperation = 'source-over';
+        o.save(); o.globalCompositeOperation = 'source-atop'; o.globalAlpha = E.fade; o.drawImage(bc, 0, 0); o.restore(); }   // 가장자리를 밝은 색으로 덮음 (모양은 그대로)
       else { o.save(); o.globalCompositeOperation = 'destination-out'; o.globalAlpha = E.fade; o.drawImage(bc, 0, 0); o.restore(); }
     }
     oc.drawImage(off, 2, 2);
   }
+  // 가장자리 계산용 그림판 3장 (매번 새로 만들지 않고 다시 씀)
+  const SCR = [0, 0, 0].map(() => document.createElement('canvas'));
+  function scratch(W, H) { for (const c of SCR) { if (c.width < W) c.width = W; if (c.height < H) c.height = H; } return SCR; }
   let shared = null;
   G.MonRefine = function (ctx, m, t) {
     const A = G.MonArt[m.id];
@@ -98,6 +102,8 @@
     ctx.drawImage(out, m.x - hw - 2, m.y - up - 2);
     ctx.restore();
   };
+  // 빌드 10: 테두리 옅게 (나 안) 기본 — 바깥 외곽선 30% + 가장자리 2px 를 밝은 푸른빛으로 살짝 덮음
+  G.MonRefine.EDGE = { silA: 0.3, fade: 0.35, tint: '#c8d4f0' };
   // G.Draw.monster 를 감쌈: refine 몬스터는 필터를 거쳐 그림 (필터 안에서 부를 때는 그대로)
   const base = D.monster;
   D.monster = function (ctx, m, t) {

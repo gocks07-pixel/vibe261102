@@ -323,7 +323,7 @@ G.World = class {
       }
       if (u.left <= 0 || src.dead) this.pull = null;
     }
-    if (this.doom) this.doom.left -= dt;
+    if (this.doom) { this.doom.left -= dt; if (this.doom.left < -1) this.doom = null; }   // 빌드 10 안전장치: 끝난 안전지대가 남지 않게
     if (this.cloth) { this.cloth.t += dt; if (this.cloth.t > 9) this.cloth = null; }
     if (this.monsters.some(m => m.isBoss && !m.dead)) this.bossT += dt;
   }
