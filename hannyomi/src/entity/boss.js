@@ -56,6 +56,7 @@ G.BossAI = class {
         G.Audio.play('boss'); w.shake(10);
         if (m.d.kind === 'final' && !this.enraged) G.Music.noxPhase(ph);
         G.FX.shock(m.x, m.y - m.h / 2, 300, '#c060ff');
+        if (this.cur) this.cleanup(w);   // 빌드 10: 하던 패턴이 남긴 안전지대 · 장판 · 방어 상태 정리 (파라칸 태양의 심판 중 전환 때 안전지대가 남던 버그)
         this.cur = null; this.next = 2.2; m.warnT = 0;
         if (p.start) { this.pending = { id: p.start, at: this.time + 1.2 }; this.next = 99; }   // 1.7.2: 아우렐리온 천공 비상
         if (ph === 2 && d.assist && !this.assist.heal) {

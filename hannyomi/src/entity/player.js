@@ -657,7 +657,9 @@ G.Player = class {
     }
     G.SkillX.aura(ctx, this);   // 1.7.10: 각성 버프의 모습 (등 뒤의 대검 · 날개 등)
     const alpha = this.dead ? 0.35 : (this.invuln > 0 && Math.floor(this.t * 20) % 2 ? 0.45 : (this.dash ? 0.6 : 1));
-    G.Draw.humanoid(ctx, this.drawOpts(alpha));
+    const dop = this.drawOpts(alpha); if (G.SkillX.wglow) dop.wglow = G.SkillX.wglow(this);   // 빌드 10: 무기 빛 (천붕검제의 각성)
+    G.Draw.humanoid(ctx, dop);
+    if (G.SkillX.auraFront) G.SkillX.auraFront(ctx, this);   // 빌드 10: 몸 앞으로 지나가는 버프 모습
     if (this.barrier > 0 && !this.dead) {
       ctx.save(); ctx.globalAlpha = 0.28 + Math.sin(this.t * 4) * 0.06; ctx.strokeStyle = '#bfe6ff'; ctx.fillStyle = 'rgba(160,210,255,.12)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(this.x, this.y - 34, 30, 42, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore();

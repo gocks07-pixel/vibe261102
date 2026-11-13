@@ -1337,7 +1337,7 @@ G.Outfit = (function () {
     ctx.save(); ctx.translate(2, -31); ctx.rotate(arm);
     sleeve(ctx, g.top ? (SLV[topKind] || topKind === 'plate' || topKind === 'royal' ? topKind : 'plain') : (e.sleeve || 'plain'), topC, e, sTop);
     hand(ctx, g.gloves ? g.gloves.k : 'none', g.gloves ? g.gloves.c : null, skin, g.gloves ? g.gloves.sp : {});
-    if (o.weapon) { WFLIP = !!o.wflip; weapon(ctx, o.weapon, o.wcolor, g.weapon ? g.weapon.st : null); WFLIP = false; }
+    if (o.weapon) { WFLIP = !!o.wflip; weapon(ctx, o.weapon, o.wcolor, g.weapon ? g.weapon.st : null); WFLIP = false; if (o.wglow) o.wglow(ctx, o.weapon); }   // 빌드 10 wglow: 무기 자리에서 덧그림 (버프 무기 빛)
     if (g.top) pauldron(ctx, topKind, topC, sTop);
     ctx.restore();
     ctx.restore();
