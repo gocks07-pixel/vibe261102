@@ -65,7 +65,18 @@
     rc.globalCompositeOperation = 'source-over'; rc.drawImage(sil, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = '#fff'; rc.fillRect(0, 0, W, H); rc.globalCompositeOperation = 'destination-out'; rc.drawImage(sil, 0, 2.5); rc.globalCompositeOperation = 'source-over';
     o.globalCompositeOperation = 'source-atop'; o.globalAlpha = dark ? 0.12 : 0.35; o.drawImage(rim, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over';
     // 한 장으로: 외곽선(실루엣 8방향) → 본그림
-    for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy);
+    const E = G.MonRefine.EDGE;   // 시안용: { sil: 외곽선 그림, fade: 가장자리 2px 를 배경에 스며들게 (0~1) }
+    if (E && E.silA) { oc.save(); oc.globalAlpha = E.silA; for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy); oc.restore(); }
+    else if (!E || E.sil !== false) for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy);
+    if (E && E.fade) {   // 가장자리 띠 = 실루엣 − 2px 안으로 줄인 실루엣 → 그만큼 본그림을 투명하게 (그림에 그어진 바깥 선이 배경색으로 스며듦)
+      const mk = document.createElement('canvas'); mk.width = W; mk.height = H; const mx2 = mk.getContext('2d'); mx2.drawImage(sil, 0, 0); mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = '#000'; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) mx2.drawImage(mk, 0, 0);   // 불투명 마스크 (실루엣은 0.92 라 겹쳐 진하게)
+      const ec = document.createElement('canvas'); ec.width = W; ec.height = H; const ex = ec.getContext('2d'); ex.drawImage(mk, 0, 0);
+      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1]]) { ex.globalCompositeOperation = 'destination-in'; ex.drawImage(mk, dx, dy); }
+      const bc = document.createElement('canvas'); bc.width = W; bc.height = H; const bx = bc.getContext('2d'); bx.drawImage(mk, 0, 0); bx.globalCompositeOperation = 'destination-out'; bx.drawImage(ec, 0, 0);
+      if (E.tint) { const tc = document.createElement('canvas'); tc.width = W; tc.height = H; const tx = tc.getContext('2d'); tx.drawImage(bc, 0, 0); tx.globalCompositeOperation = 'source-in'; tx.fillStyle = E.tint; tx.fillRect(0, 0, W, H);
+        o.save(); o.globalCompositeOperation = 'source-atop'; o.globalAlpha = E.fade; o.drawImage(tc, 0, 0); o.restore(); }   // 가장자리를 밝은 색으로 덮음 (모양은 그대로)
+      else { o.save(); o.globalCompositeOperation = 'destination-out'; o.globalAlpha = E.fade; o.drawImage(bc, 0, 0); o.restore(); }
+    }
     oc.drawImage(off, 2, 2);
   }
   let shared = null;
