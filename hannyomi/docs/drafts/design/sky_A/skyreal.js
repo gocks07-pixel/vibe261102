@@ -28,7 +28,7 @@
   // 진짜 번개: 갈라지는 가지 + 바깥 빛
   const boltPath = (x0, y0, x1, y1, seed, depth, out) => { const segs = 9; let px = x0, py = y0; const pts = [[px, py]];
     for (let i = 1; i <= segs; i++) { const u = i / segs; const nx = x0 + (x1 - x0) * u + (rnd(seed + i) - 0.5) * 46 * (1 - u * 0.4), ny = y0 + (y1 - y0) * u + (rnd(seed + i * 2) - 0.5) * 10; pts.push([nx, ny]);
-      if (depth < 2 && rnd(seed + i * 9) > 0.72) boltPath(nx, ny, nx + (rnd(seed + i * 4) - 0.5) * 160, ny + (y1 - y0) * 0.3, seed + i * 31, depth + 1, out); }
+      if (depth < 2 && rnd(seed + i * 9) > (R.BR || 0.72)) boltPath(nx, ny, nx + (rnd(seed + i * 4) - 0.5) * 160, ny + (y1 - y0) * 0.3, seed + i * 31, depth + 1, out); }
     out.push({ pts, w: depth ? 1.8 / depth : 4 }); };
   R.bolt = (c, x0, y0, x1, y1, seed, col, a) => { const out = []; boltPath(x0, y0, x1, y1, seed, 0, out); c.save(); c.globalAlpha *= a; c.lineCap = 'round'; c.lineJoin = 'round';
     for (const [m, cc] of [[6, col.glow], [2.2, col.core], [1, '#ffffff']]) for (const b of out) { c.strokeStyle = cc; c.lineWidth = b.w * m; if (m === 6) { c.shadowColor = col.glow; c.shadowBlur = 18; } else c.shadowBlur = 0; c.beginPath(); b.pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke(); } c.restore(); };
