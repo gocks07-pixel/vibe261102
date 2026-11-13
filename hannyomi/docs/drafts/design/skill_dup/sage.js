@@ -4,13 +4,13 @@
   const rnd = (s) => { const x = Math.sin(s * 127.1) * 43758.5453; return x - Math.floor(x); };
   const M = G.SageMock = {};
   // ---------- 게임풍 구름: 큰 덩어리 몇 개를 한 실루엣으로 → 셀 음영 (가: 테두리 있음 · 나: 테두리 없이 부드럽게) ----------
-  const TONE = { storm: { out: '#22264a', base: '#565e8c', dark: '#3a3f68', light: '#7f88ba', hi: '#b8c2ee' }, white: { out: '#6a7aa8', base: '#e8eefa', dark: '#b8c4e0', light: '#ffffff', hi: '#ffffff' } };
+  const TONE = { storm2: { out: '#5a6488', base: '#9aa4c4', dark: '#7d87aa', light: '#bcc4de', hi: '#e6ebf8' }, storm: { out: '#22264a', base: '#565e8c', dark: '#3a3f68', light: '#7f88ba', hi: '#b8c2ee' }, white: { out: '#6a7aa8', base: '#e8eefa', dark: '#b8c4e0', light: '#ffffff', hi: '#ffffff' } };
   function puffs(w, h, seed) { const P = [], n = Math.max(7, Math.round(w / h * 3.2)); for (let i = 0; i < n; i++) { const u = (i + 0.5) / n * 2 - 1, d = Math.sqrt(Math.max(0, 1 - u * u * 0.9)); P.push([u * w * 0.44, -h * 0.16 - d * h * 0.34 + (rnd(seed + i) - 0.5) * h * 0.16, h * (0.16 + 0.2 * d) * (0.8 + rnd(seed + i * 3) * 0.45)]); }
     const m = Math.round(n * 0.6); for (let i = 0; i < m; i++) P.push([((i + 0.5) / m - 0.5) * w * 0.86, -h * 0.06, h * 0.2]); P.top = n; return P; }
   const silPath = (c, P, w, h) => { c.beginPath(); for (const [x, y, r] of P) { c.moveTo(x + r, y); c.arc(x, y, r, 0, PI * 2); } c.rect(-w * 0.46, -h * 0.22, w * 0.92, h * 0.24); };   // 아래는 평평
   M.cloud = (c, x, y, w, h, style, toneKey, seed, a = 1, flash = 0) => {
     const T = TONE[toneKey], P = puffs(w, h, seed); c.save(); c.translate(x, y); c.globalAlpha *= a; c.beginPath(); c.rect(-w, -h * 2, w * 2, h * 2 + (style === 'ga' ? 4 : 0)); c.clip();
-    if (style === 'ga') { c.save(); c.translate(0, 0); c.lineJoin = 'round'; silPath(c, P, w, h); c.strokeStyle = T.out; c.lineWidth = 7; c.stroke(); c.restore(); }   // 바깥 테두리 (안쪽 겹친 선은 아래 채우기가 덮음)
+    if (style === 'ga') { c.save(); c.lineJoin = 'round'; silPath(c, P, w, h); c.strokeStyle = T.out; c.lineWidth = M.olw || 7; c.stroke(); c.restore(); }   // 바깥 테두리 (안쪽 겹친 선은 아래 채우기가 덮음)
     silPath(c, P, w, h); c.fillStyle = T.base; c.fill();
     c.save(); silPath(c, P, w, h); c.clip();
     // 덩어리마다 위쪽 테두리만 밝게 (밝은 원 위에 본색 원을 아래로 비켜 덮어 초승달 모양 빛만 남김) → 공처럼 보이지 않음
@@ -19,7 +19,7 @@
     c.beginPath(); c.moveTo(-w, h); for (let i = 0; i <= 12; i++) { const u = i / 12, xx = -w * 0.55 + u * w * 1.1; c.lineTo(xx, -h * 0.1 + sin(u * 9 + seed) * h * 0.04); } c.lineTo(w, h); c.closePath(); c.fillStyle = T.dark; c.fill();
     for (let i = 0; i < 3; i++) { const [px, py, r] = top[Math.floor(rnd(seed + i * 13) * top.length)]; c.beginPath(); c.ellipse(px - r * 0.35, py - r * 0.6, r * 0.22, r * 0.09, -0.3, 0, PI * 2); c.fillStyle = T.hi; c.globalAlpha = (style === 'ga' ? 0.85 : 0.55) * a; c.fill(); c.globalAlpha = a; }
     if (style === 'na') { const g = c.createLinearGradient(0, -h * 0.6, 0, h * 0.1); g.addColorStop(0, 'rgba(255,255,255,.18)'); g.addColorStop(1, 'rgba(0,0,30,.25)'); c.fillStyle = g; c.fillRect(-w, -h, w * 2, h * 1.4); }
-    if (style === 'ga') { c.restore(); c.save(); c.strokeStyle = T.out; c.lineWidth = 3.5; c.beginPath(); c.moveTo(-w * 0.46, 0); c.lineTo(w * 0.46, 0); c.stroke(); silPath(c, P, w, h); c.clip(); }
+    if (style === 'ga') { c.restore(); c.save(); c.strokeStyle = T.out; c.lineWidth = (M.olw || 7) / 2; c.beginPath(); c.moveTo(-w * 0.46, 0); c.lineTo(w * 0.46, 0); c.stroke(); silPath(c, P, w, h); c.clip(); }
     if (flash > 0) { const g = c.createRadialGradient(0, -h * 0.2, 0, 0, -h * 0.2, w * 0.45); g.addColorStop(0, `rgba(200,235,255,${0.85 * flash})`); g.addColorStop(1, 'rgba(160,210,255,0)'); c.fillStyle = g; c.fillRect(-w, -h, w * 2, h * 1.4); }
     c.restore(); c.restore(); };
   // ---------- 번개 (게임풍: 굵은 지그재그 + 흰 심 + 색 빛, 가지는 조금) ----------
@@ -58,10 +58,14 @@
     if (hit) { const f = Math.max(0, 1 - (k - 0.18) / 0.6); [[0, 11, 1.8], [-210, 33, 1], [220, 57, 1], [-110, 21, 0.8], [120, 45, 0.8]].forEach(([dx, sd, w], i) => M.bolt(c, cx + dx, top + 50, cx + dx * 0.35, gy, sd + Math.floor(k * 10), GOLD, f * (i ? 0.85 : 1), w, i ? 1 : 3));
       const r = (k - 0.18) * 900; ring(c, cx, gy - 4, r, '#fff4b0', f, 8); ring(c, cx, gy - 4, r * 0.7, GOLD, f, 4); glow(c, cx, gy - 20, 260, 'rgba(255,240,160,.95)', f);
       targets.forEach((tx, i) => { if (i && k > 0.3 && k < 0.7) M.bolt(c, targets[i - 1], gy - 50, tx, gy - 50, 200 + i + Math.floor(k * 20), '#9ad8ff', 0.8, 0.45, 0); }); }
-    M.cloud(c, cx, top + 50, 900, 200, M.style, 'storm', 7, a, hit ? Math.max(0, sin(k * 40)) : 0.3); };
+    M.cloud(c, cx, top + 50, 900, 200, M.style, M.tone || 'storm', 7, a, hit ? Math.max(0, sin(k * 40)) : 0.3); };
 })();
 // 구름 그림체 비교용 장면: 지금(실제 같은 구름) · 가 · 나 를 한 화면에
 G.SageMock.cloudCmp = (c, p, k, gy) => { const M = G.SageMock; G.SkyFX.thunder(c, { x: p.x + 60, y: gy - 470, t: 1.3 }, 0.5);
   M.cloud(c, p.x + 400, gy - 430, 300, 120, 'ga', 'storm', 3, 1, 0); M.cloud(c, p.x + 740, gy - 430, 300, 120, 'na', 'storm', 3, 1, 0);
   M.cloud(c, p.x + 400, gy - 250, 260, 100, 'ga', 'white', 5, 1, 0); M.cloud(c, p.x + 740, gy - 250, 260, 100, 'na', 'white', 5, 1, 0);
   c.save(); c.font = 'bold 22px sans-serif'; c.fillStyle = '#ffffff'; c.strokeStyle = '#1a2040'; c.lineWidth = 5; for (const [t, x] of [['지금 (실제 같은 구름)', p.x - 120], ['가: 테두리 + 셀 음영', p.x + 290], ['나: 테두리 없이', p.x + 660]]) { c.strokeText(t, x, gy - 540); c.fillText(t, x, gy - 540); } c.restore(); };
+
+// 수정: 연한 구름 두 가지 (테두리 얇게 · 테두리 없이)
+G.SageMock.wrathA = (c, p, k, gy, t) => { const M = G.SageMock; M.style = 'ga'; M.tone = 'storm2'; M.olw = 3; M.wrath(c, p, k, gy, t); M.olw = 0; M.tone = null; };
+G.SageMock.wrathB = (c, p, k, gy, t) => { const M = G.SageMock; M.style = 'na'; M.tone = 'storm2'; M.wrath(c, p, k, gy, t); M.style = 'ga'; M.tone = null; };
