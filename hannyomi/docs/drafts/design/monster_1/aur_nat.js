@@ -612,6 +612,12 @@
   const limb2 = (o, pts, ws, col) => { for (let i = 0; i < pts.length - 1; i++) S(o, ws[i], col, () => { c.moveTo(...pts[i]); c.lineTo(...pts[i + 1]); }); for (let i = 1; i < pts.length - 1; i++) E(o, pts[i][0], pts[i][1], ws[i] / 2, ws[i] / 2, col); };
   const paw2 = (o, x, col, k) => { for (const [dx, r] of [[-7, 5.4], [1, 6.2], [9, 5.4]]) E(o, x + dx * k, -4, r * k, 4.6 * k, col); };
   const claws = (x, k) => { for (const dx of [-7, 1, 9]) { c.beginPath(); c.moveTo(x + (dx + 3) * k, -6); c.quadraticCurveTo(x + (dx + 9) * k, -5, x + (dx + 8) * k, 0); c.quadraticCurveTo(x + (dx + 5) * k, -1, x + (dx + 3) * k, -2); c.closePath(); c.fillStyle = GOLD; c.fill(); c.strokeStyle = GOLDD; c.lineWidth = 0.8; c.stroke(); } };
+  const bez = (P0, P1, P2, P3) => u => { const a = 1 - u; return [a*a*a*P0[0] + 3*a*a*u*P1[0] + 3*a*u*u*P2[0] + u*u*u*P3[0], a*a*a*P0[1] + 3*a*a*u*P1[1] + 3*a*u*u*P2[1] + u*u*u*P3[1]]; };
+  const tan = (f, u) => { const p = f(Math.max(0, u - 0.01)), q = f(Math.min(1, u + 0.01)), d = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1; return [(q[0] - p[0]) / d, (q[1] - p[1]) / d]; };
+  // 곡선 f 의 u 자리에, 몸 바깥쪽(side 1 = 진행 방향 왼쪽)으로 서는 가시. sweep: 끝이 기우는 방향 (접선 기준 -1 뒤 / +1 앞)
+  const spike = (f, u, half, side, L, b, sweep) => { const p = f(u), [tx, ty] = tan(f, u), nx = ty * side, ny = -tx * side;
+    const bx = p[0] + nx * (half - 2), by = p[1] + ny * (half - 2);
+    poly(c, GOLD, [[bx - tx * b, by - ty * b], [bx + nx * L + tx * L * 0.45 * sweep, by + ny * L + ty * L * 0.45 * sweep], [bx + tx * b, by + ty * b]], GOLDD, 1); };
   const st1 = Math.sin(t * 2) * 1.2, st2 = Math.sin(t * 2 + 1) * 1.2;
   const hind2 = (o, x, top, col, k) => { limb2(o, [[x, top], [x + 16 * k, top + 20 * k], [x - 4 * k, -18 + st1], [x + 2 * k, -6]], [22 * k, 15 * k, 10 * k], col); paw2(o, x + 4 * k, col, k); };
   const fore2 = (o, x, top, col, k) => { limb2(o, [[x, top], [x - 8 * k, top + 20 * k], [x + 4 * k, -14 + st2], [x + 6 * k, -6]], [16 * k, 12 * k, 9 * k], col); paw2(o, x + 6 * k, col, k * 0.9); };
@@ -631,7 +637,7 @@
   claws(-30 + 4.2, 1.05); claws(36 + 6, 0.9);
   // 꼬리 끝 깃 술 · 꼬리 금 가시
   for (let i = 0; i < 4; i++) { c.save(); c.translate(-142, -62); c.rotate(-2.1 + i * 0.35 + Math.sin(t * 3) * 0.05); ell(c, 0, -12, 4, 13, i % 2 ? '#fff' : '#ddd8ff', LB, 1); c.restore(); }
-  for (let i = 0; i < 4; i++) poly(c, GOLD, [[-68 - i * 18, -44 + i * 3 + sw * 0.3 * i / 3], [-62 - i * 18, -54 + i * 3 + sw * 0.3 * i / 3], [-58 - i * 18, -42 + i * 3 + sw * 0.3 * i / 3]], GOLDD, 1);
+  for (let i = 0; i < 5; i++) { const u = 0.2 + i * 0.15; spike(bz, u, (30 - 21.6 * u) / 2, -1, 11 - i * 1.4, 4.2 - i * 0.4, 1); }
   // 은은한 그늘 (선 대신 겹침을 그늘로): 허벅지 · 어깨 아래
   for (const [x, y, r] of [[-34, -34, 24], [34, -52, 16]]) { const g = c.createRadialGradient(x, y, 2, x, y, r); g.addColorStop(0, 'rgba(150,140,215,.28)'); g.addColorStop(1, 'rgba(150,140,215,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, PI * 2); c.fill(); }
   // 다리 앞쪽만 아주 옅은 윤곽 (덩어리가 묻히지 않게)
@@ -646,13 +652,16 @@
   // 목 앞쪽 밝은 띠
   c.strokeStyle = '#f8f3e4'; c.lineWidth = 10; c.beginPath(); c.moveTo(32, -78); c.bezierCurveTo(54, -102, 44, -122, 66, -138 + br); c.stroke();
   // 등 갈기 (금빛 가시)
-  for (let i = 0; i < 6; i++) { const u = i / 5, x = 14 + u * 30, y = -84 - u * 58; poly(c, GOLD, [[x - 4, y + 4], [x - 12, y - 6], [x + 2, y - 2]], GOLDD, 1); }
-  // 가슴의 하늘의 별조각
-  c.save(); c.translate(36, -92); c.rotate(-0.3);
-  poly(c, GOLD, [[-10, -16], [10, -16], [12, 2], [0, 14], [-12, 2]], GOLDD, 1.6);
-  poly(c, GEM, [[0, -13], [7, -1], [0, 11], [-7, -1]], GEM2, 1.6); poly(c, GEM2, [[0, -13], [7, -1], [0, 11]]);
-  c.restore(); glow(c, 36, -92, 24 + Math.sin(t * 3) * 3, GLOW, 0.75);
-  if (corrupt) for (const [a, b] of [[[30, -84], [20, -70]], [[42, -98], [52, -108]], [[28, -98], [18, -106]]]) line(c, 'rgba(160,70,230,.8)', 1.6, [a, [ (a[0] + b[0]) / 2 + 3, (a[1] + b[1]) / 2 ], b]);
+  const NK = bez([22, -78], [46, -104], [34, -126], [58 + br * 0.3, -146 + br]);
+  for (let i = 0; i < 6; i++) { const u = 0.12 + i * 0.14; spike(NK, u, 13, 1, 14 - i * 1, 4.4, -1); }
+  for (let i = 0; i < 3; i++) spike(bz, 0.02 + i * 0.06, 15, -1, 9, 3.6, 1);   // 등 → 꼬리로 이어지는 작은 가시
+  // 가슴의 하늘의 별조각: 목 아래 앞면에 박히고 목 방향을 따라 기움 (오염 핏줄도 같이)
+  { const u = 0.3, p = NK(u), [tx, ty] = tan(NK, u), gx = p[0] - ty * -1 * 5, gy = p[1] + tx * -1 * 5;
+    c.save(); c.translate(gx, gy); c.rotate(Math.atan2(ty, tx) + PI / 2);
+    poly(c, GOLD, [[-9, -14], [9, -14], [11, 2], [0, 13], [-11, 2]], GOLDD, 1.4);
+    poly(c, GEM, [[0, -11], [6, -1], [0, 10], [-6, -1]], GEM2, 1.4); poly(c, GEM2, [[0, -11], [6, -1], [0, 10]]);
+    if (corrupt) for (const [a, b] of [[[-6, 6], [-14, 18]], [[6, -10], [14, -20]], [[-7, -8], [-15, -14]]]) line(c, 'rgba(160,70,230,.8)', 1.4, [a, [(a[0] + b[0]) / 2 + 3, (a[1] + b[1]) / 2], b]);
+    c.restore(); glow(c, gx, gy, 22 + Math.sin(t * 3) * 3, GLOW, 0.75); }
   // 머리
   c.save(); c.translate(62 + br * 0.3, -150 + br - raise * 10); c.rotate(0.08 - raise * 0.45);
   // 뿔 (뒤로 휘는 금빛 뿔 두 쌍)
