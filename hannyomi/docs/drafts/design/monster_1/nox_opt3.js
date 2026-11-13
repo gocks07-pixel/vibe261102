@@ -55,6 +55,9 @@ G.NoxArtO = {};
     // ---- 상체 ----
     if (O[7]) { c.beginPath(); c.moveTo(-12, -204); c.quadraticCurveTo(-27, -203, -27, -190); c.quadraticCurveTo(-24, -150, -16, -126); c.quadraticCurveTo(0, -120, 16, -126); c.quadraticCurveTo(24, -150, 27, -190); c.quadraticCurveTo(27, -203, 12, -204); c.closePath();
       c.fillStyle = lin(c, 0, -200, 0, -120, '#1a1a36', NIGHT); c.fill(); c.strokeStyle = LINE; c.lineWidth = 1.2; c.stroke(); }
+    else if (O.tj) {   // 윗도리 → 망토로 자연스럽게: 아래로 퍼지며 망토 색으로 스며듦 (끊긴 아랫선 없음)
+      const g = c.createLinearGradient(0, -200, 0, -112); g.addColorStop(0, '#1e1e3c'); g.addColorStop(0.6, 'rgba(28,28,58,.85)'); g.addColorStop(1, 'rgba(28,28,58,0)');
+      c.beginPath(); c.moveTo(-14, -204); c.quadraticCurveTo(-27, -203, -27, -190); c.quadraticCurveTo(-28, -150, -30, -112); c.lineTo(30, -112); c.quadraticCurveTo(28, -150, 27, -190); c.quadraticCurveTo(27, -203, 14, -204); c.closePath(); c.fillStyle = g; c.fill(); }
     else poly(c, lin(c, 0, -200, 0, -120, '#1a1a36', NIGHT), [[-24, -200], [24, -200], [18, -130], [-18, -130]], LINE, 1.2);
     // ---- 가슴의 별 모양 빈자리 (뒤 배경이 그대로 비침) ----
     const sr = [11, 12, 14][ph], cy = -165;
