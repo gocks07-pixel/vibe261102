@@ -86,8 +86,9 @@ G.NoxArtO = {};
     poly(c, '#030308', [[-10, 12], [-11, -4], [0, -12], [11, -4], [10, 12], [0, 16]]); }
     const ea = [0.45, 0.75, 0.95][ph];
     for (const sg of [-1, 1]) ell(c, sg * 4.5 + 1, 0, 2.2, 1.1, `rgba(216,222,248,${ea})`);
-    if (O[4]) for (const sg of [-1, 1]) { const x = sg * 4.5 + 1; c.strokeStyle = 'rgba(200,210,255,.55)'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(x, 1.4); c.quadraticCurveTo(x + sg * 0.6, 6, x, 11); c.stroke();
-      for (let i = 0; i < 2; i++) { const u = (t * 0.5 + i * 0.5 + (sg > 0 ? 0.25 : 0)) % 1, y = 2 + u * 24; c.globalAlpha = 1 - u; poly(c, '#eef0ff', starPts(x, y, 1.8 - u * 0.6)); c.globalAlpha = 1; } }
+    const TF = O.tearFade != null ? O.tearFade : 1;
+    if (O[4] && TF > 0.01) for (const sg of [-1, 1]) { const x = sg * 4.5 + 1; c.save(); c.globalAlpha *= TF; c.strokeStyle = 'rgba(200,210,255,.55)'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(x, 1.4); c.quadraticCurveTo(x + sg * 0.6, 6, x, 11); c.stroke();
+      for (let i = 0; i < 2; i++) { const u = (t * 0.5 + i * 0.5 + (sg > 0 ? 0.25 : 0)) % 1, y = 2 + u * 24; c.save(); c.globalAlpha *= (1 - u); poly(c, '#eef0ff', starPts(x, y, 1.8 - u * 0.6)); c.restore(); } c.restore(); }
     // 왕관: 장식 없는 가는 검은 고리 하나 (머리 위에 살짝 떠 있음)
     if (O[6]) { for (let i = 0; i < 5; i++) { const a = -PI * 0.85 + i * PI * 0.175, r = 16, x = cos(a) * r, y = -24 + sin(a) * 8 - (i === 2 ? 4 : 0), crack = i === 3;
         c.save(); c.translate(x, y + (crack ? 3 : 0)); c.rotate(crack ? 0.4 : (a + PI / 2) * 0.5); poly(c, crack ? '#2a2a46' : '#3a3a5e', starPts(0, 0, i === 2 ? 6 : 4.4), '#8a86c8', 0.8);
@@ -211,7 +212,8 @@ G.NoxArtO = {};
   // k: 0 빛이 건너오기 시작 → 0.55 빈자리가 다 참 → 0.8 두 구체 → 1 등불까지 켜짐
   G.NoxArtO.lit2 = function (c, t, k, bg, heroX) {
     const O = window.NOXOPT || {};
-    c.save(); c.translate(0, 30); c.scale(1, 0.88); G.NoxArtO.story(c, t, 1, bg); c.restore();
+    O.tearFade = 1 - sm(0.42, 0.62, k);   // 금이 모여 하나의 별이 되면 더는 울지 않음
+    c.save(); c.translate(0, 30); c.scale(1, 0.88); G.NoxArtO.story(c, t, 1, bg); c.restore(); O.tearFade = null;
     const hx0 = 0, hy0 = -115, lx = 82, ly = -150;
     const AB = O.crack === 'ab', fill = AB ? sm(0.3, 0.68, k) : sm(0.05, 0.55, k), orb = sm(0.5, 0.8, k), lamp = sm(AB ? 0.78 : 0.7, 1, k), flow = (1 - sm(AB ? 0.55 : 0.75, AB ? 0.75 : 1, k)) * sm(0, 0.08, k);
     // 1) 주인공 → 가슴 빈자리: 별빛 알갱이가 부드러운 곡선을 따라 흘러옴 (끊긴 점선 대신 반짝이며 흐르는 물결)
