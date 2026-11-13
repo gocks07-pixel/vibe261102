@@ -2,9 +2,9 @@
 const { chromium } = require('playwright'); const fs=require('fs');
 (async()=>{const b=await chromium.launch();const pg=await b.newPage({viewport:{width:900,height:900},deviceScaleFactor:2});
 await pg.goto('file:///home/user/vibe261102/hannyomi/index.html');await pg.waitForTimeout(1500);
-for(const f of ['monB.js','monB2.js','monB3.js','monB4.js','aur_nat.js','grd_nat.js','monB5.js','monB6.js','monB7.js','monB8.js'])await pg.addScriptTag({content:fs.readFileSync(f,'utf8')});
-const MODE={shellock:'na2',bark:'na',morwen:'na6',grounder:'nat',parakan:'na',kaien_boss:'na',aurelion:'nat',eldrick:'na8',nox:'ref'};
-const NOTE={shellock:'보물 상자 소라게 · 자연스러운 집게',bark:'새 그림체 머리 · 붉은 두건 · 언월도',morwen:'지금 그림 + 연꽃 (연잎 · 연꽃 치마 · 연꽃 봉오리)',grounder:'지금 그림을 자연스럽게',parakan:'새 디자인',kaien_boss:'새 디자인',aurelion:'자연스러운 다리 · 날개 · 가시 · 이음새',eldrick:'여자 · 냉미녀 흑마법사',nox:'지금 그림 + 다듬기'};
+for(const f of ['outfit_bark.js','monB.js','monB2.js','monB3.js','monB4.js','aur_nat.js','grd_nat.js','monB5.js','monB6.js','monB7.js','monB8.js'])await pg.addScriptTag({content:fs.readFileSync(f,'utf8')});
+const MODE={shellock:'na2',bark:'na',morwen:'na6',grounder:'nat',parakan:'na',kaien_boss:'na',aurelion:'nat',eldrick:'na8',nox:'now'};
+const NOTE={shellock:'보물 상자 소라게 · 자연스러운 집게',bark:'새 그림체 머리 · 붉은 두건 · 언월도 (날이 아래로)',morwen:'지금 그림 + 연꽃 (연잎 · 연꽃 치마 · 연꽃 봉오리)',grounder:'지금 그림을 자연스럽게',parakan:'새 디자인',kaien_boss:'새 디자인',aurelion:'자연스러운 다리 · 날개 · 가시 · 이음새',eldrick:'여자 · 냉미녀 흑마법사',nox:'지금 그림 그대로 (바꾸지 않음)'};
 const parts=[['final_1',['shellock','bark','morwen']],['final_2',['grounder','parakan','kaien_boss']],['final_3',['aurelion','eldrick','nox']]];
 for(const [part,list] of parts){
 await pg.setViewportSize({width:900,height:900});
