@@ -2,7 +2,7 @@
 const { chromium } = require('playwright'); const fs = require('fs');
 const [dumpF, map, out, list, times] = process.argv.slice(2); const DUMP = fs.readFileSync(dumpF, 'utf8').trim(); const SK = list.split(',').map(s => s.split(':')); const T = (times || '0.05,0.2,0.35,0.55').split(',').map(Number);
 (async () => { const b = await chromium.launch(); const pg = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = []; pg.on('pageerror', e => errs.push(String(e).slice(0, 150)));
-  await pg.goto('http://localhost:8123/index.html'); await pg.waitForTimeout(2600); const files = [];
+  await pg.goto('file:///home/user/vibe261102/hannyomi/index.html'); await pg.waitForTimeout(2600); const files = [];
   for (const [id, nm] of SK) for (let k = 0; k < T.length; k++) {
     await pg.evaluate(([dump, map, id, tt]) => { if (G.Mobile) G.Mobile.closeModal(); G.Game.loop = () => {}; G.UI.overlay(''); G.Game.begin(JSON.parse(dump)); G.Game.changeMap(map, null); const p = G.Game.player, w = G.Game.world; let ts = performance.now();
       p.x = 360; p.dir = 1; for (const m of w.monsters) if (!m.isBoss) { m.x = 520 + (w.monsters.indexOf(m) % 6) * 110; m.y = G.GROUND_Y; m.vx = 0; }
