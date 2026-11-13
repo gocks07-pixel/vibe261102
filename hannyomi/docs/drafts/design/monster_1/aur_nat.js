@@ -565,6 +565,24 @@
     c.beginPath(); c.ellipse(x + 5 * k, -5, 13 * k, 6, 0, PI, 0); c.lineTo(x + 18 * k, -1); c.lineTo(x - 8 * k, -1); c.closePath(); c.fillStyle = col; c.fill(); c.stroke();
     for (const d of [-4, 4, 12]) poly(c, GOLD, [[x + d * k, -1], [x + (d + 5) * k, 2], [x + (d + 3) * k, -4]], GOLDD, 1);
   };
+  const limb = (pts, ws, col) => {   // 굵기가 줄어드는 마디 다리 (외곽선 → 속)
+    for (const [ex, cc] of [[3.2, LN], [0, col]]) for (let i = 0; i < pts.length - 1; i++) { c.strokeStyle = cc; c.lineCap = 'round'; c.lineWidth = ws[i] + ex; c.beginPath(); c.moveTo(...pts[i]); c.lineTo(...pts[i + 1]); c.stroke(); }
+    for (let i = 1; i < pts.length - 1; i++) ell(c, pts[i][0], pts[i][1], ws[i] / 2, ws[i] / 2, col);
+  };
+  const paw = (x, col, k) => {   // 땅을 짚은 발: 발가락 셋 + 휜 금 발톱
+    for (const [dx, r] of [[-7, 5.4], [1, 6.2], [9, 5.4]]) { ell(c, x + dx * k, -4, r * k, 4.6 * k, col, LN, 1.4);
+      c.beginPath(); c.moveTo(x + (dx + 3) * k, -6); c.quadraticCurveTo(x + (dx + 9) * k, -5, x + (dx + 8) * k, 0); c.quadraticCurveTo(x + (dx + 5) * k, -1, x + (dx + 3) * k, -2); c.closePath(); c.fillStyle = GOLD; c.fill(); c.strokeStyle = GOLDD; c.lineWidth = 1; c.stroke(); }
+  };
+  const hind = (x, top, col, k) => {   // 뒷다리: 큰 허벅지 → 앞으로 무릎 → 뒤로 꺾인 발목 → 발
+    const st = Math.sin(t * 2) * 1.2;
+    limb([[x, top], [x + 16 * k, top + 20 * k], [x - 4 * k, -18 + st], [x + 2 * k, -6]], [22 * k, 15 * k, 10 * k], col);
+    paw(x + 4 * k, col, k);
+  };
+  const fore = (x, top, col, k) => {   // 앞다리: 어깨 → 뒤로 굽은 팔꿈치 → 손목 → 발
+    const st = Math.sin(t * 2 + 1) * 1.2;
+    limb([[x, top], [x - 8 * k, top + 20 * k], [x + 4 * k, -14 + st], [x + 6 * k, -6]], [16 * k, 12 * k, 9 * k], col);
+    paw(x + 6 * k, col, k * 0.9);
+  };
   // 발밑 구름
   if (!fl)   for (const [x, y, r] of [[-70, -4, 18], [-40, 0, 22], [0, 2, 24], [40, 0, 22], [74, -4, 16]]) ell(c, x, y, r, r * .5, 'rgba(240,238,255,.9)', 'rgba(170,160,230,.6)', 1.2);
   // 날개 (뼈대 + 막). sg: 0 뒤 / 1 앞
@@ -589,19 +607,22 @@
   // 꼬리 (뒤로 흐르다 끝이 말려 올라감 + 깃 술)
   c.lineCap = 'round';
   const tail = [[-40, -50], [-80, -36], [-112, -26], [-136, -38], [-142, -60]];
-  for (const [w, col] of [[24, LN], [20, BODY]]) { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(...tail[0]); c.bezierCurveTo(-90, -30, -130, -10, -136, -38); c.stroke(); c.lineWidth = w * 0.55; c.beginPath(); c.moveTo(-136, -38); c.quadraticCurveTo(-142, -52, -142, -62); c.stroke(); }
+  { const sw = Math.sin(t * 1.4) * 4, bz = u => { const a = 1 - u; return [a * a * a * -40 + 3 * a * a * u * -90 + 3 * a * u * u * -130 + u * u * u * -136, a * a * a * -50 + 3 * a * a * u * -30 + 3 * a * u * u * (-10 + sw) + u * u * u * (-38 + sw)]; };
+    for (const ex of [3, 0]) for (let i = 0; i < 12; i++) { const p0 = bz(i / 12), p1 = bz((i + 1) / 12); c.strokeStyle = ex ? LN : BODY; c.lineWidth = 30 - i * 1.8 + ex; c.beginPath(); c.moveTo(...p0); c.lineTo(...p1); c.stroke(); }
+    for (const [w, col] of [[11, LN], [8, BODY]]) { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(-136, -38 + sw); c.quadraticCurveTo(-143, -52 + sw * 0.5, -142, -62); c.stroke(); } }
   for (let i = 0; i < 4; i++) { c.save(); c.translate(-142, -62); c.rotate(-2.1 + i * 0.35 + Math.sin(t * 3) * 0.05); ell(c, 0, -12, 4, 13, i % 2 ? '#fff' : '#ddd8ff', LN, 1.1); c.restore(); }
   for (let i = 0; i < 4; i++) poly(c, GOLD, [[-68 - i * 18, -44 + i * 3], [-62 - i * 18, -54 + i * 3], [-58 - i * 18, -42 + i * 3]], GOLDD, 1);
   // 뒷다리 (웅크림)
-  ell(c, -34, -44, 26, 28, SHD, LN, 1.8); legN(-40, -36, SHD, 1.05);
+  hind(-58, -58, SHD, 0.9);   // 먼 쪽 뒷다리
+  ell(c, -34, -50, 28, 26, BODY, LN, 1.8); hind(-30, -52, BODY, 1.05);   // 가까운 허벅지 + 뒷다리
   // 몸통
-  c.save(); c.translate(-6, -64 + br * 0.6); c.rotate(-0.2);
+  c.save(); c.translate(-6, -66 + br * 0.6); c.rotate(-0.12);
   ell(c, 0, 0, 52, 30, BODY, LN, 2);
   ell(c, 10, 12, 40, 14, '#f8f3e4');   // 배
   for (let i = 0; i < 5; i++) line(c, '#ddd2b6', 1, [[-14 + i * 12, 4], [-12 + i * 12, 24]]);
   c.restore();
   // 앞 날개 아래의 앞다리
-  legN(10, -46, SHD, 0.85); legN(30, -50, BODY, 0.95);
+  fore(18, -54, SHD, 0.85); ell(c, 34, -66, 18, 20, BODY, LN, 1.6); fore(36, -58, BODY, 1);   // 먼 앞다리 · 어깨 · 가까운 앞다리
   // 목 (S자로 솟음)
   const neck = [[22, -78], [40, -110], [44, -130], [58, -146]];
   for (const [w, col] of [[30, LN], [26, BODY]]) { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(...neck[0]); c.bezierCurveTo(46, -104, 34, -126, 58 + br * 0.3, -146 + br); c.stroke(); }
