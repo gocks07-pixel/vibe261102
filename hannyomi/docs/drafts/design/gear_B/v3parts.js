@@ -119,6 +119,37 @@
         glowOn(ctx, sp.glow || '#e8f0ff', 6); ell(ctx, 10, -61, 1.6, 1.6, '#ffffff'); glowOff(ctx);
         return;
       }
+      case 'storm_a': {   // 폭풍 안 가: 은빛 서클릿 + 이마의 번개 보석 + 머리 위 작은 먹구름 (번쩍)
+        const f = Math.sin(t * 2) * 0.8, flash = (Math.floor(t * 3) % 4) === 0;
+        for (const [x, y, r] of [[-5, -70, 4.2], [0, -72.5, 5.2], [5.5, -70.5, 4.4], [1, -68.5, 4.6]]) ell(ctx, x, y + f, r, r * 0.8, '#5a6a8a', null);
+        for (const [x, y, r] of [[-3, -72, 2.4], [2, -74.5, 2.6]]) ell(ctx, x, y + f, r, r * 0.7, '#7a8aaa', null);
+        if (flash) { glowOn(ctx, sp.glow || '#fff09a', 6); poly(ctx, [[1, -66 + f], [-1.5, -62 + f], [0.5, -62 + f], [-1, -59 + f], [2.5, -63.5 + f], [0.5, -63.5 + f]], '#ffe060'); glowOff(ctx); }
+        ctx.strokeStyle = '#d8e0ec'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.ellipse(1, -58.5, 14.5, 3.4, 0, PI * 0.05, PI * 0.95, true); ctx.stroke();
+        glowOn(ctx, sp.glow || '#fff09a', 6); poly(ctx, [[11, -64], [8.5, -59.5], [10.5, -59.5], [9, -55.5], [13, -60.5], [11, -60.5]], T, sh(T, -0.45), 0.5); glowOff(ctx);
+        return;
+      }
+      case 'storm_b': {   // 폭풍 안 나: 기수 모자 (앞이 접힌 챙) + 번개 배지 + 바람에 날리는 긴 띠
+        const f = Math.sin(t * 7) * 1.4;
+        for (const [dy, w, col] of [[0, 3.2, sh(c, -0.3)], [3.5, 2.6, T]]) {   // 바람에 날리는 띠 두 가닥 (물결)
+          ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-12, -59 + dy);
+          ctx.bezierCurveTo(-17, -63 + dy + f, -21, -55 + dy - f, -27 + f, -59 + dy + f); ctx.lineTo(-25 + f, -59 + dy + w + f);
+          ctx.bezierCurveTo(-20, -55 + dy + w - f, -16, -62 + dy + w + f, -12, -59 + dy + w); ctx.closePath(); ctx.fill();
+        }
+        ctx.fillStyle = vgrad(ctx, -72, -56, c); ctx.beginPath(); ctx.moveTo(-14, -56); ctx.quadraticCurveTo(-13, -71, 1, -71); ctx.quadraticCurveTo(14, -71, 15, -60); ctx.lineTo(17.5, -57); ctx.lineTo(-14, -56); ctx.closePath(); ctx.fill(); ctx.strokeStyle = sh(c, -0.55); ctx.lineWidth = 0.8; ctx.stroke();
+        poly(ctx, [[3, -61], [17.5, -57], [16, -63]], sh(c, 0.2), sh(c, -0.55), 0.6);   // 앞으로 접힌 챙
+        rr(ctx, -13.5, -60, 18, 3, 1.2, T);
+        glowOn(ctx, sp.glow || '#fff09a', 5); ell(ctx, 6, -64, 3, 3, sh(c, -0.4), T, 0.8); poly(ctx, [[7, -66.4], [4.8, -63.6], [6.4, -63.6], [5.2, -61.4], [7.6, -64.4], [6.2, -64.4]], T); glowOff(ctx);
+        return;
+      }
+      case 'storm_c': {   // 폭풍 안 다: 둥근 투구 + 먹구름 볏 + 아래로 매달린 작은 번개
+        const f = Math.sin(t * 2.4) * 0.6;
+        dome(ctx, c, sh(c, -0.35));
+        for (const [x, y, r] of [[-7, -64, 3.8], [-2, -67.5, 4.6], [4, -66.5, 4.2], [9, -63.5, 3.4]]) ell(ctx, x, y + f, r, r * 0.85, '#4a5a7a', '#2a3450', 0.5);
+        for (const [x, y] of [[-3, -69], [3, -68.5]]) ell(ctx, x, y + f, 2, 1.4, '#6a7a9a');
+        glowOn(ctx, sp.glow || '#fff09a', 6); poly(ctx, [[-13, -56], [-15.5, -51], [-13.8, -51], [-15.8, -46], [-12, -52.5], [-13.6, -52.5]], T); glowOff(ctx);
+        line(ctx, [[-13.5, -55.6], [15.5, -55.6]], T, 1.4);
+        return;
+      }
       case 'starcirclet': {   // 별의 기사: 가는 금 서클릿 + 이마의 큰 별 + 작은 날개
         ctx.strokeStyle = '#e8c050'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.ellipse(1, -59, 14.5, 3.4, 0, PI * 0.05, PI * 0.95, true); ctx.stroke();
         for (let i = 0; i < 3; i++) { ctx.save(); ctx.translate(-12, -59); ctx.rotate(-0.6 - i * 0.35); ell(ctx, -4, 0, 5 - i, 1.4, '#fffbe8', '#e8c050', 0.4); ctx.restore(); }
