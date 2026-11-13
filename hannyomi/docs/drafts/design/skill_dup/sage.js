@@ -8,7 +8,11 @@
   function puffs(w, h, seed) { const P = [], n = Math.max(7, Math.round(w / h * 3.2)); for (let i = 0; i < n; i++) { const u = (i + 0.5) / n * 2 - 1, d = Math.sqrt(Math.max(0, 1 - u * u * 0.9)); P.push([u * w * 0.44, -h * 0.16 - d * h * 0.34 + (rnd(seed + i) - 0.5) * h * 0.16, h * (0.16 + 0.2 * d) * (0.8 + rnd(seed + i * 3) * 0.45)]); }
     const m = Math.round(n * 0.6); for (let i = 0; i < m; i++) P.push([((i + 0.5) / m - 0.5) * w * 0.86, -h * 0.06, h * 0.2]); P.top = n; return P; }
   const silPath = (c, P, w, h) => { c.beginPath(); for (const [x, y, r] of P) { c.moveTo(x + r, y); c.arc(x, y, r, 0, PI * 2); } c.rect(-w * 0.46, -h * 0.22, w * 0.92, h * 0.24); };   // 아래는 평평
-  M.cloud = (c, x, y, w, h, style, toneKey, seed, a = 1, flash = 0) => {
+  M.cloud = (c, x, y, w, h, style, toneKey, seed, a = 1, flash = 0) => {   // 한 장으로 그린 뒤 통째로 투명하게 (안쪽 겹친 원이 비치지 않게)
+    if (a >= 0.999) return M.cloudRaw(c, x, y, w, h, style, toneKey, seed, 1, flash);
+    const W = Math.ceil(w * 1.2), H = Math.ceil(h * 1.3), q = document.createElement('canvas'); q.width = W; q.height = H; M.cloudRaw(q.getContext('2d'), W / 2, H * 0.9, w, h, style, toneKey, seed, 1, flash);
+    c.save(); c.globalAlpha *= a; c.drawImage(q, x - W / 2, y - H * 0.9); c.restore(); };
+  M.cloudRaw = (c, x, y, w, h, style, toneKey, seed, a = 1, flash = 0) => {
     const T = TONE[toneKey], P = puffs(w, h, seed); c.save(); c.translate(x, y); c.globalAlpha *= a; c.beginPath(); c.rect(-w, -h * 2, w * 2, h * 2 + (style === 'ga' ? 4 : 0)); c.clip();
     if (style === 'ga') { c.save(); c.lineJoin = 'round'; silPath(c, P, w, h); c.strokeStyle = T.out; c.lineWidth = M.olw || 7; c.stroke(); c.restore(); }   // 바깥 테두리 (안쪽 겹친 선은 아래 채우기가 덮음)
     silPath(c, P, w, h); c.fillStyle = T.base; c.fill();
@@ -58,7 +62,7 @@
     if (hit) { const f = Math.max(0, 1 - (k - 0.18) / 0.6); [[0, 11, 1.8], [-210, 33, 1], [220, 57, 1], [-110, 21, 0.8], [120, 45, 0.8]].forEach(([dx, sd, w], i) => M.bolt(c, cx + dx, top + 50, cx + dx * 0.35, gy, sd + Math.floor(k * 10), GOLD, f * (i ? 0.85 : 1), w, i ? 1 : 3));
       const r = (k - 0.18) * 900; ring(c, cx, gy - 4, r, '#fff4b0', f, 8); ring(c, cx, gy - 4, r * 0.7, GOLD, f, 4); glow(c, cx, gy - 20, 260, 'rgba(255,240,160,.95)', f);
       targets.forEach((tx, i) => { if (i && k > 0.3 && k < 0.7) M.bolt(c, targets[i - 1], gy - 50, tx, gy - 50, 200 + i + Math.floor(k * 20), '#9ad8ff', 0.8, 0.45, 0); }); }
-    M.cloud(c, cx, top + 50, 900, 200, M.style, M.tone || 'storm', 7, a, hit ? Math.max(0, sin(k * 40)) : 0.3); };
+    M.cloud(c, cx, top + 50, 900, 200, M.style, M.tone || 'storm', 7, a * (M.calpha || 1), hit ? Math.max(0, sin(k * 40)) : 0.3); };
 })();
 // 구름 그림체 비교용 장면: 지금(실제 같은 구름) · 가 · 나 를 한 화면에
 G.SageMock.cloudCmp = (c, p, k, gy) => { const M = G.SageMock; G.SkyFX.thunder(c, { x: p.x + 60, y: gy - 470, t: 1.3 }, 0.5);
@@ -69,3 +73,7 @@ G.SageMock.cloudCmp = (c, p, k, gy) => { const M = G.SageMock; G.SkyFX.thunder(c
 // 수정: 연한 구름 두 가지 (테두리 얇게 · 테두리 없이)
 G.SageMock.wrathA = (c, p, k, gy, t) => { const M = G.SageMock; M.style = 'ga'; M.tone = 'storm2'; M.olw = 3; M.wrath(c, p, k, gy, t); M.olw = 0; M.tone = null; };
 G.SageMock.wrathB = (c, p, k, gy, t) => { const M = G.SageMock; M.style = 'na'; M.tone = 'storm2'; M.wrath(c, p, k, gy, t); M.style = 'ga'; M.tone = null; };
+
+G.SageMock.wrathA7 = (c, p, k, gy, t) => { G.SageMock.calpha = 0.7; G.SageMock.wrathA(c, p, k, gy, t); G.SageMock.calpha = 0; };
+G.SageMock.wrathB7 = (c, p, k, gy, t) => { G.SageMock.calpha = 0.7; G.SageMock.wrathB(c, p, k, gy, t); G.SageMock.calpha = 0; };
+G.SageMock.wrathA3 = (c, p, k, gy, t) => { G.SageMock.calpha = 0.3; G.SageMock.wrathA(c, p, k, gy, t); G.SageMock.calpha = 0; };
