@@ -29,7 +29,7 @@ s=s.replace(old,"""    red: {}, steel: {}, wind: {}, crystal: {}, shadow: {},
     desert:   { hat: 'desertwrap', top: 'nomad', bottom: 'baggy', shoes: 'sandal', gloves: 'wrap', cape: 'long', trim: '#b0503a' },
     sahrin:   { hat: 'sunhelm', top: 'guardvest', bottom: 'kilt', shoes: 'sandal', gloves: 'bracer', trim: '#3a7ad0' },
     pharaoh:  { hat: 'sunmitre', top: 'priestrobe', bottom: 'kilt', shoes: 'sandal', gloves: 'bracer', cape: 'long', trim: '#2a50b0' },
-    storm:    { hat: 'stormcrest', top: 'stormcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'stormcape', trim: '#ffe060', glow: '#fff09a' },
+    storm:    { hat: 'storm_a', top: 'stormcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'stormcape', trim: '#ffe060', glow: '#fff09a' },
     sky:      { hat: 'skyhat', top: 'skyrobe', bottom: 'pants', shoes: 'winged', gloves: 'glove', cape: 'feather', trim: '#fff6d0', glow: '#e8f0ff' },
     starheir: { hat: 'starcirclet', top: 'knightcoat', bottom: 'greave', shoes: 'sabaton', gloves: 'gauntlet', cape: 'starflow', trim: '#e8c050', glow: '#ffe680' },
   });""")
