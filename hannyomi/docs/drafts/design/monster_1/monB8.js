@@ -5,8 +5,8 @@
   const poly = (ctx, fill, pts, stroke, lw) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); } };
   const vg = (ctx, y0, y1, a, b) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, a); g.addColorStop(1, b); return g; };
   const glow = (ctx, x, y, r, c, a = 0.5) => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, c); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.globalAlpha *= a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, PI * 2); ctx.fill(); ctx.restore(); };
-  const N7 = G.MonNew7 = {};
-  N7.eldrick = (ctx, m, t, s) => {
+  const N7 = G.MonNew7 = {}, N8 = G.MonNew8 = {};
+  const ELD = (ctx, m, t, s, F) => {
     const casting = m.boss && (m.boss.cur || m.boss.raise > 0), ec = casting ? '#ff3050' : '#a040e0', sc = m.h / 66;
     const hy = -98, hr = 32, bob = sin(t * 2) * 1;
     // 붉은 유리 조각 (지금 그림): 몸 둘레를 돌고, 뒤로 갈 때는 몸 뒤에 그림
@@ -21,7 +21,7 @@
     ctx.fillStyle = vg(ctx, -122, -58, '#3a0a2a', '#0a0410'); ctx.fill(); ctx.strokeStyle = '#7a1a4a'; ctx.lineWidth = 1.4; ctx.stroke();
     // 몸: 검보라 옷 · 검은 망토 · 은발 긴 머리 · 수염 · 날카로운 붉은 눈
     D.humanoid(ctx, { x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: -1, atkKind: 'proj',
-      look: { skin: '#d8c8cc', hair: '#b8b8cc', top: '#2a1440', bottom: '#140a20', style: 'long', beard: true, eye: 'sharp', eyeColor: '#ff2040', hat: '#1e0e30' },
+      look: F ? { gender: 'f', skin: '#ecdce0', hair: '#cfc8e4', top: '#2a1440', bottom: '#140a20', style: 'long', eye2: F.eye, eyeColor: '#e02848', hat: '#1e0e30' } : { skin: '#d8c8cc', hair: '#b8b8cc', top: '#2a1440', bottom: '#140a20', style: 'long', beard: true, eye: 'sharp', eyeColor: '#ff2040', hat: '#1e0e30' },
       weapon: null, cape: '#0a0410', scale: sc });
     // 긴 예복 자락 (발목까지, 검보라 + 핏빛 테)
     const sw = sin(t * 1.8) * 2;
@@ -38,6 +38,13 @@
     const sg = ctx.createLinearGradient(0, hy - 14, 0, hy + 6); sg.addColorStop(0, 'rgba(20,6,30,.75)'); sg.addColorStop(1, 'rgba(20,6,30,0)'); ctx.fillStyle = sg; ctx.fillRect(-hr, hy - 16, hr * 2, 24);
     const cg = ctx.createLinearGradient(0, hy + 2, 0, hy + 20); cg.addColorStop(0, 'rgba(60,20,70,0)'); cg.addColorStop(1, 'rgba(60,20,70,.25)'); ctx.fillStyle = cg; ctx.fillRect(-hr, hy + 2, hr * 2, 22);   // 볼 그늘 (야윈 얼굴)
     ctx.restore();
+    if (F) { F.face(ctx, t);
+      for (const [x0, d, k] of [[-30, -1, 1], [28, 1, 0.85]]) { const sw2 = sin(t * 1.4 + d) * 2;
+        ctx.beginPath(); ctx.moveTo(x0, -98); ctx.bezierCurveTo(x0 + d * 6, -80, x0 + d * 4 + sw2, -64, x0 + d * 2 + sw2, -44 * k - 6);
+        ctx.quadraticCurveTo(x0 - d * 3 + sw2, -40 * k - 8, x0 - d * 6 + sw2, -50); ctx.bezierCurveTo(x0 - d * 4, -66, x0 - d * 6, -84, x0 - d * 10, -98); ctx.closePath();
+        ctx.fillStyle = vg(ctx, -98, -44, '#e4e0f0', '#a8a0c8'); ctx.fill(); ctx.strokeStyle = '#7a7098'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0 - d * 3, -92); ctx.quadraticCurveTo(x0 + d * 1, -74, x0 + sw2, -58); ctx.stroke(); }
+    } else {
     // 눈: 위 눈꺼풀이 안쪽으로 내려와 노려보는 눈 + 붉게 빛나는 눈동자
     const EY = -87, ER = 7;
     for (const [x, d] of [[-15, 1], [13, -1]]) {
@@ -56,6 +63,7 @@
     // 입: 원래 입을 수염으로 덮고 한쪽만 올라간 비웃음
     ell(ctx, 8, -71.4, 9.5, 5.4, '#b8b8cc'); ctx.strokeStyle = '#2a1020'; ctx.lineWidth = 1.7; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(1, -72); ctx.quadraticCurveTo(8, -69.5, 15, -75); ctx.stroke();
     line(ctx, 'rgba(60,40,70,.5)', 1, [[-2, -78], [-5, -73]]); line(ctx, 'rgba(60,40,70,.5)', 1, [[18, -78], [20, -74]]);   // 팔자 주름
+    }
     // 높고 뾰족한 흑마법사 모자 (끝이 뒤로 꺾임 · 넓은 챙 · 핏빛 띠 · 은 해골 대신 붉은 눈 장식)
     ctx.beginPath(); ctx.moveTo(-hr * 0.98, hy - 6 + bob); ctx.quadraticCurveTo(-hr * 0.6, hy - 60, -2, hy - 92 + bob); ctx.quadraticCurveTo(-12, hy - 112, -38, hy - 114 + bob * 2);
     ctx.quadraticCurveTo(-24, hy - 100, 10, hy - 80 + bob); ctx.quadraticCurveTo(hr * 0.75, hy - 44, hr * 1.0, hy - 6 + bob); ctx.closePath();
@@ -80,4 +88,26 @@
     ell(ctx, hx - 1, hyy, 4.6, 4.2, '#c8b8c4', '#3a2a38', 1); for (let i = 0; i < 3; i++) line(ctx, '#3a2a38', 0.8, [[hx - 3 + i * 2, hyy - 2], [hx - 3 + i * 2, hyy + 3]]);
     shards(true);
   };
+  N7.eldrick = (ctx, m, t, s) => ELD(ctx, m, t, s, null);
+  // 여성판 얼굴: 덜 사악하게 — 차갑고 우아한 눈매(반쯤 내려온 눈꺼풀 · 날개 아이라인) · 가는 눈썹 · 짙은 입술의 옅은 미소, 볼 홍조 없음
+  N8.face = (ctx, t) => {
+    const SK = '#e8d6dc', EY = -86.5, ER = 5.8;
+    ctx.save(); ctx.beginPath(); ctx.ellipse(0, -98, 31, 31, 0, 0, PI * 2); ctx.clip(); ctx.fillStyle = '#e8d6dc'; ctx.fillRect(-30, -99, 60, 4.5); for (const x of [-11, 14]) { ctx.beginPath(); ctx.ellipse(x, -91.4, 9, 2.6, 0, 0, PI * 2); ctx.fill(); } ctx.restore();   // 원래 짙은 눈썹 지움
+    for (const [x, y] of [[-19, -82], [21, -82]]) { const g = ctx.createRadialGradient(x, y, 0, x, y, 8); g.addColorStop(0, 'rgba(232,214,220,.95)'); g.addColorStop(0.7, 'rgba(232,214,220,.7)'); g.addColorStop(1, 'rgba(232,214,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 8, 0, PI * 2); ctx.fill(); }   // 볼 홍조 지움
+    for (const [x, d] of [[-10.5, -1], [14, 1]]) {   // d: 바깥쪽 방향
+      ctx.save(); ctx.beginPath(); ctx.ellipse(x, EY, ER + 1.5, ER * 1.2 + 1.5, 0, 0, PI * 2); ctx.clip();
+      ctx.fillStyle = SK; ctx.beginPath(); ctx.moveTo(x - 10, EY - 12); ctx.lineTo(x + 10, EY - 12); ctx.lineTo(x + 10, EY - 3.0 - d * 0.6); ctx.lineTo(x - 10, EY - 3.0 + d * 0.6); ctx.closePath(); ctx.fill();   // 반쯤 내려온 눈꺼풀 (바깥이 살짝 높음)
+      ctx.fillStyle = 'rgba(120,60,130,.3)'; ctx.fillRect(x - 10, EY - 5, 20, 3.4);   // 보랏빛 눈두덩
+      ctx.restore();
+      ctx.strokeStyle = '#1a0a1e'; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - d * 5.5, EY - 2.6); ctx.quadraticCurveTo(x, EY - 3.8, x + d * 6, EY - 3.6); ctx.lineTo(x + d * 8.4, EY - 5.2); ctx.stroke();
+      ctx.lineWidth = 0.9; for (const k of [0.55, 0.85]) { ctx.beginPath(); ctx.moveTo(x + d * 6 * k, EY - 3.6); ctx.lineTo(x + d * (6 * k + 1.4), EY - 5.6); ctx.stroke(); }   // 긴 속눈썹   // 가는 윗선 + 작은 날개 (안쪽이 내려가지 않게)
+      ctx.strokeStyle = '#a8a0c4'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - d * 5, EY - 5.2); ctx.quadraticCurveTo(x + d * 2, EY - 7, x + d * 8, EY - 6.2); ctx.stroke();   // 가는 은빛 눈썹 (바깥이 살짝 올라감)
+    }
+    glow(ctx, -10.5, EY + 1, 5, '#ff6080', 0.1); glow(ctx, 14, EY + 1, 5, '#ff6080', 0.1);
+    { const g = ctx.createRadialGradient(3, -77, 0, 3, -77, 8); g.addColorStop(0, 'rgba(232,214,220,1)'); g.addColorStop(0.65, 'rgba(232,214,220,.95)'); g.addColorStop(1, 'rgba(232,214,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(3, -77, 8, 0, PI * 2); ctx.fill(); }   // 원래 입 지움
+    ctx.fillStyle = '#5a1a36'; ctx.beginPath(); ctx.moveTo(-0.5, -77.4); ctx.quadraticCurveTo(3, -78.4, 6.5, -77.4); ctx.quadraticCurveTo(3, -75.6, -0.5, -77.4); ctx.fill();   // 다문 입술 (웃지 않음)
+    ctx.strokeStyle = '#3a0a20'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(-0.5, -77.4); ctx.lineTo(6.5, -77.4); ctx.stroke();
+    line(ctx, 'rgba(150,110,130,.5)', 0.9, [[3.6, -83], [4.6, -80.6]]);   // 오뚝한 코 선
+  };
+  N8.eldrick = (ctx, m, t, s) => ELD(ctx, m, t, s, { eye: 'f_mystic', face: N8.face });
 })();
