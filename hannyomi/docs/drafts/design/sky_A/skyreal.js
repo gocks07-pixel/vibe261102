@@ -29,7 +29,7 @@
   const boltPath = (x0, y0, x1, y1, seed, depth, out) => { const segs = 9; let px = x0, py = y0; const pts = [[px, py]];
     for (let i = 1; i <= segs; i++) { const u = i / segs; const nx = x0 + (x1 - x0) * u + (rnd(seed + i) - 0.5) * 46 * (1 - u * 0.4), ny = y0 + (y1 - y0) * u + (rnd(seed + i * 2) - 0.5) * 10; pts.push([nx, ny]);
       if (depth < 2 && rnd(seed + i * 9) > 0.72) boltPath(nx, ny, nx + (rnd(seed + i * 4) - 0.5) * 160, ny + (y1 - y0) * 0.3, seed + i * 31, depth + 1, out); }
-    out.push({ pts, w: depth ? 1.4 / depth : 3 }); };
+    out.push({ pts, w: depth ? 1.8 / depth : 4 }); };
   R.bolt = (c, x0, y0, x1, y1, seed, col, a) => { const out = []; boltPath(x0, y0, x1, y1, seed, 0, out); c.save(); c.globalAlpha *= a; c.lineCap = 'round'; c.lineJoin = 'round';
     for (const [m, cc] of [[6, col.glow], [2.2, col.core], [1, '#ffffff']]) for (const b of out) { c.strokeStyle = cc; c.lineWidth = b.w * m; if (m === 6) { c.shadowColor = col.glow; c.shadowBlur = 18; } else c.shadowBlur = 0; c.beginPath(); b.pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke(); } c.restore(); };
   R.rain = (c, x, y, w, h, t, col, a) => { c.save(); c.globalAlpha *= a; c.strokeStyle = col; c.lineWidth = 1.8; for (let i = 0; i < 110; i++) { const u = rnd(i * 1.7), sp = 0.8 + rnd(i * 2.3) * 0.4, yy = ((t * 900 * sp + rnd(i * 3.9) * h) % h); const xx = x - w / 2 + u * w - yy * 0.15; c.beginPath(); c.moveTo(xx, y + yy); c.lineTo(xx - 4, y + yy + 26); c.stroke(); } c.restore(); };
@@ -64,10 +64,14 @@
     for (let i = 0; i < 14; i++) { const u = (t * 0.7 + i / 14) % 1, y = bot - u * 300, ang = t * 5 + i * 2, w = 120 * Math.pow(1 - (y - top) / (bot - top), 1.6) + 20; c.save(); c.globalAlpha = a * (1 - u); c.fillStyle = i % 3 ? '#7a9a4a' : '#d8e4f0'; c.translate(f.x + cos(ang) * w, y + sin(ang) * w * 0.2); c.rotate(ang); c.beginPath(); c.ellipse(0, 0, 6, 2.4, 0, 0, PI * 2); c.fill(); c.restore(); }
     c.restore(); R.cloud(c, f.x, f.y + 50, 600, 170, STORM, 21, t, { alpha: a * 0.97 }); };
   // 2 썬더 스톰 · 천둥 신의 분노
-  S.s2a = (c, f, k, t) => { const a = k < 0.15 ? k / 0.15 : (1 - k) / 0.85, fl = Math.floor(k * 14) % 4 < 1;   // 가: 낮게 깔린 먹구름 띠 + 속에서 푸른 번쩍
-    R.cloud(c, f.x, f.y + 30, 560, 150, STORM2, 5, t, { alpha: a, flat: 0.7, inner: (k2, cx, by, w, h) => { const fx2 = cx + (rnd(Math.floor(k * 14)) - 0.5) * w * 0.6; const g = k2.createRadialGradient(fx2, by - h * 0.25, 0, fx2, by - h * 0.25, h * 0.9); g.addColorStop(0, `rgba(150,200,255,${fl ? 0.85 : 0.25})`); g.addColorStop(1, 'rgba(150,200,255,0)'); k2.fillStyle = g; k2.fillRect(0, 0, k2.canvas.width, k2.canvas.height); } }); };
-  S.s2b = (c, f, k, t) => { S.s2a(c, f, k, t); const a = k < 0.15 ? k / 0.15 : (1 - k) / 0.85;   // 나: 가 + 구름 아래로 갈라지는 파란 번개 가지 (번개 발사체가 여기서 떨어짐)
-    R.bolt(c, f.x + 40, f.y + 25, f.x + 10, f.y + 400, 13, { glow: 'rgba(120,180,255,.9)', core: '#cfe6ff' }, a * (0.7 + 0.3 * sin(t * 30))); };
+  const STORM3 = { top: '#6a7090', mid: '#353a56', base: '#14162a', rim: 'rgba(170,200,255,.55)' };
+  S.s2a = (c, f, k, t) => { const a = k < 0.15 ? k / 0.15 : (1 - k) / 0.85, fl = 0.55 + 0.45 * Math.max(0, sin(t * 9)) ;   // 가: 크고 진한 먹구름 + 속 · 둘레가 푸르게 번쩍
+    const fx2 = f.x + 40;
+    c.save(); c.globalCompositeOperation = 'lighter'; const hg = c.createRadialGradient(fx2, f.y + 10, 0, fx2, f.y + 10, 360); hg.addColorStop(0, `rgba(90,150,255,${0.45 * fl * a})`); hg.addColorStop(1, 'rgba(90,150,255,0)'); c.fillStyle = hg; c.fillRect(f.x - 400, f.y - 350, 800, 700); c.restore();
+    R.cloud(c, f.x, f.y + 40, 700, 210, STORM3, 5, t, { alpha: a, flat: 0.8, inner: (k2, cx, by, w, h) => { const g = k2.createRadialGradient(cx + 40, by - h * 0.3, 0, cx + 40, by - h * 0.3, h * 1.1); g.addColorStop(0, `rgba(170,215,255,${0.9 * fl})`); g.addColorStop(1, 'rgba(150,200,255,0)'); k2.fillStyle = g; k2.fillRect(0, 0, k2.canvas.width, k2.canvas.height); } });
+    for (const [dx, dy, ex, ey, sd] of [[-180, -10, -260, 20, 3], [200, 0, 290, 30, 8]]) R.bolt(c, f.x + dx, f.y + dy, f.x + ex, f.y + ey + 60, sd, { glow: 'rgba(120,180,255,.9)', core: '#d8ecff' }, a * fl * 0.9); };
+  S.s2b = (c, f, k, t) => { S.s2a(c, f, k, t); const a = k < 0.15 ? k / 0.15 : (1 - k) / 0.85;   // 나: 가 + 아래로 굵게 갈라지는 파란 번개
+    R.bolt(c, f.x + 40, f.y + 40, f.x + 10, f.y + 400, 13, { glow: 'rgba(110,170,255,.95)', core: '#d8ecff' }, a * (0.75 + 0.25 * sin(t * 30))); };
   // 3 태양 낙하
   S.s3a = (c, f, k, t) => { const a = k < 0.2 ? k / 0.2 : (1 - k) / 0.8; c.save(); c.globalAlpha = a; R.sun(c, f.x, f.y, 52, t, false); R.flare(c, f.x, f.y, -260, 380, 1); c.restore(); };   // 가: 눈부신 한낮의 해
   S.s3b = (c, f, k, t) => { const a = k < 0.2 ? k / 0.2 : (1 - k) / 0.8; c.save(); c.globalAlpha = a; R.sun(c, f.x, f.y, 56, t, true); c.restore(); };   // 나: 불타는 태양 (표면 불꽃 · 붉은 코로나)
