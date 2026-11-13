@@ -52,3 +52,4 @@
 - **7) 검무 결정: 나 춤추는 쌍검 (t4b.js S.na/naFront)**
 - 남은 결정: 천궁의 각성 (aura_a.js 나 금빛 별 활 / 라 매의 눈)
 - 8) 천궁: 나 금빛 별 활 0.6배 + 따라다니기 (a4a.js G.AuraFollowBow — aura_a.js 다음에 불러옴, 등 뒤 목표점 x-6·dir, y-50, 머리와 안 겹침) — 6장면 a4a_follow.png (follow2.js)
+- **8) 천궁 결정: 나 금빛 별 활 0.6배 + 따라다니기 (a4a.js)** → 4차 버프 8종 결정 끝
