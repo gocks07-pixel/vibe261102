@@ -153,7 +153,10 @@
     for (const k in eq) if (!G.ITEMS[eq[k].tid]) delete eq[k];
     const look = G.LOOKS.toDraw(Object.assign(G.LOOKS.def('m'), { hairStyle: 'tail', hairColor: '#c0402a', eye: 'sharp', eyeColor: '#c03040', skin: '#e0a878' }), '#a02a2a', '#4a2a2a');
     look.beard = true;
-    D.humanoid(ctx, { x: 0, y: 0, dir: 1, t, moving: m.moving, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee', look, gear: G.Outfit.gearOf(eq), hatColor: '#8a1a1a', cape: '#5a1a1a', weapon: 'sword', wcolor: '#e8e4dc', scale: 1.7 });
+    const keepO = G.Outfit; if (G.OutfitB) { G.Outfit = G.OutfitB; window.__FLIPW = 1; }
+    try {
+      D.humanoid(ctx, { x: 0, y: 0, dir: 1, t, moving: m.moving, atk: m.atkAnim != null ? m.atkAnim : -1, atkKind: 'melee', look, gear: G.Outfit.gearOf(eq), hatColor: '#8a1a1a', cape: '#5a1a1a', weapon: 'sword', wcolor: '#e8e4dc', scale: 1.7 });
+    } finally { G.Outfit = keepO; window.__FLIPW = 0; }
   };
   // 모르웬: 가지 뿔 왕관의 숲 정령 (흐르는 잎 머리 · 보랏빛 오염 핏줄 · 뿌리 치마 · 떠다니는 꽃잎)
   N.morwen = (ctx, m, t, s) => {
