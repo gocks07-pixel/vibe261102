@@ -77,3 +77,23 @@ G.SageMock.wrathB = (c, p, k, gy, t) => { const M = G.SageMock; M.style = 'na'; 
 G.SageMock.wrathA7 = (c, p, k, gy, t) => { G.SageMock.calpha = 0.7; G.SageMock.wrathA(c, p, k, gy, t); G.SageMock.calpha = 0; };
 G.SageMock.wrathB7 = (c, p, k, gy, t) => { G.SageMock.calpha = 0.7; G.SageMock.wrathB(c, p, k, gy, t); G.SageMock.calpha = 0; };
 G.SageMock.wrathA3 = (c, p, k, gy, t) => { G.SageMock.calpha = 0.3; G.SageMock.wrathA(c, p, k, gy, t); G.SageMock.calpha = 0; };
+// ===== 구름 나 다듬기: 가장자리가 부드럽게 번지는 덩어리 두 겹 (뒤 진하게 · 앞 밝게) + 밑면은 흐리게 사라짐 =====
+(function () { const M = G.SageMock, PI = Math.PI, sin = Math.sin;
+  const rnd = (s) => { const x = Math.sin(s * 127.1) * 43758.5453; return x - Math.floor(x); };
+  const T = { back: [122, 132, 166], mid: [150, 160, 192], front: [184, 192, 220], hi: [236, 240, 250] };
+  const blob = (k, x, y, r, rgb, a, hard) => { const g = k.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(hard, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`); k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, PI * 2); k.fill(); };
+  M.cloudSoft = (c, x, y, w, h, seed, a, flash, wisp) => {
+    const W = Math.ceil(w * 1.25), H = Math.ceil(h * 1.6), q = document.createElement('canvas'); q.width = W; q.height = H; const k = q.getContext('2d'), cx = W / 2, by = H * 0.78;
+    const n = Math.round(w / h * 4) + 4, P = [];
+    for (let i = 0; i < n; i++) { const u = (i + rnd(seed + i) * 0.8) / n * 2 - 1, d = Math.sqrt(Math.max(0, 1 - u * u)); P.push([cx + u * w * 0.46, by - h * 0.12 - d * h * (0.25 + rnd(seed + i * 5) * 0.25), h * (0.16 + 0.22 * d) * (0.75 + rnd(seed + i * 3) * 0.5)]); }
+    for (const [px, py, r] of P) blob(k, px, py + r * 0.15, r * 1.12, T.back.join(','), 1, 0.62);          // 뒤 겹 (아래쪽 그림자)
+    for (const [px, py, r] of P) blob(k, px - r * 0.06, py - r * 0.1, r * 0.95, T.mid.join(','), 1, 0.6);  // 가운데 겹
+    for (const [px, py, r] of P) if (py < by - h * 0.28) blob(k, px - r * 0.15, py - r * 0.32, r * 0.62, T.front.join(','), 0.9, 0.45);   // 위쪽만 밝은 겹
+    for (let i = 0; i < 4; i++) { const [px, py, r] = P[Math.floor(rnd(seed + i * 17) * P.length)]; blob(k, px - r * 0.25, py - r * 0.5, r * 0.35, T.hi.join(','), 0.7, 0.2); }
+    if (wisp) for (let i = 0; i < 3; i++) { const yy = by - h * (0.05 + i * 0.07); k.save(); k.translate(cx + (rnd(seed + i * 9) - 0.5) * w * 0.3, yy); k.scale(1, 0.18); blob(k, 0, 0, w * 0.42, T.mid.join(','), 0.8, 0.3); k.restore(); }   // 가로로 흐르는 옅은 꼬리
+    k.globalCompositeOperation = 'destination-out'; const g = k.createLinearGradient(0, by - h * 0.12, 0, by + h * 0.12); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)'); k.fillStyle = g; k.fillRect(0, by - h * 0.12, W, H);   // 밑면 흐리게
+    if (flash > 0) { k.globalCompositeOperation = 'source-atop'; blob(k, cx, by - h * 0.3, w * 0.4, '210,235,255', 0.75 * flash, 0); }
+    c.save(); c.globalAlpha *= a; c.drawImage(q, x - cx, y - by); c.restore(); };
+  M.wrathC = (c, p, k, gy, t) => { const old = M.cloud; M.cloud = (c2, x, y, w, h, st, tn, sd, a, fl) => M.cloudSoft(c2, x, y + h * 0.1, w, h * 1.1, sd, a * 0.7, fl, false); M.wrath(c, p, k, gy, t); M.cloud = old; };
+  M.wrathD = (c, p, k, gy, t) => { const old = M.cloud; M.cloud = (c2, x, y, w, h, st, tn, sd, a, fl) => M.cloudSoft(c2, x, y + h * 0.1, w, h * 1.1, sd, a * 0.7, fl, true); M.wrath(c, p, k, gy, t); M.cloud = old; };
+})();
