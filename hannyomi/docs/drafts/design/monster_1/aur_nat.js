@@ -557,7 +557,7 @@
   const aurelionArt = (c, t, corrupt, raise, fl) => {
   const BODY = '#ece9ff', SHD = '#c3bdf0', LN = '#7a72c4', GOLD = '#f2c862', GOLDD = '#a8801e';
   const GEM = corrupt ? '#c070ff' : '#dfe6ff', GEM2 = corrupt ? '#7a2ad0' : '#9fb0ff', GLOW = corrupt ? '#b050ff' : '#fff0b0';
-  const br = Math.sin(t * 2) * 1.5, flap = Math.sin(t * (fl ? 7 : 2.2)) * (fl ? 0.22 : 0.06);
+  const br = Math.sin(t * 2) * 1.5, flap = Math.sin(t * (fl ? 7 : 2.2)) * (fl ? 0.22 : 0.1);
   const legN = (x, top, col, k = 1) => {   // 자연스러운 용 다리: 둥근 허벅지 → 앞으로 굽은 정강이 → 발
     ell(c, x, top + 6, 13 * k, 16 * k, col, LN, 1.6);
     c.beginPath(); c.moveTo(x - 8 * k, top + 10); c.quadraticCurveTo(x - 12 * k, top + 26, x - 2 * k, -10); c.lineTo(x + 9 * k, -10); c.quadraticCurveTo(x + 4 * k, top + 26, x + 9 * k, top + 10); c.closePath();
@@ -574,12 +574,14 @@
     const F = [[-128, -112], [-140, -60], [-112, -18], [-70, 4]];   // 손가락 끝
     const mg = c.createLinearGradient(0, -110, -120, 0); mg.addColorStop(0, back ? '#cfc8f6' : '#f2f0ff'); mg.addColorStop(1, back ? '#a9a0e6' : '#cdc6f4');
     c.beginPath(); c.moveTo(0, 0); for (const p of P.slice(1)) c.lineTo(...p);
-    c.quadraticCurveTo(-150, -86, F[1][0], F[1][1]); c.quadraticCurveTo(-138, -34, F[2][0], F[2][1]); c.quadraticCurveTo(-96, -10, F[3][0], F[3][1]); c.quadraticCurveTo(-30, 10, 0, 0); c.closePath();
+    c.quadraticCurveTo(-130, -90, F[1][0], F[1][1]); c.quadraticCurveTo(-118, -42, F[2][0], F[2][1]); c.quadraticCurveTo(-84, -20, F[3][0], F[3][1]); c.quadraticCurveTo(-30, -6, 0, 0); c.closePath();
     c.fillStyle = mg; c.fill(); c.strokeStyle = LN; c.lineWidth = 1.6; c.stroke();
     // 막 안쪽 금빛 테
-    c.strokeStyle = 'rgba(242,200,98,.75)'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(-128, -112); c.quadraticCurveTo(-150, -86, -140, -60); c.quadraticCurveTo(-138, -34, -112, -18); c.quadraticCurveTo(-96, -10, -70, 4); c.stroke();
-    for (const f of F.slice(1)) line(c, back ? '#b8b0e8' : '#d8d2fa', 2, [P[2], f]);
-    line(c, GOLDD, 6, P); line(c, GOLD, 3.8, P); for (const p of P.slice(1)) ell(c, p[0], p[1], 3.6, 3.6, GOLD, GOLDD, 1.2);
+    c.strokeStyle = 'rgba(242,200,98,.75)'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(-128, -112); c.quadraticCurveTo(-130, -90, -140, -60); c.quadraticCurveTo(-118, -42, -112, -18); c.quadraticCurveTo(-84, -20, -70, 4); c.stroke();
+    const sh2 = c.createRadialGradient(0, 0, 4, 0, 0, 120); sh2.addColorStop(0, 'rgba(90,80,170,.25)'); sh2.addColorStop(1, 'rgba(90,80,170,0)'); c.fillStyle = sh2; c.fill();
+    for (const f of F.slice(1)) { c.strokeStyle = back ? '#b8b0e8' : '#d8d2fa'; c.lineWidth = 2; c.beginPath(); c.moveTo(...P[2]); c.quadraticCurveTo((P[2][0] + f[0]) / 2 - 6, (P[2][1] + f[1]) / 2 - 8, f[0], f[1]); c.stroke(); }
+    const bone = (w, col) => { c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(-8, -40, -30, -60); c.quadraticCurveTo(-46, -84, -70, -100); c.quadraticCurveTo(-100, -116, -128, -112); c.stroke(); };
+    bone(6, GOLDD); bone(3.8, GOLD); for (const p of P.slice(1)) ell(c, p[0], p[1], 3.6, 3.6, GOLD, GOLDD, 1.2);
     poly(c, GOLD, [[-128, -112], [-140, -124], [-126, -118]], GOLDD, 1);
     c.restore();
   };
