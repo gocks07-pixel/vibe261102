@@ -110,19 +110,19 @@ h2 { font-size: 13px; letter-spacing: 3px; color: var(--leaf); margin: 0 0 10px;
   }
   // 2. 장비 세트
   const SETS = [
-    ['가죽 장비', 'Lv.3~5', '챙 모자 · 가죽 조끼 · 장화 · 장갑', ['leather_hat', 'leather_vest', 'leather_pants', 'leather_boots', 'leather_gloves'], fam => ({ warrior: 'sword_iron', archer: 'bow_hunter', mage: 'wand_novice', thief: 'dagger_twin' })[fam]],
-    ['새싹 모험가 세트', 'Lv.10', '새싹이 돋은 모자 · 잎사귀 문양 · 말린 앞코 신발', ['sprout_hat', 'sprout_top', 'sprout_bottom', 'sprout_shoes', 'traveler_cape', 'traveler_gloves'], fam => ({ warrior: 'sword_steel', archer: 'bow_wind', mage: 'wand_crystal', thief: 'dagger_shadow' })[fam]],
-    ['엘렌 숲지기 세트', 'Lv.20', '깃털 꽂은 뾰족 모자 · 금테 잎사귀 · 붉은손 무기', ['elen_hat', 'elen_top', 'elen_bottom', 'elen_shoes', 'elen_gloves'], fam => ({ warrior: 'sword_red', archer: 'bow_red', mage: 'wand_red', thief: 'dagger_red' })[fam]],
-    ['미스릴 장비', 'Lv.30', '코 가리개 투구 · 판금 갑옷 · 긴 망토', 30],
-    ['라그 강철 세트', 'Lv.40', '이마 고글 리벳 투구 · 톱니 문양 · 톱니 무기', 40],
-    ['사막 장비', 'Lv.50', '터번 · 대각선 띠 · 펑퍼짐한 바지 · 샌들 · 곡도', 50],
-    ['사하린 왕조 세트', 'Lv.55', '태양 볏 머리띠 · 넓은 목깃 · 앞판 치마', 55],
-    ['파라오 장비', 'Lv.60', '줄무늬 머릿수건 · 태양 지팡이 · 갈고리검', 60],
-    ['서리용 세트', 'Lv.70', '뿔 투구 · 눈꽃 문양 · 얼음 밑단 망토 · 수정 무기', 70],
-    ['폭풍 장비', 'Lv.80', '번개 볏 투구 · 번개 문양 · 번개 칼날', 80],
-    ['천공 세트', 'Lv.85', '날개 머리띠 · 깃털 망토 · 날개 장화 · 날개 무기', 85],
-    ['공허 수호자 장비', 'Lv.90', '가시 투구 · 찢어진 망토 · 보랏빛 무기', 90],
-    ['별조각 계승자 세트', 'Lv.90', '별 세 개 왕관 · 별무늬 망토 · 빛나는 별 무기', ['trial_hat', 'trial_top', 'trial_bottom', 'trial_shoes', 'trial_gloves', 'trial_cape'], fam => 'trial_' + ({ warrior: 'sword', archer: 'bow', mage: 'wand', thief: 'dagger' })[fam]],
+    ['가죽 장비 · 초보 탐험가', 'Lv.3~5', '점무늬 두건 · 가죽 조끼 · 장화 · 장갑', ['leather_hat', 'leather_vest', 'leather_pants', 'leather_boots', 'leather_gloves'], fam => ({ warrior: 'sword_iron', archer: 'bow_hunter', mage: 'wand_novice', thief: 'dagger_twin' })[fam]],
+    ['새싹 모험가 세트 · 새싹 견습생', 'Lv.10', '베레모 + 새싹 핀 · 짧은 재킷 · 가방끈 · 어깨 망토', ['sprout_hat', 'sprout_top', 'sprout_bottom', 'sprout_shoes', 'traveler_cape', 'traveler_gloves'], fam => ({ warrior: 'sword_steel', archer: 'bow_wind', mage: 'wand_crystal', thief: 'dagger_shadow' })[fam]],
+    ['엘렌 숲지기 세트 · 숲의 레인저', 'Lv.20', '잎사귀 화관 · 가죽 조끼 · 등의 화살통 · 팔 보호대', ['elen_hat', 'elen_top', 'elen_bottom', 'elen_shoes', 'elen_gloves'], fam => ({ warrior: 'sword_red', archer: 'bow_red', mage: 'wand_red', thief: 'dagger_red' })[fam]],
+    ['미스릴 장비 · 은빛 기사', 'Lv.30', '깃털 장식 투구 · 판금 위 문장 겉옷 · 긴 망토', 30],
+    ['라그 강철 세트 · 증기 기술자', 'Lv.40', '챙 작업모 + 황동 고글 · 가죽 앞치마 · 등의 황동 통', 40],
+    ['사막 장비 · 사막 유랑자', 'Lv.50', '천 머리쓰개 + 고글 · 겹친 천 옷 · 동전 허리띠 · 곡도', 50],
+    ['사하린 왕조 세트 · 모래 왕국 근위병', 'Lv.55', '태양 원반 금빛 투구 · 비늘 갑옷 · 파란 어깨띠', 55],
+    ['파라오 장비 · 태양의 사제', 'Lv.60', '높은 관 + 태양 원반 · 흰 긴 옷 · 넓은 금 목깃', 60],
+    ['서리용 세트 · 서리 사냥꾼', 'Lv.70', '얼음 결정 티아라 · 털 깃 코트 · 털 망토 · 수정 무기', 70],
+    ['폭풍 장비 · 폭풍의 기수', 'Lv.80', '은빛 서클릿 + 작은 먹구름 · 번개 코트 · 번개 밑단 망토', 80],
+    ['천공 세트 · 하늘 순례자', 'Lv.85', '넓은 챙 흰 모자 · 흰 겉옷 · 깃털 망토 · 날개 장화', 85],
+    ['공허 수호자 장비 · 공허의 그림자', 'Lv.90', '떠 있는 어둠 고리 · 긴 코트 · 도는 룬 · 반망토', 90],
+    ['별조각 계승자 세트 · 별의 기사', 'Lv.90', '금 서클릿 + 큰 별 · 하얀 기사 코트 · 별하늘 망토', ['trial_hat', 'trial_top', 'trial_bottom', 'trial_shoes', 'trial_gloves', 'trial_cape'], fam => 'trial_' + ({ warrior: 'sword', archer: 'bow', mage: 'wand', thief: 'dagger' })[fam]],
   ];
   const g2 = section('장비 세트 (전사 · 궁수 · 마법사 · 도적 무기)');
   for (const [name, tag, desc, pieces, wfn] of SETS) {
