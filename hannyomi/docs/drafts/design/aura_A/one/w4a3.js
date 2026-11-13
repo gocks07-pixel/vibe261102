@@ -18,7 +18,6 @@
   S.daFront = (c, p, t) => { c.save(); toBlade(c, p); const br = 0.75 + 0.25 * sin(t * 4);
     soft(c, 0, 22, 22, 'rgba(255,110,30,.55)', br); c.globalAlpha = 0.85 * br; const g = c.createLinearGradient(0, 4, 0, 36); g.addColorStop(0, '#ffd070'); g.addColorStop(1, '#ff5a14');
     c.beginPath(); c.roundRect(-2.6, 4, 5.2, 32, 2); c.fillStyle = g; c.fill(); c.globalAlpha = 1; c.fillStyle = '#fff6d8'; c.fillRect(-0.6, 7, 1.2, 26);
-    for (let i = 0; i < 3; i++) { const u = (t * 1.4 + i / 3) % 1; c.save(); c.globalAlpha = 1 - u; ell(c, sin(t * 6 + i) * 2, 37 + u * 12, 2 * (1 - u) + 0.6, 3 * (1 - u) + 0.8, i % 2 ? '#ffb040' : '#ff7a20'); c.restore(); }
     c.restore(); };
   S.da = () => {};
   // 라: 칼끝 불씨 고리 — 칼날 중간을 가로로 두른 작은 불 고리 둘이 칼을 따라 천천히 오르내림
