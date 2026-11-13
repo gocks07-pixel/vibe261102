@@ -89,11 +89,7 @@
       ctx.fillStyle = i % 3 === 0 ? PK : (i % 2 ? '#5a7a3a' : '#6a8a4a');
       ctx.beginPath(); ctx.ellipse(0, -8, 4, 10, 0, 0, PI * 2); ctx.fill(); ctx.restore();
     }
-    // 연꽃 왕관 (머리 꼭대기에 한 송이)
-    ctx.save(); ctx.translate(0, -h * 0.95);
-    for (let i = 0; i < 7; i++) { const a = -1.25 + i * 2.5 / 6; petal(0, 0, a, h * 0.1 - abs(a) * 3, w * 0.08, PK, PK2); }
-    for (let i = 0; i < 4; i++) { const a = -0.5 + i / 3; petal(0, 0, a, h * 0.08, w * 0.065, PW, PK, '#fffafc'); }
-    glow(ctx, 0, -h * 0.035, 12, ph ? '#ff60d0' : '#fff0c0', 0.7); ell(ctx, 0, -h * 0.022, 3, 2, '#ffd86a', '#b08a20', 0.8); ctx.restore();
+    // (머리 중앙 연꽃 왕관은 사용자 요청으로 뺌, 8차)
     // 떨어지는 연꽃잎
     for (let i = 0; i < 3; i++) { const y = ((t * 30 + i * 50) % (h * 0.8)); ctx.save(); ctx.translate(-w * 0.4 + i * w * 0.4, -h * 0.85 + y); ctx.rotate(t * 2 + i);
       ctx.beginPath(); ctx.moveTo(0, -5); ctx.quadraticCurveTo(3.4, 0, 0, 5); ctx.quadraticCurveTo(-3.4, 0, 0, -5); ctx.fillStyle = ph ? '#c060e0' : '#f8c0dc'; ctx.fill(); ctx.restore(); }
