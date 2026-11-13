@@ -27,10 +27,22 @@
     if (guard) { for (let i = 0; i < 3; i++) ell(ctx, 30 + i * 12, -60 - ((t * 40 + i * 20) % 60), 4, 4, 'rgba(200,230,255,.6)'); return; }
     ell(ctx, 22, -32, 40, 24, vg(ctx, -56, -8, shade(m.d.color, 0.2), shade(m.d.color, -0.25)), m.d.color2, 3);
     ell(ctx, 58, -22, 12, 9, m.d.color, m.d.color2, 2.5);
-    ctx.save(); ctx.translate(46, -48); ctx.rotate(-0.4 - raise * 1.3 + s.atk * 0.3); rrect(ctx, 0, -8, 32, 16, 8, m.d.color, m.d.color2); ctx.translate(40, 0);
-    ell(ctx, 0, 0, 23, 17, vg(ctx, -17, 17, shade(m.d.color, 0.25), shade(m.d.color, -0.2)), m.d.color2, 3);
-    const op = raise > 0 ? 0.6 : abs(sin(t * 2)) * 0.25; ctx.save(); ctx.rotate(-op); ctx.fillStyle = shade(m.d.color, 0.15); ctx.beginPath(); ctx.ellipse(19, -8, 17, 8, -0.3, 0, PI * 2); ctx.fill(); ctx.strokeStyle = m.d.color2; ctx.stroke(); ctx.restore();
-    ell(ctx, 6, -6, 6, 6, '#f4f0ff', '#a0a0c0', 1.5); ctx.restore();   // 집게 속 진주
+    // 큰 집게: 마디 두 개 + 볼록한 손바닥 + 굽은 아래 집게(고정) · 위 집게(움직임) · 톱니
+    const cC = m.d.color, cD = m.d.color2, op = raise > 0 ? 0.55 : abs(sin(t * 2)) * 0.22;
+    ctx.save(); ctx.translate(44, -46); ctx.rotate(-0.55 - raise * 1.2 + s.atk * 0.3);
+    ell(ctx, 6, 0, 13, 10, vg(ctx, -10, 10, shade(cC, 0.2), shade(cC, -0.2)), cD, 2.4);   // 첫 마디
+    ctx.translate(16, -4); ctx.rotate(0.45); ell(ctx, 10, 0, 15, 11, vg(ctx, -11, 11, shade(cC, 0.2), shade(cC, -0.2)), cD, 2.4); ell(ctx, 0, 0, 5, 5, shade(cC, -0.15), cD, 1.4);   // 둘째 마디 + 관절
+    ctx.translate(26, 0); ctx.rotate(-0.5);
+    ctx.beginPath(); ctx.ellipse(8, 2, 22, 17, 0, 0, PI * 2); ctx.fillStyle = vg(ctx, -15, 19, shade(cC, 0.28), shade(cC, -0.25)); ctx.fill(); ctx.strokeStyle = cD; ctx.lineWidth = 2.6; ctx.stroke();   // 손바닥
+    for (const [x, y] of [[0, -6], [10, -10], [-4, 6]]) ell(ctx, x, y, 2.4, 2, shade(cC, 0.4));
+    ctx.beginPath(); ctx.moveTo(24, 8); ctx.quadraticCurveTo(46, 10, 54, -2); ctx.quadraticCurveTo(44, 2, 26, 0); ctx.closePath(); ctx.fillStyle = vg(ctx, -2, 12, cC, shade(cC, -0.3)); ctx.fill(); ctx.strokeStyle = cD; ctx.lineWidth = 2; ctx.stroke();   // 아래 집게
+    for (let i = 0; i < 3; i++) poly(ctx, '#fff4e0', [[30 + i * 7, 1.6], [33 + i * 7, -2.4], [35 + i * 7, 1]]);
+    ctx.save(); ctx.translate(24, -4); ctx.rotate(-op);
+    ctx.beginPath(); ctx.moveTo(0, -6); ctx.quadraticCurveTo(22, -18, 32, -4); ctx.quadraticCurveTo(22, -6, 2, 2); ctx.closePath(); ctx.fillStyle = vg(ctx, -14, 2, shade(cC, 0.3), cC); ctx.fill(); ctx.strokeStyle = cD; ctx.lineWidth = 2; ctx.stroke();   // 위 집게
+    for (let i = 0; i < 3; i++) poly(ctx, '#fff4e0', [[8 + i * 7, -3], [11 + i * 7, 1], [13 + i * 7, -3.4]]);
+    ctx.restore();
+    ell(ctx, 40, 2, 5, 5, '#f4f0ff', '#a0a0c0', 1.4); ell(ctx, 38.6, 0.6, 1.6, 1.6, '#fff');   // 진주
+    ctx.restore();
     // 해적 두건 + 눈
     line(ctx, m.d.color2, 4, [[26, -54], [24, -76]]); line(ctx, m.d.color2, 4, [[42, -52], [44, -74]]);
     ctx.fillStyle = '#c03040'; ctx.beginPath(); ctx.ellipse(34, -80, 22, 9, 0, PI, 0); ctx.fill(); ctx.beginPath(); ctx.moveTo(12, -80); ctx.lineTo(2, -86 + sin(t * 6) * 2); ctx.lineTo(4, -76); ctx.fill();
