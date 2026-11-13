@@ -1,0 +1,13 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+const ROWS=[['w4a','w4a_awake','전사 a · 천붕검제의 각성','sword'],['w4b','w4b_awake','전사 b · 불멸','sword'],['a4b','a4b_awake','궁수 b · 저격왕의 각성','bow'],['m4a','m4a_awake','마법사 a · 화염군주의 각성','wand'],['m4b','m4b_awake','마법사 b · 현자의 각성','wand'],['t4a','t4a_awake','도적 a · 야천의 각성','dagger'],['t4b','t4b_awake','도적 b · 검무의 각성','dagger']];
+(async()=>{const b=await chromium.launch();const W=1500,rh=190,H=10+ROWS.length*rh;const pg=await b.newPage({viewport:{width:W,height:H},deviceScaleFactor:2});const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+await pg.goto('file:///home/user/vibe261102/hannyomi/index.html');await pg.waitForTimeout(1500);await pg.addScriptTag({content:fs.readFileSync('aura_c.js','utf8')});
+await pg.evaluate(([ROWS,W,rh,H])=>{const cv=document.createElement('canvas');cv.width=W*2;cv.height=H*2;cv.style.cssText='position:fixed;left:0;top:0;z-index:99999;width:'+W+'px';document.body.appendChild(cv);const c=cv.getContext('2d');c.scale(2,2);c.fillStyle='#0d1124';c.fillRect(0,0,W,H);
+ const cw=W/5;ROWS.forEach(([k,id,name,wp],r)=>{const y0=10+r*rh;const opts=[['지금',null]].concat(G.AuraC[k]);
+  opts.forEach(([nm,f],col)=>{const dark=(col+r)%2===0;const g=c.createLinearGradient(0,y0,0,y0+rh);g.addColorStop(0,dark?'#3a2a1e':'#c8dcf4');g.addColorStop(1,dark?'#1e140c':'#eef4fc');c.fillStyle=g;c.fillRect(col*cw,y0,cw-2,rh-4);
+   c.fillStyle=dark?'#f0e8d8':'#1a2040';c.font='bold 12px sans-serif';c.fillText(col===0?name:nm,col*cw+8,y0+16);
+   const lk=G.LOOKS.toDraw(Object.assign(G.LOOKS.def('m'),{hairStyle:'short',hairColor:'#4a3a2a'}),'#5a6a9a','#2a3050');const p={x:col*cw+cw/2,y:y0+rh-16,dir:1,t:1.2+col*0.45,buffs:{},dead:false,drawOpts:()=>({x:0,y:0,dir:1,t:1,look:lk,weapon:wp,wcolor:'#d8dce8',scale:1})};
+   const draw=(cc,x,y,flt)=>{cc.save();cc.filter='brightness(0.5) sepia(1) '+(flt||'hue-rotate(220deg)')+' saturate(3)';G.Draw.humanoid(cc,{x,y,dir:1,t:p.t,look:lk,weapon:wp,wcolor:'#d8dce8',scale:1});cc.restore();};
+   if(!f){p.buffs[id]={};G.SkillX.aura(c,p);if(id==='a4b_awake'){c.fillStyle='#888';c.font='12px sans-serif';c.fillText('(모습 없음)',p.x-30,p.y-110);}}else f(c,p,p.t,draw);
+   G.Draw.humanoid(c,{x:p.x,y:p.y,dir:1,t:p.t,look:lk,weapon:wp,wcolor:'#d8dce8',scale:1});});});},[ROWS,W,rh,H]);
+await pg.waitForTimeout(200);await pg.screenshot({path:'aura_c.png'});console.log(errs.slice(0,3));await b.close();})();
