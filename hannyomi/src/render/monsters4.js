@@ -293,6 +293,7 @@
     const rivets = (pts) => { for (const [x, y] of pts) { ell(c, x, y, 2.2, 2.2, STL, OUT, 0.8); } };
     const bolt = (x1, y1, x2, y2, seed) => { const n = 5, pts = [[x1, y1]]; for (let i = 1; i < n; i++) { const u = i / n; pts.push([x1 + (x2 - x1) * u + sin(seed * 7 + i * 3 + t * 40) * 6, y1 + (y2 - y1) * u + cos(seed * 5 + i * 2 + t * 37) * 6]); } pts.push([x2, y2]); line(c, 'rgba(90,200,255,.45)', 5, pts); line(c, '#e8fbff', 1.6, pts); };
     if (groggy) c.rotate(0.08);
+    const bob = Math.sin(t * 2.2) * 1.6;
     // 배기관 (등)
     for (const [x, a] of [[-44, -0.25], [-28, -0.12]]) {
       c.save(); c.translate(x, -150); c.rotate(a);
@@ -310,7 +311,7 @@
     // 다리 (피스톤)
     for (const sg of [-1, 1]) {
       const o = (sg > 0 ? step : -step) * 3, x = sg * 26;
-      c.save(); c.translate(x, -Math.max(0, o));
+      c.save(); c.translate(x, -Math.max(0, o)); c.rotate(sg * 0.05);
       plate(-15, -66, 30, 26, 6);
       ell(c, 0, -40, 10, 10, '#3a4250', OUT, 1.6); ell(c, 0, -40, 4, 4, STL);
       plate(-12, -38, 24, 28, 5, lin(c, 0, -38, 0, -10, ST, STD));
@@ -321,7 +322,7 @@
     // 허리
     plate(-36, -76, 72, 16, 5, lin(c, 0, -76, 0, -60, STD, '#3a4250'));
     // 몸통 (각진 상자)
-    poly(c, lin(c, 0, -156, 0, -76, STL, ST), [[-50, -156], [50, -156], [58, -140], [54, -84], [44, -74], [-44, -74], [-54, -84], [-58, -140]], OUT, 2.2);
+    c.translate(0, bob); rrect(c, -58, -158, 116, 86, 26, lin(c, 0, -158, 0, -72, STL, ST), OUT, 2.2); ell(c, -22, -146, 22, 6, 'rgba(255,255,255,.28)');
     line(c, STD, 2, [[-50, -136], [50, -136]]); line(c, STD, 2, [[-54, -100], [54, -100]]);
     rivets([[-50, -150], [-34, -150], [34, -150], [50, -150], [-48, -82], [48, -82]]);
     hazard(-44, -96, 88, 9);
@@ -331,7 +332,7 @@
     c.save(); if (c.getTransform().a < 0) c.scale(-1, 1);   // 왼쪽을 볼 때도 글자는 바로
     c.fillStyle = '#fff2d8'; c.font = 'bold 17px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('MK-7', 0, -115.5); c.restore();
     rrect(c, -9, -152, 18, 14, 4, '#1a2028', OUT, 1.5); ell(c, 0, -145, 5, 4, hot ? '#ff8030' : '#ffb84a'); glow(c, 0, -145, 14, hot ? '#ff5020' : '#ffb84a', 0.7);
-    if (hot) { c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha *= 0.22 + 0.1 * sin(t * 10); poly(c, '#ff6a20', [[-50, -156], [50, -156], [58, -140], [54, -84], [44, -74], [-44, -74], [-54, -84], [-58, -140]]); c.restore(); }
+    if (hot) { c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha *= 0.22 + 0.1 * sin(t * 10); rrect(c, -58, -158, 116, 86, 26, '#ff6a20'); c.restore(); }
     // 어깨 (둥근 견갑 + 주황 경고등)
     for (const sg of [-1, 1]) {
       plate(sg * 56 - 18, -164, 36, 30, 12);
@@ -340,7 +341,8 @@
       ell(c, sg * 56, -164, 5, 4, lit ? '#ff9a30' : '#7a3a10', OUT, 1.2); if (lit) glow(c, sg * 56, -164, 12, '#ff8a20', 0.7);
     }
     // 머리 (둥근 투구 + 넓은 눈창 + 하늘빛 두 눈)
-    plate(-22, -190, 50, 38, 14);
+    rrect(c, -10, -160, 26, 12, 4, lin(c, 0, -160, 0, -148, '#5a6474', '#3a4250'), OUT, 1.4);   // 목 이음새
+    plate(-22, -190, 50, 38, 16);
     line(c, OUT, 2, [[4, -190], [4, -200]]); ell(c, 4, -202, 3, 3, Math.floor(t * 3) % 2 ? '#ff5040' : '#6a1a14', OUT, 1);
     rrect(c, -12, -180, 38, 15, 7, '#141a22', OUT, 1.5);
     const eyeC = groggy ? (Math.floor(t * 8) % 2 ? '#ffd040' : '#3a3a10') : hot ? '#ff4020' : CY;

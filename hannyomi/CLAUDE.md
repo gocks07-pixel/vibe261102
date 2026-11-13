@@ -22,6 +22,8 @@
 - `src/ui/` HUD, 창들, 대화, 지도, 캐릭터 만들기, 엔딩, `cutscene.js` 이야기 영상(1.7.7) (최종 보스 체험 모드는 1.6에서 제거)
 - `electron/` 창 생성과 세이브 파일 입출력
 - 빌드 1~3 (모바일, 2026-11-12): 계획 · 결과 `docs/BUILD_MOBILE_PLAN.md`. 새 파일 `src/data/balance_b1.js` · `quest_sets_b1.js` · `src/systems/sp_b1.js`(각성별 기술 포인트) · `src/ui/jobcard.js`(각성 카드)
+- **PC · EXE 와 같이 쓰는 규칙 (hannyomi-backup 전달, 2026-11-12)**: PC 에는 `play.js` · `mobile.js` · `mobile.css` 가 없음. `src/ui/jobcard_pc.js` 가 `G.Play.FAM` · `recValue` · `recommend` · `recPreview` · `statsWith` · `score` · `better` · `fits` · `slotFor` 를 play.js 와 글자 그대로 복사해 둠 → 이것들을 바꾸면 jobcard_pc.js 도 같이. 같이 쓰는 파일(windows.js · ui.js · dialog.js · hud.js 등)에서 새 `G.Play.xxx` 를 부르면 jobcard_pc.js 에 넣고, `G.Mobile` · `G.Touch` 는 부르지 않기
+- 빌드 8 (모바일, 2026-11-13): 보스 새 디자인 `src/render/boss_new.js` (쉘로크 · 바르크 · 모르웬 · 파라칸 · 카이엔(분신 포함) · 엘드리크(여자) 그림 + 다듬기 필터 `G.MonRefine`, `G.MonArt[id].refine` 인 보스만 · 범위는 처음 한 번 재서 씀). 그라운더 · 아우렐리온은 monsters4 · 3.js 를 직접 다듬음, 녹스는 그대로. `outfit.js` humanoid 인자 `wflip`(바르크 언월도), `head2.js` 머리 인자 `cool`(볼터치 · 입 없음). 시안 · 결정 `docs/drafts/design/monster_1/`
 - 1번 꾸미기 (모바일, 2026-11-12): 새 그림체 머리 `src/render/head2.js` (`G.Head2`, outfit.js 의 머리 자리만) · 사용자 머리 코드 `hair_user.js` · NPC 머리 배정 `src/data/npc_look2.js`. 사람 모양 몬스터는 `oldHead` (카이엔 보스만 새 머리). 세이브 형식 그대로 (옛 id 를 그릴 때만 새 모양으로). 시안 · 결정 `docs/drafts/design/`
 - `src/dev.js` 테스트 모드 (Lv.100 4차 8직업 선택·직업만 바꾸기, 장 선택 시작, 어디든 순간이동, 엔딩 미리보기). 다른 파일을 고치지 않고 덧붙이는 방식. **지우지 않는다**: 플레이어용 EXE 빌드(`electron/build-player.json`)가 이 파일을 빼고 포장하고, index.html 은 EXE 가 테스트용일 때만 불러온다. 메인 프로세스는 이 파일이 있는지로 테스트용을 구분한다
 

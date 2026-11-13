@@ -36,6 +36,7 @@ G.Outfit = (function () {
   const PREFIX = [['trial_', 'starheir'], ['leather_', 'leather'], ['sprout_', 'sprout'], ['elen_', 'elen'], ['traveler_', 'traveler']];
   const WEAP_ID = { sword_steel: 'steel', bow_wind: 'wind', wand_crystal: 'crystal', dagger_shadow: 'shadow' };
   const cache = {};
+  let WFLIP = false;   // 빌드 8: 칼날 뒤집기 (바르크)
   function styleOf(id) {
     if (!id) return null;
     if (id in cache) return cache[id];
@@ -1081,6 +1082,7 @@ G.Outfit = (function () {
         line(ctx, [[-4, 2.4], [4, 2.4]], '#6a4a2a', 2); for (const x of [-4.6, 4.6]) ell(ctx, x, 2.4, 1.2, 1.2, '#e05a5a'); grip(ctx, '#5a3a1a', '#7ad66a', 6); return;
       }
       case 'desert': {    // 사막 유랑자: 넓은 언월도 + 붉은 천 술 / 굽은 잠비야 단검
+        if (WFLIP && !dag) ctx.scale(-1, 1);   // 빌드 8: 붉은손 바르크만 날이 아래로 휘게 (humanoid 인자 wflip)
         ctx.beginPath(); ctx.moveTo(-2.4, 4); ctx.quadraticCurveTo(-3, L * 0.6, dag ? -4 : -8, L + 1); ctx.quadraticCurveTo(dag ? 4 : 5.5, L * 0.75, 2.6, 4); ctx.closePath();
         ctx.fillStyle = vgrad(ctx, 4, L, '#e8e4dc', 0.05, -0.2); ctx.fill(); ctx.strokeStyle = '#7a6a58'; ctx.lineWidth = 0.8; ctx.stroke();
         poly(ctx, [[-4.4, 1.8], [4.4, 1.8], [3, 4.4], [-3, 4.4]], '#c9a33a', '#7a5a1a', 0.6); grip(ctx, '#5a3a2a', '#c9a33a', 6);
@@ -1335,7 +1337,7 @@ G.Outfit = (function () {
     ctx.save(); ctx.translate(2, -31); ctx.rotate(arm);
     sleeve(ctx, g.top ? (SLV[topKind] || topKind === 'plate' || topKind === 'royal' ? topKind : 'plain') : (e.sleeve || 'plain'), topC, e, sTop);
     hand(ctx, g.gloves ? g.gloves.k : 'none', g.gloves ? g.gloves.c : null, skin, g.gloves ? g.gloves.sp : {});
-    if (o.weapon) weapon(ctx, o.weapon, o.wcolor, g.weapon ? g.weapon.st : null);
+    if (o.weapon) { WFLIP = !!o.wflip; weapon(ctx, o.weapon, o.wcolor, g.weapon ? g.weapon.st : null); WFLIP = false; }
     if (g.top) pauldron(ctx, topKind, topC, sTop);
     ctx.restore();
     ctx.restore();
