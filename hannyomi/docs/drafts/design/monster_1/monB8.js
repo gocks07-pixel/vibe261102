@@ -20,9 +20,13 @@
     ctx.beginPath(); ctx.moveTo(-26, -58); ctx.lineTo(-44, -96); ctx.lineTo(-34, -92); ctx.lineTo(-36, -122); ctx.lineTo(-18, -100); ctx.lineTo(0, -108); ctx.lineTo(18, -100); ctx.lineTo(34, -120); ctx.lineTo(32, -92); ctx.lineTo(42, -94); ctx.lineTo(26, -58); ctx.closePath();
     ctx.fillStyle = vg(ctx, -122, -58, '#3a0a2a', '#0a0410'); ctx.fill(); ctx.strokeStyle = '#7a1a4a'; ctx.lineWidth = 1.4; ctx.stroke();
     // 몸: 검보라 옷 · 검은 망토 · 은발 긴 머리 · 수염 · 날카로운 붉은 눈
+    const P = CanvasRenderingContext2D.prototype, kf = P.fill, ks = P.stroke;
+    if (F) { P.fill = function (...a) { if (/^rgba\(255, 120, 140/.test(this.fillStyle)) return; return kf.apply(this, a); }; P.stroke = function (...a) { if (this.strokeStyle === '#a0505a') return; return ks.apply(this, a); }; }
+    try {
     D.humanoid(ctx, { x: 0, y: 0, dir: 1, t, moving: m.moving, air: false, atk: -1, atkKind: 'proj',
       look: F ? { gender: 'f', skin: '#ecdce0', hair: '#cfc8e4', top: '#2a1440', bottom: '#140a20', style: 'long', eye2: F.eye, eyeColor: '#e02848', hat: '#1e0e30' } : { skin: '#d8c8cc', hair: '#b8b8cc', top: '#2a1440', bottom: '#140a20', style: 'long', beard: true, eye: 'sharp', eyeColor: '#ff2040', hat: '#1e0e30' },
       weapon: null, cape: '#0a0410', scale: sc });
+    } finally { P.fill = kf; P.stroke = ks; }
     // 긴 예복 자락 (발목까지, 검보라 + 핏빛 테)
     const sw = sin(t * 1.8) * 2;
     ctx.beginPath(); ctx.moveTo(-17, -48); ctx.quadraticCurveTo(-22, -22, -27 + sw, -1); ctx.quadraticCurveTo(0, 3, 27 + sw, -1); ctx.quadraticCurveTo(22, -22, 17, -48); ctx.closePath();
@@ -78,6 +82,7 @@
     ctx.strokeStyle = '#0a0410'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 76); for (let y = 76; y >= -50; y -= 6) ctx.lineTo(sin(y * 0.2) * 0.8, y); ctx.stroke();
     ctx.strokeStyle = '#5a2a7a'; ctx.lineWidth = 1; ctx.beginPath(); for (let y = 70; y >= -48; y -= 6) ctx.lineTo(sin(y * 0.2 + 1.5) * 1.8, y); ctx.stroke();
     glow(ctx, 0, -64, 30, ec, 0.9); ell(ctx, 0, -64, 9, 9, vg(ctx, -73, -55, casting ? '#ff6080' : '#c070ff', '#1a0428'), ec, 1.6);
+    for (let i = 0; i < 5; i++) { const a = t * 2 + i * 1.26; ell(ctx, cos(a) * 4, -64 + sin(a) * 4, 1, 1, 'rgba(255,220,240,.8)'); }
     for (const sx of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sx * 2, -50); ctx.quadraticCurveTo(sx * 16, -60, sx * 8, -76); ctx.quadraticCurveTo(sx * 11, -62, sx * 0.5, -52); ctx.closePath(); ctx.fillStyle = '#1a0a24'; ctx.fill(); ctx.strokeStyle = '#7a3aa0'; ctx.lineWidth = 0.8; ctx.stroke(); }   // 구슬을 감싸 쥔 갈고리
     ctx.restore();
     // 지팡이를 쥔 팔 (검보라 소매 · 뼈마디 손)
@@ -92,19 +97,17 @@
   N8.face = (ctx, t) => {
     const SK = '#dec8d1', EY = -86.5, ER = 5.8;
     ctx.save(); ctx.beginPath(); ctx.ellipse(0, -98, 31, 31, 0, 0, PI * 2); ctx.clip(); ctx.fillStyle = '#e8d6dc'; ctx.fillRect(-30, -99, 60, 4.5); for (const x of [-11, 14]) { ctx.beginPath(); ctx.ellipse(x, -91.4, 9, 2.6, 0, 0, PI * 2); ctx.fill(); } ctx.restore();   // 원래 짙은 눈썹 지움
-    for (const [x, y] of [[-19, -82], [21, -82]]) { const g = ctx.createRadialGradient(x, y, 0, x, y, 8); g.addColorStop(0, 'rgba(232,214,220,.95)'); g.addColorStop(0.7, 'rgba(232,214,220,.7)'); g.addColorStop(1, 'rgba(232,214,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 8, 0, PI * 2); ctx.fill(); }   // 볼 홍조 지움
     for (const [x, d] of [[-10.5, -1], [14, 1]]) {   // d: 바깥쪽 방향
-      ctx.save(); ctx.beginPath(); ctx.ellipse(x, EY, ER + 1.5, ER * 1.2 + 1.5, 0, 0, PI * 2); ctx.clip();
+      ctx.save(); ctx.beginPath(); ctx.ellipse(x, EY, ER + 0.3, ER * 1.18 + 0.3, 0, 0, PI * 2); ctx.clip();
       ctx.fillStyle = SK; ctx.beginPath(); ctx.moveTo(x - 10, EY - 12); ctx.lineTo(x + 10, EY - 12); ctx.lineTo(x + 10, EY - 2.2 - d * 1.0); ctx.lineTo(x - 10, EY - 2.2 + d * 1.0); ctx.closePath(); ctx.fill();   // 반쯤 내려온 눈꺼풀 (바깥이 살짝 높음)
       ctx.fillStyle = 'rgba(120,60,130,.3)'; ctx.fillRect(x - 10, EY - 5, 20, 3.4);
-      ctx.fillStyle = SK; ctx.beginPath(); ctx.moveTo(x - 10, EY + 12); ctx.lineTo(x - 10, EY + 3.4 - d * 0.6); ctx.quadraticCurveTo(x, EY + 5.2, x + 10, EY + 3.4 + d * 0.6 - d * 1.2); ctx.lineTo(x + 10, EY + 12); ctx.closePath(); ctx.fill();   // 아래 눈꺼풀 (가늘고 긴 눈)   // 보랏빛 눈두덩
+      ctx.fillStyle = '#c9b3c0'; ctx.beginPath(); ctx.moveTo(x - 10, EY + 12); ctx.lineTo(x - 10, EY + 3.4 - d * 0.6); ctx.quadraticCurveTo(x, EY + 5.2, x + 10, EY + 3.4 + d * 0.6 - d * 1.2); ctx.lineTo(x + 10, EY + 12); ctx.closePath(); ctx.fill();   // 아래 눈꺼풀 (가늘고 긴 눈)   // 보랏빛 눈두덩
       ctx.restore();
       ctx.strokeStyle = '#1a0a1e'; ctx.lineWidth = 1.5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - d * 5.5, EY - 1.4 + d * 0.4); ctx.quadraticCurveTo(x, EY - 3.2, x + d * 6.4, EY - 3.4); ctx.quadraticCurveTo(x + d * 8.2, EY - 3.8, x + d * 9.4, EY - 5.4); ctx.stroke();   // 길게 빠진 윗선 · 올라간 눈꼬리
       ctx.strokeStyle = 'rgba(60,20,50,.55)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(x - d * 3, EY + 4.3); ctx.quadraticCurveTo(x + d * 2, EY + 4.6, x + d * 6, EY + 2.6); ctx.stroke();   // 아랫선 (옅게)
       ctx.strokeStyle = '#a8a0c4'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - d * 4.5, EY - 5.6); ctx.lineTo(x + d * 4, EY - 6.6); ctx.quadraticCurveTo(x + d * 7, EY - 7, x + d * 8.6, EY - 6.0); ctx.stroke();   // 가는 은빛 눈썹 (바깥이 살짝 올라감)
     }
     glow(ctx, -10.5, EY + 1, 5, '#ff6080', 0.1); glow(ctx, 14, EY + 1, 5, '#ff6080', 0.1);
-    { const g = ctx.createRadialGradient(3, -77, 0, 3, -77, 8); g.addColorStop(0, 'rgba(232,214,220,1)'); g.addColorStop(0.65, 'rgba(232,214,220,.95)'); g.addColorStop(1, 'rgba(232,214,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(3, -77, 8, 0, PI * 2); ctx.fill(); }   // 원래 입 지움
     ctx.fillStyle = '#5a1a36'; ctx.beginPath(); ctx.moveTo(0.4, -77.2); ctx.quadraticCurveTo(3, -78.1, 5.6, -77.2); ctx.quadraticCurveTo(3, -76.0, 0.4, -77.2); ctx.fill();   // 다문 입술 (웃지 않음)
     ctx.strokeStyle = '#3a0a20'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(0, -76.9); ctx.quadraticCurveTo(3, -77.5, 6, -76.9); ctx.stroke();
     line(ctx, 'rgba(150,110,130,.5)', 0.9, [[3.6, -83], [4.6, -80.6]]);   // 오뚝한 코 선
