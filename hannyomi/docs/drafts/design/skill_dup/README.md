@@ -12,3 +12,4 @@
 - 2 저격왕 지금 모습: snipe_bolt.png (볼트 6개) · snipe_beam.png (레이저 2개 + 산탄 · 폭뢰 참고). skillshot.js 고침: 캡처를 마지막 프레임 직후 같은 evaluate 안에서 · 플레이어 무적 · 땅에 세움
 - 2 저격왕 아이콘 + 장면 한 컷: snipe_icons.png (iconsheet.js)
 - 2 저격왕 코멘트: 연쇄 폭발 볼트 = 박힌 볼트가 크게 터짐 · 은신 사격 = 연기 속에서 쏨 · 섬광 섬멸 = 큰 빛 폭발 → snipe_new.png (snipe.js)
+- **2 저격왕 확정 (snipe_new.png)** · 3 화염군주 지금 모습: fire_drop.png · fire_shot.png · fire_icons.png
