@@ -13,3 +13,4 @@
 - 2 저격왕 아이콘 + 장면 한 컷: snipe_icons.png (iconsheet.js)
 - 2 저격왕 코멘트: 연쇄 폭발 볼트 = 박힌 볼트가 크게 터짐 · 은신 사격 = 연기 속에서 쏨 · 섬광 섬멸 = 큰 빛 폭발 → snipe_new.png (snipe.js)
 - **2 저격왕 확정 (snipe_new.png)** · 3 화염군주 지금 모습: fire_drop.png · fire_shot.png · fire_icons.png
+- 3 화염군주 코멘트: 화염 기둥 = 땅에서 불기둥 3개 · 대화재 = 불비 · 유성 낙하 = 불타는 운석 · 주변 3개 = 폭발/고리/회오리 진한 주황 → fire_new.png (fire.js)
