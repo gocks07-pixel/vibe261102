@@ -36,7 +36,7 @@
       flame(c, x, gy, 280 * rise, 60, 70, t, f, i * 50, 1.9); embers(c, x, gy, 320 * rise, 70, 10, t, f, i); }); };
   M.f_ring = (c, p, k, gy) => { const t = T0(k), x = p.x, R = 40 + min(1, k / 0.6) * 260, f = k < 0.6 ? 1 : max(0, 1 - (k - 0.6) / 0.35); c.save(); c.translate(x, gy - 3); c.scale(1, 0.24); c.strokeStyle = `rgba(220,70,20,${0.5 * f})`; c.lineWidth = 30; c.beginPath(); c.arc(0, 0, R, 0, PI * 2); c.stroke(); c.restore();
     const n = 30; for (let i = 0; i < n; i++) { const an = i / n * PI * 2, fx = x + cos(an) * R, fy = gy - 3 + sin(an) * R * 0.24; flame(c, fx, fy, 46 * (sin(an) > 0 ? 1 : 0.8), 30, 8, t, f, i * 7, 2.2); } };
-  M.f_storm = (c, p, k, gy) => { const t = T0(k) * 1.4, x = p.x + 10, f = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1, H = 230;
+  M.f_storm = (c, p, k, gy, T) => { const t = T0(k) * 1.4, x = p.x + 130 + min(1, k / 0.5) * 150, f = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1, H = 230;
     for (let i = 0; i < 140; i++) { const u = (t * 0.35 + rnd(i)) % 1, w = 34 + u * 80, an = t * 4 + rnd(i * 3) * PI * 2 - u * 6; if (sin(an) > 0) continue; puff(c, x + cos(an) * w, gy - 10 - u * H, 22 - u * 8, 0.9 - u * 0.95, f * 0.8); }
     scorch(c, x, gy, 90, f);
     for (let i = 0; i < 140; i++) { const u = (t * 0.35 + rnd(i)) % 1, w = 34 + u * 80, an = t * 4 + rnd(i * 3) * PI * 2 - u * 6; if (sin(an) <= 0) continue; puff(c, x + cos(an) * w, gy - 10 - u * H, 22 - u * 8, 0.95 - u * 0.95, f); }
