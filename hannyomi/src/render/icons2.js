@@ -192,7 +192,7 @@
     m2a_wisdom: d => poly([[20, 8], [27, 18], [20, 30], [13, 18]]) + line([[13, 18], [27, 18]], d, 1) + line([[20, 8], [20, 30]], d, 1) + line([[6, 30], [6, 12]], W, 2) + poly([[6, 8], [2, 14], [10, 14]]) + line([[34, 30], [34, 16]], W, 2) + poly([[34, 12], [30, 18], [38, 18]]),
     m3a_inferno: (d, l) => flame(20, 21, 1.35) + flame(20, 24, 0.75, d) + flame(20, 27, 0.35, l),
     m3a_pillar: (d, l) => ground(35) + [[10, 0.6], [20, 0.95], [30, 0.6]].map(([x, s]) => `<rect x="${x - 3.5}" y="${34 - 26 * s}" width="7" height="${26 * s}" rx="3" fill="${W}"/>` + flame(x, 33 - 26 * s, 0.4)).join(''),
-    m3a_storm: (d, l) => tornado(18, 22, 1) + flame(28, 10, 0.4, l) + flame(10, 30, 0.35),
+    m3a_storm: (d, l) => `<circle cx="22" cy="24" r="11" fill="none" stroke="${W}" stroke-width="3"/>` + [0, 45, 90, 135].map(a => `<line x1="${22 + 11 * Math.cos(a * Math.PI / 180)}" y1="${24 + 11 * Math.sin(a * Math.PI / 180)}" x2="${22 - 11 * Math.cos(a * Math.PI / 180)}" y2="${24 - 11 * Math.sin(a * Math.PI / 180)}" stroke="${W}" stroke-width="2"/>`).join('') + `<circle cx="22" cy="24" r="3" fill="${l}"/>` + flame(9, 22, 0.4, l) + flame(13, 14, 0.32),   // 빌드 11: 화염 수레바퀴 (옛 불꽃 폭풍)
     m3a_heart: (d, l) => heart(20, 23, 1.15) + flame(20, 9, 0.5, W, l) + flame(20, 22, 0.45, d),
     m3a_flare: (d, l) => `<ellipse cx="20" cy="7" rx="9" ry="3" fill="none" stroke="${W}" stroke-width="2.2"/>` + flame(20, 24, 1.05, W, l),
     m3a_ring: (d, l) => `<ellipse cx="20" cy="28" rx="15" ry="5.5" fill="none" stroke="${W}" stroke-width="3"/>` + [[6, 27], [13, 23], [20, 22], [27, 23], [34, 27], [13, 33], [27, 33]].map(([x, y]) => flame(x, y - 3, 0.38)).join(''),
