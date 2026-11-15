@@ -61,4 +61,38 @@
     if (hit) { const f = max(0, 1 - (k - 0.18) / 0.6); [[0, 11, 1.8], [-220, 33, 1], [230, 57, 1], [-110, 21, 0.8], [120, 45, 0.8]].forEach(([dx, sd, w], i) => M.zap(c, cx + dx, top + 60, cx + dx * 0.35, gy - 6, sd + Math.floor(k * 12), f * (i ? 0.85 : 1), { wid: w, br: i ? 2 : 4 }));
       hitFlash(c, cx, gy - 20, 70, f); soft(c, cx, gy - 4, 300 * (0.4 + (k - 0.18)), '200,225,255', f * 0.5, true, 0.18);
       if (k > 0.3 && k < 0.75) T.forEach((tx, i) => { if (i) M.zap(c, T[i - 1], gy - 50, tx, gy - 50, 200 + i + Math.floor(k * 30), 0.8, { br: 0, wid: 0.5, rough: 0.3 }); }); } };
+  // ===== 냉기 광선 새 안 =====
+  // 가 냉기 분사: 지팡이 끝에서 차가운 안개가 부채꼴로 뿜어져 나가며 퍼지고 흩어짐 (길이 짧게) · 공기 중에 얼음 알갱이가 반짝 · 맞은 적에 서리
+  M.i_beamA = (c, p, k, gy, T) => { const t = T0(k), x0 = p.x + 26, y0 = gy - 46, f = k < 0.6 ? 1 : (1 - k) / 0.4, reach = 330;
+    for (let i = 0; i < 70; i++) { const u = (t * 1.3 + rnd(i)) % 1, d = u * reach * min(1, k / 0.2), spread = (rnd(i * 3) - 0.5) * (12 + u * 120), x = x0 + d, y = y0 + spread + sin(t * 6 + i) * 4 * u;
+      soft(c, x, y, 8 + u * 26, u < 0.35 ? '235,248,255' : '200,228,250', f * (1 - u) * (u < 0.08 ? u / 0.08 : 1) * 0.55); }
+    soft(c, x0 + 8, y0, 18, '210,238,255', f * 0.8, true);
+    for (let i = 0; i < 16; i++) { const u = (t * 1.1 + rnd(i * 7)) % 1, x = x0 + u * reach * 0.9, y = y0 + (rnd(i * 5) - 0.5) * (10 + u * 90); sparkle(c, x, y, 2.5 + rnd(i) * 2, f * (1 - u)); }
+    for (let i = 0; i < 2; i++) if (T[i] < x0 + reach) { frostGround(c, T[i], gy, 46, f); for (let j = 0; j < 3; j++) crystal(c, T[i] - 12 + j * 12, gy - 5, -PI / 2 + (j - 1) * 0.35, 14, 3, f * 0.9); soft(c, T[i], gy - 50, 30, '225,242,255', f * 0.35); } };
+  // 나 냉기 숨결 파동: 차가운 기운이 둥글게 몇 겹 밀려 나가며 (짧게) 지나간 공기가 얼어 반짝임
+  M.i_beamB = (c, p, k, gy, T) => { const t = T0(k), x0 = p.x + 26, y0 = gy - 46, f = k < 0.65 ? 1 : (1 - k) / 0.35;
+    for (let w = 0; w < 4; w++) { const u = ((k * 1.6 - w * 0.18) % 1 + 1) % 1, d = u * 320, a = f * (1 - u) * (u < 0.1 ? u / 0.1 : 1); if (k * 1.6 < w * 0.18) continue;
+      for (let i = 0; i < 14; i++) { const an = (i / 13 - 0.5) * 1.1; soft(c, x0 + cos(an) * d, y0 + sin(an) * d * 0.8, 12 + u * 16, '225,242,255', a * 0.45); } }
+    for (let i = 0; i < 20; i++) { const u = (t * 0.9 + rnd(i * 7)) % 1, an = (rnd(i) - 0.5) * 1.1, d = u * 300; sparkle(c, x0 + cos(an) * d, y0 + sin(an) * d * 0.8, 2 + rnd(i) * 2, f * (1 - u)); }
+    for (let i = 0; i < 2; i++) if (T[i] < x0 + 320) { frostGround(c, T[i], gy, 46, f); soft(c, T[i], gy - 50, 30, '225,242,255', f * 0.35); } };
+  // ===== 얼음 창 새 안 =====
+  // 고드름: 울퉁불퉁 결이 진 자연 고드름 (밑동 굵고 끝 가늚 · 마디 · 녹아 맺힌 물방울)
+  const icicle = (c, x, y, ang, L, W, a, seed) => { c.save(); c.translate(x, y); c.rotate(ang); c.globalAlpha *= a; const up = [], dn = [], n = 9;
+    for (let i = 0; i <= n; i++) { const u = i / n, w = W * Math.pow(1 - u, 0.8) * (0.85 + (i % 2 ? 0.25 : 0) * (1 - u)); up.push([-L * 0.5 + u * L, -w + (rnd(seed + i) - 0.5) * 2]); dn.push([-L * 0.5 + u * L, w * 0.8 + (rnd(seed + i * 3) - 0.5) * 2]); }
+    c.beginPath(); up.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py)); for (let i = n; i >= 0; i--) c.lineTo(dn[i][0], dn[i][1]); c.closePath();
+    const g = c.createLinearGradient(0, -W, 0, W); g.addColorStop(0, 'rgba(245,252,255,.95)'); g.addColorStop(0.4, 'rgba(180,222,250,.75)'); g.addColorStop(0.75, 'rgba(120,175,230,.6)'); g.addColorStop(1, 'rgba(210,240,255,.85)'); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(50,110,180,.5)'; c.lineWidth = 1; c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.4; c.beginPath(); up.slice(0, n - 1).forEach(([px, py], i) => i ? c.lineTo(px, py + 2) : c.moveTo(px, py + 2)); c.stroke();
+    for (let i = 1; i < n - 2; i += 2) { c.strokeStyle = 'rgba(90,150,210,.45)'; c.beginPath(); c.moveTo(up[i][0], up[i][1] + 1); c.lineTo(dn[i][0] - 3, dn[i][1] - 1); c.stroke(); }   // 마디
+    c.restore(); };
+  // 가 고드름 창: 머리 위 공기가 얼며 굵은 고드름 2개가 생겨 → 적에게 비스듬히 날아가 꽂히고 → 깨지며 얼음 조각 · 서리
+  M.i_spearA = (c, p, k, gy, T) => { [[T[1], 0, -70], [T[3], 0.1, -56]].forEach(([tx, t0, dy], i) => { const sx = p.x + 30 + i * 20, sy = gy - 150 - i * 20, ty = gy + dy + 20, u = (k - t0 - 0.15) / 0.28, ang = Math.atan2(ty - sy, tx - sx);
+      if (k - t0 < 0.15) { const s = max(0, (k - t0) / 0.15); soft(c, sx, sy, 40, '225,242,255', s * 0.6); icicle(c, sx, sy, ang, 110 * s, 13 * s, s, 30 + i); return; }   // 공중에서 얼어붙어 생김
+      if (u < 1) { const x = sx + (tx - sx) * u, y = sy + (ty - sy) * u; for (let j = 1; j < 8; j++) soft(c, x - cos(ang) * (50 + j * 14), y - sin(ang) * (50 + j * 14), 11 - j, '225,240,255', 0.45 - j * 0.05); icicle(c, x, y, ang, 110, 13, 1, 30 + i); }
+      else { const v = min(1, (u - 1) / 1.4); icicle(c, tx - cos(ang) * 40, ty - sin(ang) * 40, ang, 110, 13, 1 - v, 30 + i); shatter(c, tx, ty, v, 12, i * 23); frostGround(c, tx, gy, 60, 1 - v); } }); };
+  // 나 땅에서 솟는 얼음 창: 적 발밑 땅이 얼며 날카로운 얼음 창 여러 개가 비스듬히 솟아 꿰뚫음 → 금 가고 부서짐
+  M.i_spearB = (c, p, k, gy, T) => { [T[1], T[3]].forEach((tx, i) => { const u = k - i * 0.1; if (u < 0) return; const f = u > 0.6 ? max(0, 1 - (u - 0.6) / 0.3) : 1;
+      if (u < 0.12) { frostGround(c, tx, gy, 30 + u * 300, u / 0.12); return; }
+      const rise = min(1, (u - 0.12) / 0.1); frostGround(c, tx, gy, 66, f); soft(c, tx, gy - 20, 50, '225,242,255', f * 0.4);
+      for (let j = 0; j < 5; j++) { const an = -PI / 2 + (j - 2) * 0.28 + (rnd(i * 9 + j) - 0.5) * 0.15, L = (60 + (2 - abs(j - 2)) * 30) * rise, bx = tx + (j - 2) * 10; icicle(c, bx + cos(an) * L * 0.5, gy - 2 + sin(an) * L * 0.5, an + PI, L, 7 + (2 - abs(j - 2)) * 2, f, 50 + j + i * 7); }
+      if (u > 0.6) shatter(c, tx, gy - 50, min(1, (u - 0.6) / 0.3), 10, i * 31); }); };
 })();
