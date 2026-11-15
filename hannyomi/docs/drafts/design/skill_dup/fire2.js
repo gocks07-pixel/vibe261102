@@ -56,4 +56,37 @@
     for (let i = 0; i < 6; i++) { const t0 = 0.12 + i * 0.09, u = (k - t0) / 0.25, tx = p.x + 220 + i * 105; if (u < 0) continue;
       if (u < 1) { const L = 420 * (1 - u); c.save(); c.translate(tx - L * 0.55, gy - 30 - L * 0.85); c.scale(0.45, 0.45); G.SkyFX.meteor(c, 1.0, t + i); c.restore(); }
       else { const v = min(1, (u - 1) / 1.6); glow(c, tx, gy - 30, 110 * (1 - v * 0.4), 'rgba(255,250,220,.95)', 1 - v); scorch(c, tx, gy, 90, 1 - v * 0.5); flame(c, tx, gy, 120 * (1 - v), 50, 12, t, 1 - v, i * 13, 2); } } };
+  M._fx = { puff, flame, embers, scorch, burst, glow, fireball, rnd };
+})();
+
+// ===== 불꽃 폭풍 대신 새 스킬 후보 4개 (3차 · 중간 크기 · 앞쪽 적 여럿) =====
+(function () { const M = G.SageMock, F = M._fx, PI = Math.PI, sin = Math.sin, cos = Math.cos, min = Math.min, max = Math.max, rnd = F.rnd;
+  const T0 = (k) => 1.3 + k * 2.2;
+  // 가: 불사조 비상 — 불새가 캐릭터 앞에서 날개를 펴고 적 사이를 낮게 날아가며 불꼬리를 남김
+  M.n_phoenix = (c, p, k, gy, T) => { const t = T0(k), u = min(1, k / 0.75), x = p.x + 80 + u * 540, y = gy - 110 - sin(u * PI) * 30, f = k < 0.8 ? 1 : (1 - k) / 0.2, flap = sin(t * 9);
+    for (let i = 0; i < 36; i++) { const v = i / 36; F.puff(c, x - 40 - v * 240, y + 10 + sin(v * 7 + t * 5) * 10 * v, 14 * (1 - v * 0.6), 0.9 - v * 0.85, f * 0.75); }   // 불꼬리
+    c.save(); c.globalAlpha = f; c.translate(x, y);
+    const fill = (y0, y1) => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#fff2b0'); g.addColorStop(0.35, '#ffb040'); g.addColorStop(0.75, '#ff5a14'); g.addColorStop(1, 'rgba(200,40,10,.6)'); return g; };
+    for (const [sg, s2] of [[-1, 1], [1, 0.75]]) { const lift = sg < 0 ? 70 + flap * 45 : -(30 + flap * 20); c.beginPath(); c.moveTo(6, 0);   // 날개 (위 · 아래)
+      c.bezierCurveTo(-10, -lift * 0.3, -40, -lift * 0.9, -90, -lift); for (let j = 0; j < 5; j++) { const tx = -90 + j * 16, ty = -lift + (sg < 0 ? 1 : -1) * (j % 2 ? 22 : 6) * s2; c.lineTo(tx, ty * (1 - j * 0.12)); } c.quadraticCurveTo(-20, -lift * 0.15, -6, 4); c.closePath();
+      c.fillStyle = fill(-Math.abs(lift), 10); c.globalAlpha = f * (sg < 0 ? 1 : 0.75); c.fill(); }
+    c.globalAlpha = f; c.beginPath(); c.moveTo(34, -6); c.quadraticCurveTo(20, -18, 4, -8); c.quadraticCurveTo(-30, -2, -46, 10); c.quadraticCurveTo(-20, 12, 6, 8); c.quadraticCurveTo(24, 4, 34, -6); c.fillStyle = fill(-18, 12); c.fill();   // 몸 · 머리
+    c.beginPath(); c.moveTo(34, -6); c.lineTo(46, -4); c.lineTo(34, 0); c.fillStyle = '#ffe080'; c.fill(); c.fillStyle = '#5a1a08'; c.beginPath(); c.arc(25, -8, 2.2, 0, PI * 2); c.fill();
+    for (let j = 0; j < 3; j++) { c.beginPath(); c.moveTo(16, -14); c.quadraticCurveTo(8 - j * 6, -32 - j * 4, -4 - j * 8, -28 - j * 6); c.strokeStyle = '#ffb040'; c.lineWidth = 2.4; c.stroke(); }   // 머리 깃
+    c.restore(); F.glow(c, x - 20, y, 110, 'rgba(255,160,60,.45)', f); F.embers(c, x - 120, gy, 200, 220, 12, t, f, 4); };
+  // 나: 화염 채찍 — 지팡이 끝에서 불 채찍이 길게 뻗어 앞쪽을 위에서 아래로 휘둘러 쓸어냄
+  M.n_whip = (c, p, k, gy) => { const t = T0(k), sx = p.x + 22, sy = gy - 46, sw = min(1, k / 0.45), ang = -1.2 + sw * 1.45, L = 420, f = k < 0.7 ? 1 : (1 - k) / 0.3;
+    for (let tr = 4; tr >= 0; tr--) { const a2 = ang - tr * 0.08, al = f * (tr ? 0.25 : 1); for (let i = 0; i < 34; i++) { const v = i / 34, bend = sin(v * PI) * 50 * (1 - sw) , x = sx + cos(a2) * L * v - sin(a2) * bend, y = sy + sin(a2) * L * v + cos(a2) * bend; F.puff(c, x, y, 13 - v * 6, 0.98 - v * 0.45, al); } }
+    if (sw >= 1) { const v = min(1, (k - 0.45) / 0.4); for (let i = 0; i < 6; i++) { const x = sx + 120 + i * 55; F.scorch(c, x, gy, 50, 1 - v); F.flame(c, x, gy, 60 * (1 - v), 34, 8, t, 1 - v, i * 9); } } };
+  // 다: 불꽃 나비 떼 — 불꽃 나비 여러 마리가 팔랑이며 적에게 날아가 하나씩 톡톡 터짐
+  M.n_butter = (c, p, k, gy, T) => { const t = T0(k); for (let i = 0; i < 8; i++) { const tgt = T[i % T.length], t0 = i * 0.05, u = min(1, max(0, (k - t0) / 0.5)), sx = p.x + 20, sy = gy - 60;
+      const x = sx + (tgt - sx) * u + sin(u * 9 + i) * 30 * (1 - u), y = sy - sin(u * PI) * (60 + rnd(i) * 80) + (gy - 50 - sy) * u + cos(u * 11 + i) * 14;
+      if (u < 1) { const fl = Math.abs(sin(t * 22 + i)); for (const sg of [-1, 1]) { c.save(); c.translate(x, y); c.scale(sg * (0.3 + 0.7 * fl) * 1.8, 1.8); F.puff(c, 7, -5, 8, 0.85, 1); F.puff(c, 6, 5, 5, 0.6, 1); c.restore(); } F.puff(c, x, y, 5, 1, 1);
+        for (let j = 1; j < 5; j++) F.puff(c, x - j * 7, y + j * 2, 3, 0.7 - j * 0.12, 0.6); }
+      else { const v = min(1, (k - t0 - 0.5) / 0.3); if (v < 1) F.burst(c, tgt, gy - 50, 34, v, 10, i * 7); } } };
+  // 라: 불의 정령 — 앞에 작은 불의 정령이 솟아올라 앞쪽으로 불 숨결을 뿜음
+  M.n_spirit = (c, p, k, gy) => { const t = T0(k), x = p.x + 110, rise = min(1, k / 0.2), f = k < 0.85 ? 1 : (1 - k) / 0.15, y = gy - 60 * rise;
+    F.scorch(c, x, gy, 60, f); for (let i = 0; i < 26; i++) { const v = (t * 1.4 + rnd(i)) % 1; F.puff(c, x + (rnd(i * 3) - 0.5) * 30 * (1 - v), y + 20 - v * 70, 18 - v * 10, 1 - v, f); }
+    F.puff(c, x, y - 18, 16, 1, f); c.save(); c.globalAlpha = f; c.fillStyle = '#5a1a08'; c.beginPath(); c.arc(x - 5, y - 20, 2.4, 0, PI * 2); c.arc(x + 6, y - 20, 2.4, 0, PI * 2); c.fill(); c.restore();
+    if (k > 0.25) { const b = min(1, (k - 0.25) / 0.2); for (let i = 0; i < 60; i++) { const v = (t * 2.2 + rnd(i)) % 1 * b, bx = x + 20 + v * 380, by = y - 14 + (rnd(i * 5) - 0.5) * 60 * v; F.puff(c, bx, by, 8 + v * 22, 1 - v * 0.95, f * 0.85); } } };
 })();
