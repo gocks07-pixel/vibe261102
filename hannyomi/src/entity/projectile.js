@@ -19,13 +19,13 @@ G.Projectile = class {
     }
     if (this.life <= 0 || this.dist > this.range || this.x < -50 || this.x > w.map.width + 50) { this.dead = true; return; }
     // 꼬리 빛 (플레이어 스킬)
-    if (this.color && Math.random() < 0.7 * G.Settings.fxMul) {
+    const NT = G.SkillX && G.SkillX.NOTRAIL && G.SkillX.NOTRAIL[this.kind];   // 빌드 11: 새 마법 투사체는 둥근 꼬리 빛 대신 자기 그림
+    if (this.color && !NT && Math.random() < 0.7 * G.Settings.fxMul) {
       G.FX.add({ k: 'p', x: this.x, y: this.y, vx: -this.vx * 0.05, vy: G.U.rand(-20, 20), grav: 0, color: this.color, r: G.U.rand(1.5, 3.5), life: 0.3, glow: true });
     }
     if (this.groundY != null && this.y >= this.groundY) {
       this.dead = true;
-      G.FX.burst(this.x, this.groundY, this.color || '#ccc', 6, 160);
-      if (this.color) G.FX.flash(this.x, this.groundY - 6, 26, this.color);
+      if (!NT) { G.FX.burst(this.x, this.groundY, this.color || '#ccc', 6, 160); if (this.color) G.FX.flash(this.x, this.groundY - 6, 26, this.color); }
       const land = G.SkillX && G.SkillX.LAND[this.kind]; if (land) land(this);
       return;
     }
@@ -35,6 +35,7 @@ G.Projectile = class {
         if (m.dead || this.hits.has(m) || !G.U.overlap(hb, m.box)) continue;
         this.hits.add(m);
         this.onHit(m, this.hits.size - 1);
+        { const hf = G.SkillX && G.SkillX.HIT && G.SkillX.HIT[this.kind]; if (hf) hf(this, m); }   // 빌드 11: 맞은 자리 연출
         if (--this.pierce <= 0) { this.dead = true; break; }
       }
     } else {

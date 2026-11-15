@@ -237,7 +237,7 @@
   };
 
   G.SkillX = {
-    PROJ, LAND, pending: [], zones: [],
+    PROJ, LAND, FXS, ZONE_DRAW, pending: [], zones: [],   // 빌드 11: FXS · ZONE_DRAW 도 밖에서 바꿀 수 있게 (spellfx.js)
     // 조준선이 있는 스킬: 선을 보여 준 뒤 발사
     pre(p, sk, lv, w, el) {
       const X = G.SKILL_X[sk.id];

@@ -340,9 +340,11 @@ G.Player = class {
       }
       case 'aoe': {
         this.hitArea(w, { x: this.x - a.w / 2, y: this.y - a.h, w: a.w, h: a.h + 6 }, a.targets, pct, a.hits, el, xh);
-        if (a.fx === 'whirl') G.FX.whirl(this.x, this.y - 35, a.w / 2, el);
-        else G.FX.shock(this.x, this.y - 30, a.w / 2, el);
-        G.FX.ring(this.x, this.y - 4, a.w / 2, el, 0.5);
+        if (!(X && X.quiet)) {   // 빌드 11: 새 마법 연출이 있는 스킬은 둥근 충격 고리 안 그림
+          if (a.fx === 'whirl') G.FX.whirl(this.x, this.y - 35, a.w / 2, el);
+          else G.FX.shock(this.x, this.y - 30, a.w / 2, el);
+          G.FX.ring(this.x, this.y - 4, a.w / 2, el, 0.5);
+        }
         w.shake(G.Settings.fx === 'high' ? 5 : 2);
         break;
       }
@@ -366,13 +368,13 @@ G.Player = class {
         for (let i = 0; i < a.count; i++) {
           const tx = cx + G.U.rand(-area / 2, area / 2);
           const gy = w.groundBelow(tx, this.y - 60);
-          G.FX.beam(tx - this.dir * 50, gy - 460, gy, el);
+          if (!(X && X.nobeam)) G.FX.beam(tx - this.dir * 50, gy - 460, gy, el);   // 빌드 11: 썬더 스톰 · 낙뢰 · 천둥의 심판은 세로 빛줄기 없음
           w.projectiles.push(new G.Projectile({
             x: tx - this.dir * 90, y: this.y - 420 - G.U.rand(0, 140), vx: this.dir * 160, vy: 950, kind: kind || 'arrow', r: a.proj === 'orb' ? 14 : 8,
             owner: 'player', range: 1200, groundY: gy, color: el, onHit,
           }));
         }
-        G.FX.flash(cx, this.y - 300, 120, el, 0.35);
+        if (!(X && X.nobeam)) G.FX.flash(cx, this.y - 300, 120, el, 0.35);
         break;
       }
       case 'dash': {

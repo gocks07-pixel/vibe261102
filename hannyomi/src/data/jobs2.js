@@ -126,7 +126,7 @@ G.tierName = t => ['표류자', '각성 Ⅰ', '각성 Ⅱ', '각성 Ⅲ', '각�
   j = 'mage_3a';
   A(j, 'm3a_inferno', '업화', 'orb', 'fire', 'proj', 380, 500, { atk: { count: 1, pierce: 4, speed: 850, range: 600, proj: 'orb' } });
   A(j, 'm3a_pillar', '화염 기둥', 'rain', 'fire', 'rain', 330, 450, { cd: 3, atk: { count: 6, area: 400, ahead: 230, proj: 'orb' } });
-  A(j, 'm3a_storm', '불꽃 폭풍', 'burst', 'fire', 'aoe', 230, 310, { cd: 4, atk: { w: 540, h: 170, targets: 10, hits: 3 } });
+  A(j, 'm3a_storm', '화염 수레바퀴', 'burst', 'fire', 'aoe', 230, 310, { cd: 4, atk: { w: 540, h: 170, targets: 10, hits: 3 } });
   P(j, 'm3a_heart', '업화의 심장', 'book', 'fire', { atkp: [5, 15], MPp: [5, 15] });
   j = 'mage_4a';
   A(j, 'm4a_lance', '화염군주의 창', 'orb', 'fire', 'proj', 450, 600, { mp1: 25, mp2: 45, atk: { count: 2, stagger: 14, pierce: 5, speed: 900, range: 700, proj: 'orb' } });
