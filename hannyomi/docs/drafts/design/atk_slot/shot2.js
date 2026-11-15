@@ -1,0 +1,13 @@
+const { chromium, devices } = require('playwright'); const fs = require('fs');
+const DUMP = fs.readFileSync('../boss/dump/mage_b_void_throne.json', 'utf8').trim();
+(async () => { const b = await chromium.launch(); const ctx = await b.newContext(devices['iPhone 13 landscape']); const pg = await ctx.newPage();
+  await pg.goto('http://127.0.0.1:8123/index.html'); await pg.waitForTimeout(2500);
+  await pg.evaluate((d) => { G.Mobile.closeModal(); G.UI.overlay(''); G.Save.slot = 'C'; G.Game.save = () => {}; G.Game.begin(JSON.parse(d)); G.Game.changeMap('star_corridor', null); G.Touch.opt.atkSk = { C: 'm2b_chain' }; }, DUMP);
+  await pg.waitForTimeout(1000); await pg.evaluate(() => { G.UI.toggle('skill'); }); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { const b = [...document.querySelectorAll('#ui [data-act]')].find(e => /mage_2b/.test(e.dataset.arg || '')); if (b) b.click(); }); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { const e = document.querySelector('[data-mact="atk"][data-arg="m2b_chain"]'); e.closest('.sk').scrollIntoView({ block: 'center' }); }); await pg.waitForTimeout(300);
+  await pg.screenshot({ path: 'b1.png' });
+  await pg.evaluate(() => { const b = document.querySelector('[data-mact="atk"][data-arg="m2b_armor"]'); b.click(); }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { const e = document.querySelector('[data-mact="atk"][data-arg="m2b_chain"]'); e.closest('.sk').scrollIntoView({ block: 'center' }); }); await pg.waitForTimeout(200);
+  await pg.screenshot({ path: 'b2.png' });
+  await b.close(); })();

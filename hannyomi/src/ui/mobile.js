@@ -34,6 +34,7 @@ G.Mobile = {
     this.build();
     this.apply();
     this.hookTaps();
+    document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-mact="atk"]'); if (b) { e.preventDefault(); e.stopPropagation(); this.atkSet(b.dataset.arg); } }, true);   // 빌드 11: 스킬 창 [공격] 버튼
     window.addEventListener('resize', () => { this.layout(); this.checkPortrait(); });
     window.addEventListener('orientationchange', () => setTimeout(() => { this.layout(); this.checkPortrait(); }, 300));
     // 아이폰: 두 손가락 확대 막기
@@ -60,6 +61,7 @@ G.Mobile = {
       // 2차-1 배터리 절약: 1초에 30번만 그린다. 건너뛴 프레임은 입력을 지우지 않아 버튼이 씹히지 않는다 (게임 속도는 dt 로 그대로)
       if (G.Touch.opt.fps30 && G.Touch.active() && M.lastDraw && ts - M.lastDraw < 30) { M.skipNow = true; return; }
       M.lastDraw = ts;
+      M.atkCast();   // 빌드 11: 공격 칸 스킬 (공격 버튼을 누르는 동안 준비되면 스킬)
       frame.call(this, ts);
       M.tick();
     };
@@ -148,6 +150,7 @@ G.Mobile = {
       if (!G.Touch.active()) return;
       for (const m of ms) {
         if (m.type === 'characterData') M.fixNode(m.target);
+        else if (m.addedNodes.length && !M.atkBusy) M.atkInject();
         else for (const n of m.addedNodes) M.fixNode(n);
       }
     });
@@ -273,6 +276,7 @@ G.Mobile = {
     }
   },
   releaseAll() {
+    this.atkWait = false;
     for (const id in this.held) G.Touch.release(this.held[id]);
     this.held = {};
     if (this.pad) this.setDir({});
@@ -285,7 +289,9 @@ G.Mobile = {
     if (!p || !this.el) return;
     const d = p.d, B = this.btn;
     if (!this.atkIcon) this.atkIcon = G.Icons.skill(G.HUD.BASIC_ICON);
-    B.attack.innerHTML = `<img src="${this.atkIcon}" style="opacity:.55"><span class="lb">공격</span>`;
+    const aid = this.atkId(), ask = aid && G.SKILLS[aid];   // 빌드 11: 공격 칸 스킬이 있으면 버튼 가운데에 그 아이콘
+    B.attack.classList.toggle('sk', !!ask);
+    B.attack.innerHTML = ask ? `<img src="${this.atkIcon}" style="opacity:.35"><img class="ai" src="${G.Icons.skill(ask)}"><div class="cd"></div><div class="cdt"></div><span class="al">공격</span>` : `<img src="${this.atkIcon}" style="opacity:.55"><span class="lb">공격</span>`;
     for (let i = 0; i < 6; i++) {
       const id = d.hot[i], el = B['skill' + (i + 1)], sk = id && G.SKILLS[id];
       el.classList.toggle('empty', !sk);
@@ -302,6 +308,48 @@ G.Mobile = {
     const ba = this.el.querySelector('[data-badge="ap"]'), bs = this.el.querySelector('[data-badge="sp"]');
     ba.hidden = !d.ap; ba.textContent = d.ap; bs.hidden = !d.sp; bs.textContent = d.sp;
     this.cdEls = [1, 2, 3, 4, 5, 6].map(i => [B['skill' + i].querySelector('.cd'), B['skill' + i].querySelector('.cdt'), B['skill' + i]]);
+  },
+
+  // ---------- 빌드 11: 공격 칸 스킬 (휴대폰 터치에서만) ----------
+  //  스킬 창 각 스킬 옆 [공격] 으로 넣기 · 다시 누르면 빼기. 재사용 2초 이하 공격 스킬만(궁극기 빼고). 세이브 슬롯마다 hny_touch 에 저장 (세이브 형식 그대로)
+  //  공격 버튼을 누르는 동안: 스킬이 준비되면(재사용 · MP · 침묵 · 경직) 스킬, 아니면 기본 공격. 자동 사냥은 그대로
+  ATK_CD: 2,
+  atkOk(id) { const sk = G.SKILLS[id]; return !!sk && sk.type === 'attack' && (sk.cd || 0) <= this.ATK_CD && !/_final$/.test(id); },
+  atkId() { const p = G.Game.player, o = G.Touch.opt.atkSk || {}, id = p && o[G.Save.slot]; if (!id) return null;
+    return this.atkOk(id) && p.d.skills[id] > 0 ? id : null; },   // 배우지 않았거나(직업이 바뀜) 못 넣는 스킬이면 비운 것으로
+  atkSet(id) {
+    const p = G.Game.player; if (!p) return;
+    if (!this.atkOk(id)) { G.UI.log('재사용 시간이 긴 스킬은 공격 칸에 넣을 수 없어요 (2초 이하 공격 스킬만)', '#ffb86a'); return; }
+    const o = G.Touch.opt.atkSk = Object.assign({}, G.Touch.opt.atkSk), slot = G.Save.slot;
+    if (o[slot] === id) { delete o[slot]; G.UI.log('공격 칸을 비웠어요 (공격 버튼 = 기본 공격)', '#ffe08a'); }
+    else { o[slot] = id; G.UI.log(`${G.SKILLS[id].name} → 공격 칸에 넣었어요 (준비되면 스킬, 아니면 기본 공격)`, '#ffe08a'); }
+    G.Touch.save(); this.refreshButtons(); this.atkInject(true);
+  },
+  atkInject(force) {
+    if (!G.Touch.active()) return;
+    const groups = document.querySelectorAll('#ui .keys'); if (!groups.length) return;
+    this.atkBusy = true;
+    try {
+      const cur = this.atkId();
+      for (const g of groups) {
+        const hb = g.querySelector('[data-act="hot"]'); if (!hb) continue;
+        const id = hb.dataset.arg.split(':')[0];
+        let b = g.querySelector('[data-mact="atk"]');
+        if (!b) { b = document.createElement('button'); b.className = 'btn sm atkk'; b.dataset.mact = 'atk'; b.dataset.arg = id; b.textContent = '공격'; g.appendChild(b); }
+        else if (!force) continue;
+        b.classList.toggle('on', cur === id); b.classList.toggle('off', !this.atkOk(id));
+      }
+    } finally { this.atkBusy = false; }
+  },
+  atkCast() {
+    const p = G.Game.player, w = G.Game.world, id = this.held.attack ? this.atkId() : null, code = this.held.attack;
+    const resume = () => { if (this.atkWait) { this.atkWait = false; if (this.held.attack) G.Touch.press(this.held.attack); } };
+    if (!id || !w || !this.el || !/\bplay\b/.test(this.el.className) || p.dead || (p.silence > 0) || (p.cd[id] || 0) > 0) { resume(); return; }
+    const sk = G.SKILLS[id], lv = p.d.skills[id] || 0, save = p.st.fx('mpSave'), mp = Math.ceil(sk.mp(lv) * (1 - (save ? save.v : 0) / 100));
+    if (p.mp < mp) { resume(); return; }
+    // 스킬이 준비됨: 기본 공격 경직이 끝나는 순간 스킬이 나가도록 그동안 공격 키를 잠깐 뗌 (안 그러면 기본 공격이 먼저 다시 나감)
+    if (p.lock > 0 || p.dash) { if (!this.atkWait) { this.atkWait = true; G.Touch.release(code); } return; }
+    p.buf = null; p.useSkill(id, w, true); resume();
   },
 
   // ---------- 매 프레임: 보이기/숨기기 · 재사용 대기 ----------
@@ -350,6 +398,8 @@ G.Mobile = {
         const lv = id ? p.d.skills[id] || 0 : 0;
         el.classList.toggle('nomp', !!sk && (lv <= 0 || (sk.mp && p.mp < sk.mp(lv))));
       }
+      { const aid = this.atkId(), sk = aid && G.SKILLS[aid], cd = this.btn.attack.querySelector('.cd'), cdt = this.btn.attack.querySelector('.cdt');   // 빌드 11: 공격 칸 스킬 재사용 대기
+        if (cd) { const left = sk ? (p.cd[aid] || 0) : 0; cd.style.height = sk && left > 0 && sk.cd > 0 ? (left / sk.cd * 100) + '%' : '0'; cdt.textContent = left > 0.05 ? left.toFixed(1) : ''; } }
       // 빌드 1: 보스 방 물약 재사용 대기
       for (const k of ['hp', 'mp']) { const b = this.btn && this.btn[k]; const cd = b && b.querySelector('.cd'), cdt = b && b.querySelector('.cdt'); if (!cd) continue;
         const left = p.potCd ? p.potCd[k] : 0; cd.style.height = left > 0 ? (left / G.F.BOSS_POT_GAP * 100) + '%' : '0'; cdt.textContent = left > 0 ? Math.ceil(left) : ''; }

@@ -178,3 +178,11 @@ body.touch-on #askov .jobp .rec-slots { margin: 0 0 2px; }
 body.touch-on #askov .jobp .rs img, body.touch-on #askov .jobp .rs .rs-e { width: 32px; height: 32px; }
 body.touch-on #askov .jobp h3 { margin-bottom: 0; }
 body.touch-on .bulk-list { max-height: 200px; }
+/* 빌드 11: 공격 칸 스킬 — 공격 버튼 가운데 스킬 아이콘 · 스킬 창 [공격] 버튼 */
+#touch .tb.atk.sk img.ai { inset: 22%; width: 56%; height: 56%; border-radius: 22%; box-shadow: 0 0 0 2px rgba(255,224,138,.8); }
+#touch .tb.atk.sk .cd { z-index: 1; }
+#touch .tb.atk.sk .cdt { z-index: 2; font-size: 15px; }
+#touch .tb.atk .al { position: absolute; left: 0; right: 0; bottom: 6%; text-align: center; font-size: 11px; z-index: 3; }
+body.touch-on .keys .btn.atkk { border-color: #c86060; color: #ffd0c8; }
+body.touch-on .keys .btn.atkk.on { background: #b84040; color: #fff; border-color: #ffe08a; }
+body.touch-on .keys .btn.atkk.off { opacity: .4; }
