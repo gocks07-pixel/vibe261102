@@ -34,6 +34,7 @@ G.GearFX = (function () {
     o.putImageData(id, 0, 0);
   }
   function draw(ctx, dop) {
+    if (G.Perf && G.Perf.rest) return G.Draw.humanoid(ctx, dop);   // 빌드 11: 느려졌거나 큰 스킬 효과 중에는 원래 그림 (가볍게)
     const T = ctx.getTransform ? ctx.getTransform() : null, z = T ? Math.hypot(T.a, T.b) : 1;
     if (!T || z < 0.3 || z > 6) return G.Draw.humanoid(ctx, dop);
     const s = (dop.scale || 1) * z, W = Math.ceil(120 * s), H = Math.ceil(150 * s), fx = W / 2, fy = H - 12 * s;

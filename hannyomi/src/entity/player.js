@@ -321,6 +321,7 @@ G.Player = class {
   }
 
   doAttack(sk, lv, w, el, fromPre) {
+    if (G.Perf && sk && sk.id && /^[wamt]4[ab]_/.test(sk.id)) G.Perf.heavy(1.6);   // 빌드 11: 4차 · 궁극기 효과 중에는 장비 효과 잠깐 쉼
     const a = sk.atk, pct = a.pct(lv);
     // 1.7.10: 스킬별 동작·연출 (src/systems/skillx.js)
     const X = G.SKILL_X[sk.id];

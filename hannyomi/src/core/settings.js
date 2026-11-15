@@ -20,6 +20,6 @@ G.Settings = {
     try { localStorage.setItem(this.KEY, JSON.stringify(o)); } catch (e) { /* 저장소 없음 */ }
   },
   // 파티클 개수 배율
-  get fxMul() { return this.fx === 'high' ? 1 : 0.45; },
+  get fxMul() { return (this.fx === 'high' ? 1 : 0.45) * (G.Perf ? G.Perf.mul : 1); },   // 빌드 11: 자동 품질(G.Perf)이 낮춤이면 더 줄임 (저장 값은 그대로)
 };
 G.Settings.load();

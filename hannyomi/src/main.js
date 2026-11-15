@@ -79,6 +79,7 @@ G.Game = {
 
   // EXE 빌드: 한 프레임에서 오류가 나도 기록만 하고 다음 프레임은 계속 (게임이 멈추지 않게)
   loop(ts) {
+    if (G.Perf) G.Perf.tick(ts);   // 빌드 11: 자동 품질 조절
     try { this.frame(ts); } catch (e) { G.ErrLog.add(e); }
     G.Input.endFrame();
     requestAnimationFrame(t => this.loop(t));

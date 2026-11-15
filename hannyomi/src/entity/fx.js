@@ -1,6 +1,8 @@
 'use strict';
 // 데미지 숫자, 베기/폭발/섬광/잔상 이펙트, 파티클
 // 'glow' 가 붙은 종류는 밝게 더해지는(lighter) 합성으로 그린다
+// 빌드 11: 빛 번짐(shadowBlur)은 휴대폰에서 아주 느림 (빛줄기 하나 5ms) → 넓고 옅은 선 두 겹 + 본 선으로 같은 느낌
+function gs(ctx, b) { const ga = ctx.globalAlpha, lw = ctx.lineWidth; ctx.globalAlpha = ga * 0.16; ctx.lineWidth = lw + b * 1.4; ctx.stroke(); ctx.globalAlpha = ga * 0.3; ctx.lineWidth = lw + b * 0.6; ctx.stroke(); ctx.globalAlpha = ga; ctx.lineWidth = lw; ctx.stroke(); }
 G.FX = {
   list: [],
   MAX: 700,
@@ -104,18 +106,18 @@ G.FX = {
         case 'slash': {
           ctx.globalAlpha = 1 - k;
           ctx.translate(f.x, f.y); ctx.scale(f.dir, 1);
-          ctx.shadowColor = f.color; ctx.shadowBlur = 18;
+          const GB = 18;
           ctx.strokeStyle = f.color; ctx.lineWidth = 12 * (1 - k) + 2; ctx.lineCap = 'round';
-          ctx.beginPath(); ctx.ellipse(0, 0, f.w * 0.55, f.h * 0.5, 0, -1.4 + k * 0.7, 1.1 + k * 0.7); ctx.stroke();
+          ctx.beginPath(); ctx.ellipse(0, 0, f.w * 0.55, f.h * 0.5, 0, -1.4 + k * 0.7, 1.1 + k * 0.7); gs(ctx, GB);
           ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * (1 - k) + 1;
           ctx.beginPath(); ctx.ellipse(0, 0, f.w * 0.5, f.h * 0.44, 0, -1.2 + k * 0.7, 0.95 + k * 0.7); ctx.stroke();
           break;
         }
-        case 'ring':
+        case 'ring': {
           ctx.globalAlpha = 1 - k; ctx.strokeStyle = f.color; ctx.lineWidth = 6 * (1 - k) + 1;
-          ctx.shadowColor = f.color; ctx.shadowBlur = 12;
-          ctx.beginPath(); ctx.ellipse(f.x, f.y, f.r * (0.3 + k * 0.9), f.r * (0.3 + k * 0.9) * 0.55, 0, 0, Math.PI * 2); ctx.stroke();
-          break;
+          const GB = 12;
+          ctx.beginPath(); ctx.ellipse(f.x, f.y, f.r * (0.3 + k * 0.9), f.r * (0.3 + k * 0.9) * 0.55, 0, 0, Math.PI * 2); gs(ctx, GB);
+          break; }
         case 'flash': {
           const r = f.r * (0.6 + k * 0.6), g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
           g.addColorStop(0, `rgba(255,255,255,${0.9 * (1 - k)})`); g.addColorStop(0.35, f.color); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -141,15 +143,15 @@ G.FX = {
           ctx.closePath(); ctx.fill();
           break;
         }
-        case 'whirl':
+        case 'whirl': {
           ctx.globalAlpha = 1 - k; ctx.translate(f.x, f.y); ctx.scale(1, 0.5); ctx.rotate(k * 9);
-          ctx.shadowColor = f.color; ctx.shadowBlur = 16; ctx.lineCap = 'round';
+          const GB = 16; ctx.lineCap = 'round';
           for (let i = 0; i < 3; i++) {
             ctx.rotate(Math.PI * 2 / 3);
             ctx.strokeStyle = i ? f.color : '#fff'; ctx.lineWidth = 9 * (1 - k) + 2;
-            ctx.beginPath(); ctx.arc(0, 0, f.r * (0.55 + k * 0.45), 0, 1.6); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, f.r * (0.55 + k * 0.45), 0, 1.6); gs(ctx, GB);
           }
-          break;
+          break; }
         case 'shock': {
           const r = f.r * (0.2 + k), g = ctx.createRadialGradient(f.x, f.y, r * 0.6, f.x, f.y, r);
           g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.8, f.color); g.addColorStop(1, 'rgba(255,255,255,0.9)');
@@ -157,15 +159,15 @@ G.FX = {
           ctx.beginPath(); ctx.ellipse(f.x, f.y, r, r * 0.6, 0, 0, Math.PI * 2); ctx.fill();
           break;
         }
-        case 'rune':
+        case 'rune': {
           ctx.globalAlpha = (1 - k) * 0.9; ctx.translate(f.x, f.y); ctx.scale(1, 0.32); ctx.rotate(k * 3);
-          ctx.strokeStyle = f.color; ctx.lineWidth = 3; ctx.shadowColor = f.color; ctx.shadowBlur = 14;
-          ctx.beginPath(); ctx.arc(0, 0, f.r, 0, Math.PI * 2); ctx.stroke();
-          ctx.beginPath(); ctx.arc(0, 0, f.r * 0.72, 0, Math.PI * 2); ctx.stroke();
+          ctx.strokeStyle = f.color; ctx.lineWidth = 3; const GB = 14;
+          ctx.beginPath(); ctx.arc(0, 0, f.r, 0, Math.PI * 2); gs(ctx, GB);
+          ctx.beginPath(); ctx.arc(0, 0, f.r * 0.72, 0, Math.PI * 2); gs(ctx, GB);
           ctx.beginPath();
           for (let i = 0; i <= 6; i++) { const a = i * Math.PI * 4 / 6; ctx.lineTo(Math.cos(a) * f.r * 0.72, Math.sin(a) * f.r * 0.72); }
-          ctx.stroke();
-          break;
+          gs(ctx, GB);
+          break; }
         case 'pillar': {
           const w = 46 * (1 - k * 0.5), g = ctx.createLinearGradient(f.x - w, 0, f.x + w, 0);
           g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, f.color); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -175,8 +177,8 @@ G.FX = {
         }
         case 'beam': {
           ctx.globalAlpha = 1 - k; ctx.strokeStyle = f.color; ctx.lineWidth = 5 * (1 - k) + 1;
-          ctx.shadowColor = f.color; ctx.shadowBlur = 12;
-          ctx.beginPath(); ctx.moveTo(f.x, f.y0); ctx.lineTo(f.x, f.y1); ctx.stroke();
+          const GB = 12;
+          ctx.beginPath(); ctx.moveTo(f.x, f.y0); ctx.lineTo(f.x, f.y1); gs(ctx, GB);
           break;
         }
         case 'ghost': {
