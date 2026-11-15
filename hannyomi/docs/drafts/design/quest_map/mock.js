@@ -12,7 +12,7 @@ const DUMP = fs.readFileSync('../full/shel/dump1.json', 'utf8').trim();
         w.drawMinimap = function (ctx) { const npcs = this.npcs; this.npcs = []; orig(ctx); this.npcs = npcs;
           const map = this.map, W = 230, H = 74, X = 14, Y = 82, sc = W / map.width, my = y => Y + 8 + (y - 250) / (G.GROUND_Y - 250) * (H - 16);
           for (const n of npcs) if (!G.Quest.marker(n.id)) G.Draw.ell(ctx, X + n.x * sc, my(n.y) - 4, 2, 2, 'rgba(255,213,74,.45)');
-          for (const n of npcs) { const mk = G.Quest.marker(n.id); if (mk) badge(ctx, X + n.x * sc, my(n.y) - 9 + Math.sin(this.time * 5) * 1.2, mk); }
+          for (const n of npcs) { const mk = G.Quest.marker(n.id); if (mk) badge(ctx, X + n.x * sc, my(n.y) - 7 + Math.sin(this.time * 5) * 0.8, mk, 4.2); }
           let yy = Y + H + 4;
           if (v === 'na' || v === 'da') { const rows = npcs.map(n => [n, G.Quest.marker(n.id)]).filter(r => r[1]).sort((a, b) => (a[1].ch === '?' ? -1 : 1));
             if (v === 'da') rows.push([{ def: { name: '가렌' } }, { ch: '!', main: false, q: '바람결 마을 의뢰', far: '바람결 마을 ▶' }]);
@@ -21,7 +21,7 @@ const DUMP = fs.readFileSync('../full/shel/dump1.json', 'utf8').trim();
               ctx.fillText(nm + (mk.ch === '?' ? '에게 완료 보고' : (mk.main ? ' · 메인 받기' : ' · 서브 받기')), X + 22, yy + 14);
               if (mk.far) { ctx.fillStyle = '#9ad0ff'; ctx.textAlign = 'right'; ctx.fillText(mk.far, X + W - 6, yy + 14); }
               yy += 22; } }
-          if (v === 'da') { badge(ctx, X + W - 4, Y + 10, { ch: '!', main: false }, 6); ctx.font = 'bold 10px "Malgun Gothic"'; ctx.fillStyle = '#9ad0ff'; ctx.textAlign = 'right'; ctx.fillText('▶', X + W - 12, Y + 14); }
+          if (v === 'da') { badge(ctx, X + W - 6, Y + 9, { ch: '!', main: false }, 3.6); ctx.font = 'bold 10px "Malgun Gothic"'; ctx.fillStyle = '#9ad0ff'; ctx.textAlign = 'right'; ctx.fillText('▶', X + W - 11, Y + 12.5); }
         }; }
       let ts = performance.now(); for (let i = 0; i < 30; i++) { ts += 16.7; G.Game.frame(ts); G.Input.endFrame(); p.x = 900; p.y = G.GROUND_Y; p.vy = 0; p.onGround = true; } return document.getElementById('canvas').toDataURL('image/png'); }, [DUMP, v]).then(du => fs.writeFileSync(`m_${v}.png`, Buffer.from(du.split(',')[1], 'base64'))); }
   console.log(errs); await b.close(); })();
