@@ -64,12 +64,12 @@
     // 실루엣
     sc.globalCompositeOperation = 'source-in'; sc.fillStyle = 'rgba(28,18,40,.92)'; sc.fillRect(0, 0, W, H); sc.globalCompositeOperation = 'source-over';
     // 빛 테두리: 실루엣을 아래로 밀어 위쪽 가장자리만 남김
-    rc.globalCompositeOperation = 'source-over'; rc.drawImage(sil, 0, 0); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = '#fff'; rc.fillRect(0, 0, W, H); rc.globalCompositeOperation = 'destination-out'; rc.drawImage(sil, 0, 2.5); rc.globalCompositeOperation = 'source-over';
-    o.globalCompositeOperation = 'source-atop'; o.globalAlpha = dark ? 0.12 : 0.35; o.drawImage(rim, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over';
+    rc.globalCompositeOperation = 'source-over'; rc.drawImage(sil, 0, 0, W, H, 0, 0, W, H); rc.globalCompositeOperation = 'source-in'; rc.fillStyle = '#fff'; rc.fillRect(0, 0, W, H); rc.globalCompositeOperation = 'destination-out'; rc.drawImage(sil, 0, 0, W, H, 0, 2.5, W, H); rc.globalCompositeOperation = 'source-over';
+    o.globalCompositeOperation = 'source-atop'; o.globalAlpha = dark ? 0.12 : 0.35; o.drawImage(rim, 0, 0, W, H, 0, 0, W, H); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over';
     // 한 장으로: 외곽선(실루엣 8방향) → 본그림
     const E = G.MonRefine.EDGE;   // { sil: false 외곽선 안 그림 · silA: 외곽선 투명도 · fade: 가장자리 2px 덮는 정도 (0~1) · tint: 덮는 색 }
-    if (E && E.silA) { oc.save(); oc.globalAlpha = E.silA; for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy); oc.restore(); }
-    else if (!E || E.sil !== false) for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 2 + dx, 2 + dy);
+    if (E && E.silA) { oc.save(); oc.globalAlpha = E.silA; for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 0, 0, W, H, 2 + dx, 2 + dy, W, H); oc.restore(); }
+    else if (!E || E.sil !== false) for (const [dx, dy] of [[-1.3, 0], [1.3, 0], [0, -1.3], [0, 1.3], [-1, -1], [1, -1], [-1, 1], [1, 1]]) oc.drawImage(sil, 0, 0, W, H, 2 + dx, 2 + dy, W, H);
     if (E && E.fade) {   // 가장자리 띠 = 실루엣 − 2px 안으로 줄인 실루엣 → 밝은 색으로 살짝 덮어 배경에 스며들게 (빌드 10 기본: 테두리 옅게 "나")
       const [mk, ec] = scratch(W, H), mx2 = mk.getContext('2d'), ex = ec.getContext('2d'), d = (c, src, x, y) => c.drawImage(src, 0, 0, W, H, x || 0, y || 0, W, H);   // 계산 그림판은 W×H 만큼만 씀
       mx2.globalCompositeOperation = 'copy'; d(mx2, sil); mx2.globalCompositeOperation = 'source-in'; mx2.fillStyle = '#000'; mx2.fillRect(0, 0, W, H); mx2.globalCompositeOperation = 'source-over'; d(mx2, mk);   // 불투명 마스크 (실루엣 0.92 → 한 번 겹쳐 0.99)
@@ -79,7 +79,7 @@
         o.save(); o.globalCompositeOperation = 'source-atop'; o.globalAlpha = E.fade; d(o, mk); o.restore(); }   // 가장자리를 밝은 색으로 덮음 (모양은 그대로)
       else { o.save(); o.globalCompositeOperation = 'destination-out'; o.globalAlpha = E.fade; d(o, mk); o.restore(); }
     }
-    oc.drawImage(off, 2, 2);
+    oc.drawImage(off, 0, 0, W, H, 2, 2, W, H);
   }
   // 가장자리 계산용 그림판 2장 (매번 새로 만들지 않고 다시 씀)
   const SCR = [0, 0].map(() => document.createElement('canvas'));
