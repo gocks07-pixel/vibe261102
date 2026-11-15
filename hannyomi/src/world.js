@@ -282,6 +282,7 @@ G.World = class {
   }
 
   // ---------------- 그리기 ----------------
+  titleTag(ctx, x, y, text) { ctx.font = '11px "Malgun Gothic", sans-serif'; ctx.textAlign = 'center'; const w = ctx.measureText(text).width + 10; ctx.fillStyle = 'rgba(10,12,22,.6)'; ctx.beginPath(); ctx.roundRect(x - w / 2, y, w, 16, 4); ctx.fill(); ctx.fillStyle = '#c9d1ea'; ctx.fillText(text, x, y + 12); }
   nameTag(ctx, x, y, text, color, sub) {
     ctx.font = 'bold 12px "Malgun Gothic", sans-serif'; ctx.textAlign = 'center';
     const w = ctx.measureText(text).width + 12;
@@ -324,7 +325,7 @@ G.World = class {
       if (u.left <= 0 || src.dead) this.pull = null;
     }
     if (this.doom) { this.doom.left -= dt; if (this.doom.left < -1) this.doom = null; }   // 빌드 10 안전장치: 끝난 안전지대가 남지 않게
-    if (this.cloth) { this.cloth.t += dt; if (this.cloth.t > 9) this.cloth = null; }
+    if (this.cloth) { this.cloth.t += dt; if (this.cloth.t > 1.8 && !this.cloth.told) { this.cloth.told = 1; if (G.Clue.shellCloth) G.Clue.shellCloth(); } if (this.cloth.t > 9) this.cloth = null; }
     if (this.monsters.some(m => m.isBoss && !m.dead)) this.bossT += dt;
   }
   drawBossFields(ctx) {
@@ -499,10 +500,11 @@ G.World = class {
         for (let i = 0; i < 10; i++) { const r = i % 2 ? 2.4 : 5.6, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(px + Math.cos(a) * r, py + Math.sin(a) * r); }
         ctx.closePath(); ctx.fill(); ctx.stroke();
       }
-      this.nameTag(ctx, n.x, n.y + 6, n.def.name, '#ffe08a', n.def.title);
+      this.nameTag(ctx, n.x, n.y + 6, n.def.name, '#ffe08a');
+      if (n.def.title) this.titleTag(ctx, n.x, n.y - 100, n.def.title);   // 빌드 11 (사용자 요청 4): 직함은 머리 위 (아래는 상태창에 가려짐)
       const mk = G.Quest.marker(n.id);
       if (mk) {
-        const by = n.y - 92 + Math.sin(this.time * 5) * 4;
+        const by = n.y - (n.def.title ? 112 : 92) + Math.sin(this.time * 5) * 4;   // 빌드 11: 직함이 머리 위에 있으면 표시는 그 위로
         ctx.font = '900 30px "Malgun Gothic"'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#2a1a00';
         ctx.strokeText(mk.ch, n.x, by); ctx.fillStyle = mk.ch === '?' ? '#7dff9a' : (mk.main ? '#ffcf3a' : '#5ab8ff'); ctx.fillText(mk.ch, n.x, by);
       }

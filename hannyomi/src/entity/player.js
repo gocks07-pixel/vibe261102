@@ -419,6 +419,7 @@ G.Player = class {
   hurt(raw, fromX, opt = {}) {
     if (this.dead || this.invuln > 0) return;
     const s = this.st, src = opt.src;
+    if (src && src.trialWeak) raw *= 0.5;   // 빌드 11: 각성 Ⅰ 시험 중 들쥐 · 허수아비 골렘은 피해 절반
     // 암흑에 걸린 몬스터의 공격은 빗나갈 수 있음
     if (src && src.status && src.status.dark && Math.random() * 100 < src.status.dark.v) { this.miss('MISS'); this.invuln = 0.3; return; }
     let f = s.fx('ignore');
