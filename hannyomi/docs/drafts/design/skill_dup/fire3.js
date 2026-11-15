@@ -4,11 +4,11 @@
   const rnd = (s) => { const x = Math.sin(s * 127.1 + 3.7) * 43758.5453; return x - Math.floor(x); };
   const M = G.SageMock = G.SageMock || {};
   // 열(h 0~1)에 따른 불 입자: 가운데 진하고 가장자리 부드럽게 사라짐
-  const HEAT = [[1, [255, 246, 214]], [0.75, [255, 196, 92]], [0.5, [255, 122, 34]], [0.3, [205, 58, 18]], [0.17, [110, 52, 40]], [0, [74, 70, 76]]];
+  const HEAT = [[1, [255, 226, 160]], [0.75, [255, 180, 76]], [0.5, [255, 122, 34]], [0.3, [205, 58, 18]], [0.17, [110, 52, 40]], [0, [74, 70, 76]]];
   const col = (h) => { for (let i = 1; i < HEAT.length; i++) if (h >= HEAT[i][0]) { const [h0, a] = HEAT[i - 1], [h1, b] = HEAT[i], u = (h - h1) / (h0 - h1); return a.map((v, j) => Math.round(b[j] + (v - b[j]) * u)); } return HEAT[HEAT.length - 1][1]; };
   const puff = (c, x, y, r, h, a) => { if (a <= 0.01 || r <= 0.5) return; h = max(0, min(1, h)); const [R, Gc, B] = col(h), smoke = h < 0.18, st = smoke ? 1 : 1.35;
     c.save(); c.globalCompositeOperation = smoke ? 'source-over' : 'lighter'; c.translate(x, y); c.scale(1, st); const g = c.createRadialGradient(0, 0, 0, 0, 0, r);
-    const al = smoke ? a * 0.34 : a * (0.24 + 0.3 * h); g.addColorStop(0, `rgba(${R},${Gc},${B},${al})`); g.addColorStop(0.45, `rgba(${R},${Gc},${B},${al * 0.55})`); g.addColorStop(1, `rgba(${R},${Gc},${B},0)`); c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, PI * 2); c.fill(); c.restore(); };
+    const al = smoke ? a * 0.34 : a * (0.17 + 0.22 * h); g.addColorStop(0, `rgba(${R},${Gc},${B},${al})`); g.addColorStop(0.45, `rgba(${R},${Gc},${B},${al * 0.55})`); g.addColorStop(1, `rgba(${R},${Gc},${B},0)`); c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, PI * 2); c.fill(); c.restore(); };
   const glow = (c, x, y, r, rgba, a) => { c.save(); c.globalAlpha *= a; const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, rgba); g.addColorStop(1, 'rgba(255,120,30,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, PI * 2); c.fill(); c.restore(); };
   // 불길: 밑동(x, y) 에서 입자들이 위로 올라가며 식음 (높이 H · 폭 W · 입자 n · 시간 t · 세기 a)
   const flame = (c, x, y, H, W, n, t, a, seed = 0, sp = 1.6) => { n = Math.round(n * 1.8);
