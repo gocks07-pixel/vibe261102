@@ -95,4 +95,22 @@
       const rise = min(1, (u - 0.12) / 0.1); frostGround(c, tx, gy, 66, f); soft(c, tx, gy - 20, 50, '225,242,255', f * 0.4);
       for (let j = 0; j < 5; j++) { const an = -PI / 2 + (j - 2) * 0.28 + (rnd(i * 9 + j) - 0.5) * 0.15, L = (60 + (2 - abs(j - 2)) * 30) * rise, bx = tx + (j - 2) * 10; icicle(c, bx + cos(an) * L * 0.5, gy - 2 + sin(an) * L * 0.5, an + PI, L, 7 + (2 - abs(j - 2)) * 2, f, 50 + j + i * 7); }
       if (u > 0.6) shatter(c, tx, gy - 50, min(1, (u - 0.6) / 0.3), 10, i * 31); }); };
+  // ===== 냉기 광선 추가 3안 =====
+  // 다 서리 바람: 땅을 따라 낮게 차가운 바람이 쓸고 지나가며 지나간 자리 땅이 하얗게 얼고 눈가루가 날림
+  M.i_beamC = (c, p, k, gy, T) => { const t = T0(k), x0 = p.x + 30, f = k < 0.65 ? 1 : (1 - k) / 0.35, head = x0 + min(1, k / 0.45) * 360;
+    for (let x = x0; x < head; x += 18) { const age = (head - x) / 360; frostGround(c, x, gy, 26, f * (1 - age * 0.4)); }
+    for (let i = 0; i < 60; i++) { const u = (t * 1.6 + rnd(i)) % 1, x = x0 + u * (head - x0), y = gy - 6 - rnd(i * 3) * 50 * (0.4 + u); soft(c, x, y, 10 + rnd(i * 5) * 16, '232,245,255', f * 0.4 * (1 - abs(u - 0.6))); }
+    c.save(); c.strokeStyle = '#ffffff'; c.lineCap = 'round'; for (let i = 0; i < 26; i++) { const u = (t * 2 + rnd(i * 7)) % 1, x = x0 + u * (head - x0), y = gy - 8 - rnd(i * 9) * 40; c.globalAlpha = f * (1 - u * 0.5); c.lineWidth = 1.6; c.beginPath(); c.moveTo(x, y); c.lineTo(x - 10, y + 1); c.stroke(); } c.restore();
+    for (let i = 0; i < 2; i++) if (T[i] < head) for (let j = 0; j < 3; j++) crystal(c, T[i] - 12 + j * 12, gy - 5, -PI / 2 + (j - 1) * 0.35, 14, 3, f * 0.9); };
+  // 라 얼음 결정 줄기: 지팡이 앞 공기가 순간 얼어 얼음 결정이 짧게 줄지어 자라났다 (적 앞까지) 산산이 부서짐
+  M.i_beamD = (c, p, k, gy, T) => { const x0 = p.x + 34, y0 = gy - 46, grow = min(1, k / 0.3), brk = k > 0.5 ? min(1, (k - 0.5) / 0.4) : 0, n = 12;
+    for (let i = 0; i < n; i++) { const u = i / n; if (u > grow) break; const x = x0 + u * 300, y = y0 + sin(i * 1.7) * 6;
+      if (!brk) { soft(c, x, y, 18, '210,236,255', 0.35); for (let j = 0; j < 3; j++) crystal(c, x, y, (rnd(i * 5 + j) - 0.5) * 2.4, 14 + rnd(i + j) * 10, 3, 0.95); sparkle(c, x + 4, y - 6, 3, 0.9); }
+      else shatter(c, x, y, brk, 3, i * 13); }
+    if (grow >= 1) for (let i = 0; i < 2; i++) if (T[i] < x0 + 300) frostGround(c, T[i], gy, 46, 1 - brk); };
+  // 마 냉기 구슬: 지팡이 끝에 차가운 구슬이 맺혀 짧게 날아가며 안개 꼬리 → 첫 적에서 터져 서리 · 눈꽃이 퍼짐
+  M.i_beamE = (c, p, k, gy, T) => { const t = T0(k), x0 = p.x + 30, y0 = gy - 48, tx = T[0], u = min(1, max(0, (k - 0.08) / 0.3));
+    if (k < 0.38) { const x = x0 + (tx - x0) * u; for (let j = 1; j < 10; j++) soft(c, x - j * 10, y0 + sin(t * 8 + j) * 3, 12 - j, '230,245,255', 0.5 - j * 0.05); soft(c, x, y0, 26, '170,215,255', 0.5, true); soft(c, x, y0, 10, '245,252,255', 1, true); for (let j = 0; j < 4; j++) sparkle(c, x + cos(t * 4 + j * 1.6) * 16, y0 + sin(t * 4 + j * 1.6) * 16, 3, 0.9); return; }
+    const v = min(1, (k - 0.38) / 0.5), f = 1 - v; soft(c, tx, y0, 40 + v * 70, '225,242,255', f * 0.6); soft(c, tx, y0, 20, '245,252,255', f, true); frostGround(c, tx, gy, 40 + v * 70, f);
+    for (let j = 0; j < 8; j++) { const an = j / 8 * PI * 2, d = v * 70; c.save(); c.globalAlpha = f; c.translate(tx + cos(an) * d, y0 + sin(an) * d * 0.7); c.rotate(an); c.strokeStyle = '#ffffff'; c.lineWidth = 1.4; for (let q = 0; q < 3; q++) { c.rotate(PI / 3); c.beginPath(); c.moveTo(-5, 0); c.lineTo(5, 0); c.stroke(); } c.restore(); } };
 })();
