@@ -208,7 +208,10 @@
       if (hit) { const fa = max(0, 1 - (k - 0.18) / 0.6); [[0, 11, 1.8], [-220, 33, 1], [230, 57, 1], [-110, 21, 0.8], [120, 45, 0.8]].forEach(([dx, sd, wd], i) => zap(c, f.x + dx, top + 60, f.x + dx * 0.35, f.y - 6, seed + sd + ((k * 12) | 0), fa * (i ? 0.85 : 1), { wid: wd, br: i ? 2 : 4 }));
         hitFlash(c, f.x, f.y - 20, 70, fa); soft(c, f.x, f.y - 4, 300 * (0.4 + (k - 0.18)), '200,225,255', fa * 0.5, true, 0.18); } } }); };
   // 구름은 게임 시작 뒤 미리 그려 둠
-  if (typeof window !== 'undefined') window.addEventListener('load', () => setTimeout(() => { cloudImg(900, 220, 7, 0); cloudImg(900, 220, 7, 1); }, 2000));
+  // 빌드 11: 처음 쓸 때 멈칫 없게 — 빛 · 연기 스프라이트(불 색 21 + 쓰는 색)와 구름을 미리 만들어 둠
+  const PRE = ['120,170,255', '122,132,166', '140,190,255', '150,160,192', '150,200,255', '170,210,255', '170,215,255', '180,215,255', '184,192,220', '200,225,255', '200,70,25', '210,235,255', '220,236,255', '220,70,20', '225,240,255', '225,242,255', '230,245,255', '232,245,255', '235,245,255', '235,246,255', '235,248,255', '236,240,250', '240,248,255', '255,110,30', '255,140,40', '255,140,50', '255,180,70', '255,190,80', '255,190,90', '255,200,90', '255,250,220', '255,255,255'];
+  function prewarm() { for (const c of HCOL) sprite(c); for (const c of PRE) sprite(c); cloudImg(900, 220, 7, 0); cloudImg(900, 220, 7, 1); }
+  if (typeof window !== 'undefined') window.addEventListener('load', () => setTimeout(prewarm, 2000));
 
   // ---------- 마법사 스킬 줄에 새 연출 붙이기 (수치 · 효과는 그대로) ----------
   set('m2a_meteor', { proj: 'firerock', nobeam: true });
@@ -223,5 +226,5 @@
   set('m4b_judge', { proj: 'lbolt2', fx: 'judgecircle', nobeam: true });
   set('m4b_zero', { quiet: true });
   set('m4b_final', { fx: 'wrath', quiet: true });
-  G.SpellFX = { puff, flame, zap, crystal, icicle, cloud, cloudImg, soft };
+  G.SpellFX = { puff, flame, zap, crystal, icicle, cloud, cloudImg, soft, prewarm };
 })();

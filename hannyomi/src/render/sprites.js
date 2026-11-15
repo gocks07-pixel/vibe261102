@@ -107,6 +107,29 @@ G.Draw = (function () {
 
   // o: {x, y, dir, t, moving, air, atk(0~1 또는 -1), atkKind, look, weapon, wcolor, scale, alpha, hurt, mask, cape, hatColor}
   // 1.9: 복장·장비 모양은 src/render/outfit.js (G.Outfit.draw) 가 그린다. 없으면 예전 모양
+  // 빌드 11: 색 필터(맞을 때 번쩍 · 얼음 · 열기)는 그림 전체를 따로 한 장에 그린 뒤 한 번만 건다
+  //  (ctx.filter 를 켠 채 선 · 도형 수백 개를 그리면 하나마다 필터가 걸려 아주 느림 — 특히 휴대폰)
+  const LAY = []; let layD = 0;
+  function fLayer(ctx, filter, x, y, hw, up, dn, fn) {
+    const T = ctx.getTransform(), k = Math.hypot(T.a, T.b) || 1;
+    const px = T.a * (x - hw) + T.c * (y - up) + T.e, py = T.b * (x - hw) + T.d * (y - up) + T.f;
+    const W = Math.min(2048, Math.ceil(hw * 2 * k) + 2), H = Math.min(2048, Math.ceil((up + dn) * k) + 2), ox = Math.floor(px), oy = Math.floor(py);
+    let c = LAY[layD]; if (!c) c = LAY[layD] = document.createElement('canvas');
+    if (c.width < W || c.height < H) { c.width = Math.max(c.width, W); c.height = Math.max(c.height, H); }
+    const x2 = c.getContext('2d'); x2.setTransform(1, 0, 0, 1, 0, 0); x2.globalAlpha = 1; x2.globalCompositeOperation = 'source-over'; x2.filter = 'none'; x2.clearRect(0, 0, W, H);
+    x2.setTransform(T.a, T.b, T.c, T.d, T.e - ox, T.f - oy);
+    layD++; try { fn(x2); } finally { layD--; }
+    // 필터 대신 가벼운 방법 (휴대폰에서 ctx.filter 는 아주 느림): 번쩍 = 같은 그림을 빛 더하기로 한 번 더 · 색 = 그림 위에만 색을 덮음
+    const tint = TINT[filter];
+    if (tint) { x2.setTransform(1, 0, 0, 1, 0, 0); x2.globalCompositeOperation = 'source-atop'; x2.fillStyle = tint; x2.fillRect(0, 0, W, H); x2.globalCompositeOperation = 'source-over'; }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (!tint && !FLASH[filter]) ctx.filter = filter;
+    ctx.drawImage(c, 0, 0, W, H, ox, oy, W, H);
+    if (FLASH[filter]) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha *= FLASH[filter]; ctx.drawImage(c, 0, 0, W, H, ox, oy, W, H); }
+    ctx.restore();
+  }
+  const FLASH = { 'brightness(1.9)': 0.9, 'brightness(1.8)': 0.8 };
+  const TINT = { 'hue-rotate(160deg) saturate(1.6)': 'rgba(110,190,255,.55)', 'sepia(1) saturate(4) hue-rotate(-30deg)': 'rgba(255,110,40,.55)', 'brightness(0.2) sepia(1) hue-rotate(220deg)': 'rgba(30,20,70,.88)' };
   function humanoid(ctx, o) { if (G.Outfit) G.Outfit.draw(ctx, o); else humanoidBase(ctx, o); }
   function humanoidBase(ctx, o) {
     const s = o.scale || 1, lk = o.look;
@@ -394,7 +417,6 @@ G.Draw = (function () {
     ctx.save(); ctx.translate(m.x, m.y);
     if (m.dead) ctx.globalAlpha = Math.max(0, 1 - Math.max(0, m.deadT - 0.4) / 0.5);
     if (A.sh && !(A.die === 'fall' && die > 0)) shadow(ctx, m.w * 0.45 * A.sh);
-    if (m.hurtT > 0) ctx.filter = 'brightness(1.9)';
     ctx.scale(m.dir, 1);
     if (hurt) { ctx.translate(-hurt * 4, 0); ctx.rotate(-hurt * 0.12); }
     if (die) {
@@ -411,12 +433,13 @@ G.Draw = (function () {
     ctx.restore();
   }
 
+  const hw0 = m => m.w * 1.6 + 70, up0 = m => m.h * 2.2 + 90;
   function monster(ctx, m, t) {
     const A = G.MonArt && G.MonArt[m.id];
+    if (m.hurtT > 0 && !m.__noFlash) { fLayer(ctx, 'brightness(1.9)', m.x, m.y, hw0(m), up0(m), 150, c => { m.__noFlash = 1; try { monster(c, m, t); } finally { m.__noFlash = 0; } }); return; }   // 빌드 11: 맞을 때 번쩍은 한 장으로
     if (A) { art(ctx, m, t, A); return; }
     ctx.save(); ctx.translate(m.x, m.y);
     if (m.dead) ctx.globalAlpha = Math.max(0, 1 - m.deadT / 0.6);
-    if (m.hurtT > 0) ctx.filter = 'brightness(1.9)';
     if (!['bandit', 'echo', 'kaien', 'priest'].includes(m.d.shape)) shadow(ctx, m.w * 0.45);
     ctx.scale(m.dir, 1);
     const f = MON[m.d.shape] || MON.blob;
@@ -424,5 +447,5 @@ G.Draw = (function () {
     ctx.restore();
   }
 
-  return { humanoid, humanoidBase, monster, ell, rrect, MON, hairBack, hair, face, weapon, shadow };   // MON: 1.7에서 기존 전용 모양(녹스·카이엔 등)을 감싸 다듬을 때 사용
+  return { fLayer, humanoid, humanoidBase, monster, ell, rrect, MON, hairBack, hair, face, weapon, shadow };   // MON: 1.7에서 기존 전용 모양(녹스·카이엔 등)을 감싸 다듬을 때 사용
 })();

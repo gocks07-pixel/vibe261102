@@ -80,8 +80,8 @@ G.Projectile = class {
         break;
       case 'wave': {
         ctx.scale(Math.sign(this.vx) || 1, 1); ctx.globalCompositeOperation = 'lighter';
-        ctx.strokeStyle = '#8a5aff'; ctx.lineWidth = 6; ctx.shadowColor = '#8a5aff'; ctx.shadowBlur = 14;
-        ctx.beginPath(); ctx.arc(-10, 0, 20, -1.2, 1.2); ctx.stroke();
+        ctx.strokeStyle = '#8a5aff'; ctx.beginPath(); ctx.arc(-10, 0, 20, -1.2, 1.2);   // 빌드 11: shadowBlur 대신 넓고 옅은 선
+        ctx.globalAlpha = 0.2; ctx.lineWidth = 24; ctx.stroke(); ctx.globalAlpha = 0.35; ctx.lineWidth = 14; ctx.stroke(); ctx.globalAlpha = 1; ctx.lineWidth = 6; ctx.stroke();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-10, 0, 18, -1, 1); ctx.stroke();
         break;
       }

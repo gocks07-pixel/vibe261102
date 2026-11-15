@@ -21,6 +21,8 @@
     o.fillRect = function () { if (this.globalCompositeOperation === 'lighter') return; return fr.apply(this, arguments); };
     return () => { o.fill = f; o.fillRect = fr; }; };
   const size = (c, w, h) => { if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } else c.getContext('2d').clearRect(0, 0, w, h); };
+  // 빌드 11: 계산용 그림판은 커지기만 함 (몬스터마다 크기를 바꾸면 그림판을 새로 만들어 느림)
+  const grow = (c, w, h) => { if (c.width < w || c.height < h) { c.width = Math.max(c.width, w); c.height = Math.max(c.height, h); } else { const k = c.getContext('2d'); k.setTransform(1, 0, 0, 1, 0, 0); k.clearRect(0, 0, c.width, c.height); } };
   // 보스마다 그림이 차지하는 범위(발밑 기준)를 처음 한 번 재 둠 → 화면 밖 캔버스를 그만큼만 씀 (빠르게)
   const BB = {};
   function measure(m, t) {
@@ -45,7 +47,7 @@
   function build(m, t, A, hw, up, dn, out) {
     const bw = hw * 2, bh = up + dn, W = bw, H = bh;
     if (!off) { off = document.createElement('canvas'); sil = document.createElement('canvas'); rim = document.createElement('canvas'); }
-    size(off, W, H); size(sil, W, H); size(rim, W, H); size(out, W + 4, H + 4);
+    grow(off, W, H); grow(sil, W, H); grow(rim, W, H); size(out, W + 4, H + 4);
     const o = off.getContext('2d'), sc = sil.getContext('2d'), rc = rim.getContext('2d'), oc = out.getContext('2d');
     o.setTransform(1, 0, 0, 1, 0, 0); o.globalAlpha = 1; o.globalCompositeOperation = 'source-over'; o.filter = 'none';
     const keep = A.sh; A.sh = 0; const mx = m.x, my = m.y; m.x = hw; m.y = up;
@@ -93,7 +95,7 @@
     else {
       const key = (m.dir > 0 ? 1 : 0) + '|' + (m.hurtT > 0 ? 1 : 0) + '|' + (m.dead ? 1 : 0) + '|' + hw + '|' + up + '|' + dn;
       let c = m.__rf; if (!c) c = m.__rf = { cv: document.createElement('canvas'), t: -9, key: '' };
-      if (c.key !== key || Math.abs(t - c.t) >= RE || m.dead) { build(m, t, A, hw, up, dn, c.cv); c.t = t; c.key = key; }
+      if (c.key !== key || Math.abs(t - c.t) >= RE /* 빌드 11: 쓰러질 때도 1/30초마다 (매 프레임 다시 만들던 것) */) { build(m, t, A, hw, up, dn, c.cv); c.t = t; c.key = key; }
       out = c.cv;
     }
     ctx.save();

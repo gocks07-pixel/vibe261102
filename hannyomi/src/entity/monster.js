@@ -126,12 +126,12 @@ G.Monster = class {
   }
 
   draw(ctx) {
-    if (this.status.freeze) ctx.filter = 'hue-rotate(160deg) saturate(1.6)';
-    else if (this.hot) ctx.filter = 'sepia(1) saturate(4) hue-rotate(-30deg)';
-    else if (this.cueT > 0 && Math.floor(this.cueT * 12) % 2) ctx.filter = 'brightness(1.9)';   // 1.7.5 스킬 예고: 하얗게 번쩍
+    // 빌드 11: 색 필터는 몬스터 한 장에 한 번만 (G.Draw.fLayer) — 선 · 도형마다 걸면 아주 느림
+    const flt = this.status.freeze ? 'hue-rotate(160deg) saturate(1.6)' : this.hot ? 'sepia(1) saturate(4) hue-rotate(-30deg)' : (this.cueT > 0 && Math.floor(this.cueT * 12) % 2) ? 'brightness(1.9)' : null;   // 얼음 · 열기 · 1.7.5 스킬 예고 번쩍
     if (this.buff && !this.dead) G.Draw.ell(ctx, this.x, this.y - this.h * 0.5, this.w * 0.7, this.h * 0.62, null, this.buff.color, 2 + Math.sin(this.t * 10));
     if (this.hideT > 0) ctx.globalAlpha = 0.08;
-    G.Draw.monster(ctx, this, this.disabled ? 0 : this.t);
+    if (flt && G.Draw.fLayer) G.Draw.fLayer(ctx, flt, this.x, this.y, this.w * 1.6 + 70 + (this.isBoss ? 200 : 0), this.h * 2.2 + 90 + (this.isBoss ? 200 : 0), 150, c => G.Draw.monster(c, this, this.disabled ? 0 : this.t));
+    else G.Draw.monster(ctx, this, this.disabled ? 0 : this.t);
     ctx.globalAlpha = 1;
     ctx.filter = 'none';
     if (this.dead) return;

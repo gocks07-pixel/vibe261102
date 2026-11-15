@@ -385,8 +385,8 @@ G.World = class {
     const sw = this.sweep;
     if (sw && sw.hx != null && !sw.src.dead) {   // 천공의 숨결: 입 → 바닥을 쓸고 가는 보랏빛 흰 브레스
       const m = sw.src, mx = m.x + sw.dir * m.w * 0.32 - cam, my = m.y - m.h * 0.72, hx = sw.hx - cam;
-      ctx.save(); ctx.lineCap = 'round'; ctx.shadowColor = '#c8a0ff'; ctx.shadowBlur = 24;
-      for (const [lw, col] of [[42, 'rgba(170,110,255,.35)'], [26, 'rgba(235,220,255,.85)'], [9, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(hx, GY - 6); ctx.stroke(); }
+      ctx.save(); ctx.lineCap = 'round';   // 빌드 11: shadowBlur 빼고 바깥 옅은 선 한 겹 더
+      for (const [lw, col] of [[70, 'rgba(200,160,255,.14)'], [42, 'rgba(170,110,255,.35)'], [26, 'rgba(235,220,255,.85)'], [9, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(hx, GY - 6); ctx.stroke(); }
       ctx.restore(); glow(hx, GY - 10, 70, 'rgba(220,190,255,1)', 0.8);
     } else if (sw && !sw.src.dead) {   // 예고: 안전한 곳(용 발밑 · 등 뒤) 초록 표시
       const m = sw.src, x0 = m.x - sw.dir * 220 - cam, x1 = m.x + sw.dir * 60 - cam;
@@ -449,13 +449,45 @@ G.World = class {
     ctx.strokeStyle = 'rgba(200,210,240,.55)'; ctx.lineWidth = 2;
     for (const p of map.platforms) { ctx.beginPath(); ctx.moveTo(X + p.x * sc, my(p.y)); ctx.lineTo(X + (p.x + p.w) * sc, my(p.y)); ctx.stroke(); }
     for (const po of this.portals) if (!po.hidden) G.Draw.ell(ctx, X + po.x * sc, my(po.y) - 5, 3, 4, '#6ab8ff');
-    for (const n of this.npcs) G.Draw.ell(ctx, X + n.x * sc, my(n.y) - 4, 2.5, 2.5, '#ffd54a');
+    const QL = this.questList();   // 빌드 11: 퀘스트 표시 (시안 docs/drafts/design/quest_map/qmap3.png, 다 안)
+    for (const n of this.npcs) if (!QL.mk[n.id]) G.Draw.ell(ctx, X + n.x * sc, my(n.y) - 4, 2, 2, 'rgba(255,213,74,.45)');
     for (const m of this.monsters) if (!m.dead) G.Draw.ell(ctx, X + m.x * sc, my(m.y) - 3, m.isBoss ? 4 : 2, m.isBoss ? 4 : 2, '#ff5a5a');
     const tx = G.Nav.targetX(this);
     if (tx != null && Math.floor(this.time * 4) % 2) G.Draw.ell(ctx, X + tx * sc, Y + 6, 3, 3, '#ffd54a');
     const p = this.player;
     G.Draw.ell(ctx, X + p.x * sc, my(p.y) - 4, 3.5, 3.5, '#ffffff', '#000', 1);
+    for (const n of this.npcs) { const mk = QL.mk[n.id]; if (mk) this.qBadge(ctx, X + n.x * sc, my(n.y) - 7 + Math.sin(this.time * 5) * 0.8, mk, 4.2); }
+    const far = QL.rows.find(r => r.dir);
+    if (far) { const fx = far.dir > 0 ? X + W - 6 : X + 6; this.qBadge(ctx, fx, Y + 9, far.mk, 3.6); ctx.font = 'bold 10px "Malgun Gothic"'; ctx.fillStyle = '#9ad0ff'; ctx.textAlign = far.dir > 0 ? 'right' : 'left'; ctx.fillText(far.dir > 0 ? '▶' : '◀', far.dir > 0 ? fx - 5 : fx + 5, Y + 12.5); }
+    let yy = Y + H + 3; const RW = W * 0.82;
+    for (const r of QL.rows) {
+      ctx.fillStyle = 'rgba(10,12,22,.62)'; ctx.beginPath(); ctx.roundRect(X, yy, RW, 15, 4); ctx.fill(); this.qBadge(ctx, X + 9, yy + 7.5, r.mk, 5);
+      ctx.font = 'bold 10px "Malgun Gothic"'; ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.fillText(r.text, X + 18, yy + 11.2);
+      if (r.dir) { ctx.fillStyle = '#9ad0ff'; ctx.textAlign = 'right'; ctx.fillText(r.dir > 0 ? `${r.mapName} ▶` : `◀ ${r.mapName}`, X + RW - 5, yy + 11.2); }
+      yy += 17;
+    }
     ctx.restore();
+  }
+  // 빌드 11: 미니맵 퀘스트 표시 동그라미 (노랑 ! 메인 받기 · 파랑 ! 서브 받기 · 초록 ? 완료 보고)
+  qBadge(ctx, x, y, mk, r) {
+    ctx.save(); ctx.fillStyle = mk.ch === '?' ? '#3ac86a' : (mk.main ? '#f0b020' : '#3a9ae8'); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = r > 4.5 ? 1.2 : 0.9; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = `900 ${Math.round(r * 1.7)}px "Malgun Gothic"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(mk.ch, x, y + 0.5); ctx.restore();
+  }
+  // 빌드 11: 미니맵 아래 할 일 (최대 4줄 · 0.5초마다 다시 계산): 완료 보고 → 메인 받기 → 서브 받기, 같은 맵 먼저. 다른 맵 NPC 는 맵 이름 · 방향
+  questList() {
+    if (this.__ql && this.time - this.__ql.t < 0.5 && this.__ql.map === this.mapId) return this.__ql;
+    const mk = {}, here = new Set(this.npcs.map(n => n.id)), rows = [], Q = G.Quest, seen = new Set();
+    for (const n of this.npcs) { const m = Q.marker(n.id); if (m) mk[n.id] = m; }
+    const add = (npc, m, text) => { if (seen.has(npc + m.ch)) return; seen.add(npc + m.ch); const r = { npc, mk: m, text, rank: (m.ch === '?' ? 0 : m.main ? 2 : 4) + (here.has(npc) ? 0 : 1) };
+      if (!here.has(npc)) { const mp = G.Nav.npcMap(npc); if (!mp) return; const rt = G.Nav.route(this.mapId, new Set([mp])); if (!rt || !rt.first) return; r.dir = rt.first.x >= this.player.x ? 1 : -1; r.mapName = (G.MAPS[mp] && G.MAPS[mp].name) || ''; }
+      rows.push(r); };
+    for (const q of Object.values(G.QUESTS)) {
+      const nm = id => (G.NPCS[id] && G.NPCS[id].name) || '';
+      if (Q.ready(q) && G.NPCS[q.end]) add(q.end, { ch: '?', main: q.type === 'main' }, `${nm(q.end)}에게 완료 보고`);
+      else if (G.NPCS[q.start] && Q.available(q) && (here.has(q.start) || q.type === 'main')) add(q.start, { ch: '!', main: q.type === 'main' }, `${nm(q.start)} · ${q.type === 'main' ? '메인' : '서브'} 받기`);
+    }
+    rows.sort((a, b) => a.rank - b.rank);
+    return (this.__ql = { t: this.time, map: this.mapId, mk, rows: rows.slice(0, 4) });
   }
 
   draw(ctx) {

@@ -53,7 +53,7 @@
     for (const [m, cc, al] of [[11, glow, 0.3], [6, glow, 1], [2.2, core, 1], [1, '#ffffff', 1]]) { ctx.globalAlpha = a * al; ctx.strokeStyle = cc; for (const b of out) { ctx.lineWidth = b.w * m; ctx.beginPath(); b.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); } }
     ctx.restore(); }
   function rain(ctx, x, y, w, h, t, col, a) { ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
-    for (let i = 0; i < 110; i++) { const u = rnd(i * 1.7), sp = 0.8 + rnd(i * 2.3) * 0.4, yy = ((t * 900 * sp + rnd(i * 3.9) * h) % h), xx = x - w / 2 + u * w - yy * 0.15; ctx.moveTo(xx, y + yy); ctx.lineTo(xx - 4, y + yy + 26); }
+    for (let i = 0, N = G.Perf ? G.Perf.n2(110) : 110; i < N; i++) { const u = rnd(i * 1.7), sp = 0.8 + rnd(i * 2.3) * 0.4, yy = ((t * 900 * sp + rnd(i * 3.9) * h) % h), xx = x - w / 2 + u * w - yy * 0.15; ctx.moveTo(xx, y + yy); ctx.lineTo(xx - 4, y + yy + 26); }
     ctx.stroke(); ctx.restore(); }
   const glowRG = (ctx, x, y, r, c0, c1) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, c0); g.addColorStop(1, c1); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, PI * 2); ctx.fill(); };
   const groundFlash = (ctx, x, y, a) => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(x, y); ctx.scale(1, 0.3); glowRG(ctx, 0, 0, 160, `rgba(255,250,210,${a})`, 'rgba(255,240,150,0)'); ctx.restore(); };
@@ -104,7 +104,7 @@
     // 5 칠흑의 밤 · 야천 멸살: 하늘 전체가 위부터 어두워짐 + 별 + 보랏빛 달 + 지나가는 얇은 구름
     night(ctx, f, k) { const a = fadeIn(k, 0.2), t = f.t;
       ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a * 0.85; const g = ctx.createLinearGradient(0, f.y - 700, 0, f.y + 120); g.addColorStop(0, 'rgba(20,4,40,.95)'); g.addColorStop(1, 'rgba(60,20,90,.7)'); ctx.fillStyle = g; ctx.fillRect(f.x - 1400, f.y - 800, 2800, 1000);
-      ctx.fillStyle = '#ffffff'; for (let i = 0; i < 70; i++) { const x = f.x - 700 + rnd(i * 1.7) * 1400, y = f.y - 640 + rnd(i * 2.9) * 560, r = 1 + rnd(i * 4.1) * 2.2; ctx.globalAlpha = a * 0.8 * (0.4 + 0.6 * (0.5 + 0.5 * sin(t * 3 + i * 1.3))); ctx.beginPath(); ctx.arc(x, y, r, 0, PI * 2); ctx.fill(); if (r > 2.6) { ctx.fillRect(x - r * 2.5, y - 0.5, r * 5, 1); ctx.fillRect(x - 0.5, y - r * 2.5, 1, r * 5); } }
+      ctx.fillStyle = '#ffffff'; for (let i = 0, N = G.Perf ? G.Perf.n2(70) : 70; i < N; i++) { const x = f.x - 700 + rnd(i * 1.7) * 1400, y = f.y - 640 + rnd(i * 2.9) * 560, r = 1 + rnd(i * 4.1) * 2.2; ctx.globalAlpha = a * 0.8 * (0.4 + 0.6 * (0.5 + 0.5 * sin(t * 3 + i * 1.3))); ctx.beginPath(); ctx.arc(x, y, r, 0, PI * 2); ctx.fill(); if (r > 2.6) { ctx.fillRect(x - r * 2.5, y - 0.5, r * 5, 1); ctx.fillRect(x - 0.5, y - r * 2.5, 1, r * 5); } }
       const M = moonImg(); ctx.globalAlpha = a; ctx.globalCompositeOperation = 'lighter'; glowRG(ctx, f.x + 200, f.y - 220, 272, 'rgba(200,120,255,.45)', 'rgba(0,0,0,0)'); ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(M.cv, f.x + 200 - M.S / 2, f.y - 220 - M.S / 2); ctx.restore();
       drawCloud(ctx, 'nightC', SPEC.nightC, f.x + 150 + sin(t * 0.5) * 40, f.y - 170, a * 0.45, 0); },
     // 6 천둥의 심판: 하늘 번쩍 + 넓은 먹구름에서 번개 세 줄기 + 땅 충격 빛
