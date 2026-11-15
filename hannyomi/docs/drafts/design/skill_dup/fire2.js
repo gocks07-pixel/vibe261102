@@ -132,16 +132,21 @@
     // 바퀴 자국: 그을린 줄 + 남은 낮은 불길
     c.save(); c.globalAlpha = f * 0.8; const tg = c.createLinearGradient(p.x + 70, 0, x, 0); tg.addColorStop(0, 'rgba(60,30,20,0)'); tg.addColorStop(1, 'rgba(90,40,20,.7)'); c.fillStyle = tg; c.fillRect(p.x + 70, gy - 4, x - p.x - 70, 6); c.restore();
     for (let xx = p.x + 90; xx < x - 40; xx += 26) { const age = (x - xx) / 420; if (age < 1) F.flame(c, xx, gy, 46 * (1 - age), 24, 6, t, f * (1 - age), xx | 0, 2); }
-    // 뒤로 쓸려 나가는 불길 (회전 반대쪽 위)
-    for (let i = 0; i < 40; i++) { const a = PI + 0.3 + (i / 40) * 2.2 + rot * 0.02, v = (t * 2 + rnd(i)) % 1, d = R + 6 + v * 46; F.puff(c, x + cos(a) * d - v * 40, y + sin(a) * d - v * 22, 14 - v * 8, 0.95 - v * 0.9, f); }
+    // 테두리에서 피어나 뒤 · 위로 휘어 흐르는 불길 → 식으며 연기로 (바퀴가 앞으로 가니 불은 뒤로 끌림)
+    for (let i = 0; i < 90; i++) { const a0 = rnd(i) * PI * 2, v = (t * 1.8 + rnd(i * 3)) % 1, rx = x + cos(a0 + rot) * R, ry = y + sin(a0 + rot) * R;
+      const px = rx - v * (70 + rnd(i * 5) * 60) - v * v * 30, py = ry - v * (40 + rnd(i * 7) * 50) + sin(t * 8 + i) * 4 * v;
+      F.puff(c, px, py, (10 + rnd(i * 9) * 8) * (1 + v * 0.8), 1 - v * 1.15, f * (v < 0.1 ? v / 0.1 : 1) * 0.85); }
+    // 땅에 닿는 곳: 달아오른 빛 · 뒤로 튀는 불똥 (포물선) · 흙먼지
+    F.glow(c, x, gy - 2, 46, 'rgba(255,190,90,.8)', f); for (let i = 0; i < 6; i++) { const v = (t * 1.5 + rnd(i * 11)) % 1; F.puff(c, x - 30 - v * 70, gy - 8 - v * 20, 8 + v * 16, 0.12 - v * 0.12, f * 0.6 * (1 - v)); }
     F.glow(c, x, y, R * 2.4, 'rgba(255,140,40,.55)', f);
     c.save(); c.globalAlpha = f; c.translate(x, y);
-    const rg = c.createRadialGradient(0, 0, R * 0.2, 0, 0, R); rg.addColorStop(0, 'rgba(255,240,180,.95)'); rg.addColorStop(0.55, 'rgba(255,150,40,.55)'); rg.addColorStop(1, 'rgba(200,60,10,.25)'); c.fillStyle = rg; c.beginPath(); c.arc(0, 0, R, 0, PI * 2); c.fill();
+    const rg = c.createRadialGradient(0, 0, R * 0.2, 0, 0, R); rg.addColorStop(0, 'rgba(255,240,180,.85)'); rg.addColorStop(0.55, 'rgba(255,150,40,.4)'); rg.addColorStop(1, 'rgba(200,60,10,.15)'); c.fillStyle = rg; c.beginPath(); c.arc(0, 0, R, 0, PI * 2); c.fill();
     c.rotate(rot); for (let i = 0; i < 8; i++) { c.save(); c.rotate(i * PI / 4); const sg = c.createLinearGradient(0, 0, R, 0); sg.addColorStop(0, '#fff4c8'); sg.addColorStop(1, '#ff7a20'); c.fillStyle = sg; c.beginPath(); c.moveTo(0, -3); c.lineTo(R - 6, -4.5); c.lineTo(R - 6, 4.5); c.lineTo(0, 3); c.fill(); c.restore(); }
     c.lineWidth = 9; c.strokeStyle = '#4a2a18'; c.beginPath(); c.arc(0, 0, R - 3, 0, PI * 2); c.stroke(); c.lineWidth = 5; const rimg = c.createLinearGradient(-R, -R, R, R); rimg.addColorStop(0, '#ffd070'); rimg.addColorStop(1, '#e85a14'); c.strokeStyle = rimg; c.stroke();
     for (let i = 0; i < 12; i++) { c.save(); c.rotate(i * PI / 6); c.fillStyle = '#ffb040'; c.fillRect(R - 4, -3, 7, 6); c.restore(); }   // 테두리 돌기
     c.fillStyle = '#4a2a18'; c.beginPath(); c.arc(0, 0, 10, 0, PI * 2); c.fill(); c.fillStyle = '#ffd070'; c.beginPath(); c.arc(0, 0, 6, 0, PI * 2); c.fill(); c.restore();
-    for (let i = 0; i < 10; i++) { const v = (t * 2.5 + rnd(i * 3)) % 1, sx = x - 10 - v * 90, sy = gy - 4 - sin(v * PI) * (30 + rnd(i) * 40); c.save(); c.globalAlpha = f * (1 - v); c.fillStyle = '#ffe080'; c.beginPath(); c.arc(sx, sy, 2.2, 0, PI * 2); c.fill(); c.restore(); } };   // 땅에 튀는 불똥
+    c.save(); c.lineCap = 'round'; for (let i = 0; i < 18; i++) { const v = (t * 2.2 + rnd(i * 3)) % 1, vx = 140 + rnd(i) * 160, vy = 120 + rnd(i * 5) * 140, sx = x - 8 - vx * v, sy = gy - 4 - vy * v + 260 * v * v; if (sy > gy) continue;
+      const px2 = x - 8 - vx * (v - 0.04), py2 = gy - 4 - vy * (v - 0.04) + 260 * (v - 0.04) * (v - 0.04); c.globalAlpha = f * (1 - v); c.strokeStyle = v < 0.5 ? '#fff2b0' : '#ff9a30'; c.lineWidth = 2.2 * (1 - v) + 0.8; c.beginPath(); c.moveTo(px2, py2); c.lineTo(sx, sy); c.stroke(); } c.restore(); };   // 땅에 튀는 불똥 (꼬리 달린 선)
   // 사2: 불의 용 — 비늘 그라데이션 몸통(점점 가늘어짐) · 등의 불 갈기 · 뿔 · 수염 · 벌린 입 · 꼬리 불꽃
   M.n_dragon2 = (c, p, k, gy, T) => { const t = T0(k), u = min(1, k / 0.6), f = k < 0.82 ? 1 : (1 - k) / 0.18, sx = p.x + 30, L = 620 * u, n = 60;
     const at = (v) => [sx + L * v, gy - 80 + sin(v * 9 - t * 5) * 36 * min(1, v * 3) - v * 10];
