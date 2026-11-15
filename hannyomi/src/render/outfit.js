@@ -1102,10 +1102,17 @@ G.Outfit = (function () {
         for (const s of [-1, 1]) poly(ctx, [[s * 2, 2], [s * 7, 0], [s * 5, 2.8], [s * 8, 4]], '#ffe060', '#a88a2a', 0.4);
         grip(ctx, '#3a4a7a', '#ffe060', 6); ell(ctx, 0, -7, 2, 2, '#ffe060'); return;
       }
-      case 'sky': {       // 하늘 순례자: 깃털 모양 하얀 검 / 깃털 단검
-        ctx.beginPath(); ctx.moveTo(0, 3); ctx.quadraticCurveTo(dag ? 4.5 : 6, L * 0.5, 0, L + 2); ctx.quadraticCurveTo(dag ? -3.5 : -4.5, L * 0.5, 0, 3);
-        ctx.fillStyle = vgrad(ctx, 3, L, '#ffffff', 0, -0.12); ctx.fill(); ctx.strokeStyle = '#b8c8e8'; ctx.lineWidth = 0.7; ctx.stroke();
-        line(ctx, [[0, 4], [0, L + 1]], '#9ab0d8', 0.8); for (let i = 1; i < (dag ? 3 : 6); i++) { const y = 4 + i * L / (dag ? 3.4 : 6.5); line(ctx, [[0, y], [2.6, y + 2.4]], '#d0dcf0', 0.5); line(ctx, [[0, y], [-2, y + 2.4]], '#d0dcf0', 0.5); }
+      case 'sky': {       // 하늘 순례자: 깃털 모양 하얀 검 / 깃털 단검 (빌드 11: 진짜 깃털처럼 — 깃대 · 양쪽 깃 결 · 갈라진 틈 · 휜 끝)
+        const FW = dag ? 3.6 : 6.2, bend = dag ? 1.2 : 2.6;   // 깃 폭 · 끝 휨
+        const edge = (side, k) => { const pts = []; for (let i = 0; i <= 12; i++) { const u = i / 12, y = 4 + u * (L - 2), w = FW * (side > 0 ? 1 : 0.62) * Math.sin(Math.PI * Math.min(1, u * 1.15 + 0.05)) * (0.9 + 0.1 * Math.sin(u * 9)); pts.push([side * w * k + bend * u * u, y]); } return pts; };
+        const R = edge(1, 1), Lf = edge(-1, 1);
+        ctx.beginPath(); ctx.moveTo(0, 3); R.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(bend, L + 3); for (let i = Lf.length - 1; i >= 0; i--) ctx.lineTo(Lf[i][0], Lf[i][1]); ctx.closePath();
+        ctx.fillStyle = vgrad(ctx, 3, L, '#ffffff', 0, -0.14); ctx.fill(); ctx.strokeStyle = 'rgba(150,170,210,.55)'; ctx.lineWidth = 0.5; ctx.stroke();
+        for (let i = 1; i < (dag ? 7 : 14); i++) { const u = i / (dag ? 7 : 14), y = 4 + u * (L - 2), cx = bend * u * u, w = FW * Math.sin(Math.PI * Math.min(1, u * 1.15 + 0.05));   // 깃 결 (비스듬히 뒤로)
+          line(ctx, [[cx, y], [cx + w * 0.95, y + 3.2]], 'rgba(184,200,232,.75)', 0.35); line(ctx, [[cx, y], [cx - w * 0.6, y + 2.6]], 'rgba(184,200,232,.75)', 0.35); }
+        if (!dag) for (const [u, sd] of [[0.38, 1], [0.62, -1], [0.74, 1]]) { const y = 4 + u * (L - 2), cx = bend * u * u, w = FW * (sd > 0 ? 1 : 0.62); ctx.strokeStyle = 'rgba(232,240,255,1)'; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(cx + sd * w * 0.45, y); ctx.lineTo(cx + sd * w * 1.05, y + 3); ctx.stroke(); }   // 갈라진 틈
+        ctx.strokeStyle = '#9ab0d8'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(0, 2); for (let i = 0; i <= 10; i++) { const u = i / 10; ctx.lineTo(bend * u * u, 4 + u * (L - 1)); } ctx.stroke();   // 깃대
+        for (let i = 0; i < 3; i++) line(ctx, [[-1, 3.2 + i * 0.6], [-3.2 - i, 5.5 + i * 1.2]], 'rgba(255,255,255,.9)', 0.5);   // 밑동 솜털
         for (const s of [-1, 1]) ell(ctx, s * 3.6, 2.4, 2.8, 1.2, '#ffffff', '#b8c8e8', 0.4); grip(ctx, '#6a8ad0', '#ffffff', 6);
         glowOn(ctx, '#e8f0ff', 5); ell(ctx, 0, -7, 1.8, 1.8, '#ffffff'); glowOff(ctx); return;
       }
@@ -1129,9 +1136,10 @@ G.Outfit = (function () {
       }
       case 'frost': {     // 서리 사냥꾼: 휘어진 서리 사냥칼 + 털 감은 손잡이 (단검: 고드름 칼)
         if (dag) { poly(ctx, [[-2, 3], [2, 3], [0.6, L + 2], [-0.4, L + 2]], vgrad(ctx, 3, L, '#e8f8ff', 0.1, -0.2), '#7ab8e0', 0.7); line(ctx, [[0, 5], [0, L - 2]], 'rgba(255,255,255,.8)', 0.6); }
-        else { ctx.beginPath(); ctx.moveTo(-2.4, 4); ctx.quadraticCurveTo(-3, L * 0.7, -7, L + 1); ctx.quadraticCurveTo(3.8, L * 0.7, 2.6, 4); ctx.closePath();
+        else { ctx.save(); ctx.scale(-1, 1);   // 빌드 11 (사용자 요청): 날이 휘는 방향을 위아래 바꿈
+          ctx.beginPath(); ctx.moveTo(-2.4, 4); ctx.quadraticCurveTo(-3, L * 0.7, -7, L + 1); ctx.quadraticCurveTo(3.8, L * 0.7, 2.6, 4); ctx.closePath();
           ctx.fillStyle = vgrad(ctx, 4, L, '#e8f8ff', 0.1, -0.25); ctx.fill(); ctx.strokeStyle = '#7ab8e0'; ctx.lineWidth = 0.8; ctx.stroke();
-          line(ctx, [[-2.2, 6], [-3, L * 0.7], [-6.4, L]], 'rgba(255,255,255,.85)', 0.8); }
+          line(ctx, [[-2.2, 6], [-3, L * 0.7], [-6.4, L]], 'rgba(255,255,255,.85)', 0.8); ctx.restore(); }
         rr(ctx, -3.4, 1.4, 6.8, 3, 1.4, '#7ab8e0', '#4a7aa8', 0.5);
         rr(ctx, -2.4, -7, 4.8, 8.5, 2, '#ffffff', '#c8d4e0', 0.5); for (let y = -6; y < 1; y += 2) ell(ctx, 0, y, 2.2, 0.8, '#e8eef4');   // 털
         return;
