@@ -12,10 +12,10 @@
   // ===== 급강하 화살: 활시위를 위로 → 화살이 하늘로 솟았다가 큰 화살이 되어 바람을 가르며 비스듬히 내리꽂힘 → 땅에 박히며 바람 충격파 =====
   M.dive = (c, p, k, gy, T) => { const tx = T[1], ang = 1.05;
     if (k < 0.2) { const u = k / 0.2; arrow(c, p.x + 20 + u * 60, gy - 50 - u * 420, -PI / 2 + 0.25, 0.8); for (let i = 0; i < 3; i++) wind(c, p.x + 20 + u * 60, gy - 30 - u * 420 + i * 18, PI / 2, 30, 0.6); return; }
-    if (k < 0.45) { const u = (k - 0.2) / 0.25, L = 520 * (1 - u), x = tx - cos(ang) * L, y = gy - 20 - sin(ang) * L;
+    if (k < 0.45 && !M.diveNoFall) { const u = (k - 0.2) / 0.25, L = 520 * (1 - u), x = tx - cos(ang) * L, y = gy - 20 - sin(ang) * L;
       for (let i = 0; i < 8; i++) wind(c, x - cos(ang) * (30 + i * 22), y - sin(ang) * (30 + i * 22) + (i % 2 ? 10 : -10), ang + PI, 50, 0.8 - i * 0.08, 3);
       glow(c, x, y, 60, 'rgba(200,255,220,.6)', 1); arrow(c, x, y, ang, 2.2); return; }
-    const u = (k - 0.45) / 0.55, f = 1 - u; c.save(); c.globalAlpha = f; arrow(c, tx - cos(ang) * 20, gy - 20 - sin(ang) * 20, ang, 2.2, 0); c.restore();
+    if (k < 0.45) return; const u = (k - 0.45) / 0.55, f = 1 - u; c.save(); c.globalAlpha = f; arrow(c, tx - cos(ang) * 20, gy - 20 - sin(ang) * 20, ang, 2.2, 0); c.restore();
     glow(c, tx, gy - 10, 90 * (0.5 + u), 'rgba(220,255,230,.8)', f); ring(c, tx, gy - 3, 40 + u * 200, 'rgba(220,255,235,.9)', f, 5); ring(c, tx, gy - 3, 20 + u * 140, '#9ae8b0', f, 3);
     for (let i = 0; i < 8; i++) { const an = PI + (i / 7) * PI, d = 30 + u * 120; wind(c, tx + cos(an) * d, gy - 6 + sin(an) * d * 0.4, an, 30, f); }
     for (let i = 0; i < 6; i++) { const an = -PI * (0.15 + rnd(i) * 0.7), d = u * (60 + rnd(i * 3) * 60); c.save(); c.globalAlpha = f; c.fillStyle = '#c8b090'; c.fillRect(tx + cos(an) * d - 3, gy - 6 + sin(an) * d + u * u * 60, 6, 4); c.restore(); } };
@@ -41,3 +41,5 @@
     back(true); c.save(); c.translate(cx, gy - 2); c.scale(1, 0.22); const g = c.createRadialGradient(0, 0, 0, 0, 0, 150); g.addColorStop(0, 'rgba(200,255,220,.5)'); g.addColorStop(1, 'rgba(200,255,220,0)'); c.globalAlpha = f; c.fillStyle = g; c.beginPath(); c.arc(0, 0, 150, 0, PI * 2); c.fill(); c.restore();
     for (let i = 0; i < 10; i++) { const v = (t * 0.6 + rnd(i)) % 1, an = t * 7 + i; c.save(); c.globalAlpha = f * (1 - v); c.fillStyle = i % 2 ? '#8ad06a' : '#e8fff0'; c.translate(cx + cos(an) * (40 + v * 120), gy - v * H); c.rotate(an); c.beginPath(); c.ellipse(0, 0, 5, 2, 0, 0, PI * 2); c.fill(); c.restore(); } };
 })();
+
+G.SageMock.dive2 = (c, p, k, gy, T) => { G.SageMock.diveNoFall = 1; G.SageMock.dive(c, p, k, gy, T); G.SageMock.diveNoFall = 0; };
