@@ -1108,11 +1108,12 @@ G.Outfit = (function () {
         const R = edge(1, 1), Lf = edge(-1, 1);
         ctx.beginPath(); ctx.moveTo(0, 3); R.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(bend, L + 3); for (let i = Lf.length - 1; i >= 0; i--) ctx.lineTo(Lf[i][0], Lf[i][1]); ctx.closePath();
         ctx.fillStyle = vgrad(ctx, 3, L, '#ffffff', 0, -0.14); ctx.fill(); ctx.strokeStyle = 'rgba(150,170,210,.55)'; ctx.lineWidth = 0.5; ctx.stroke();
+        ctx.save(); ctx.clip();   // 깃 결 · 틈은 깃 안에서만 (밖으로 튀어나오지 않게)
         for (let i = 1; i < (dag ? 7 : 14); i++) { const u = i / (dag ? 7 : 14), y = 4 + u * (L - 2), cx = bend * u * u, w = FW * Math.sin(Math.PI * Math.min(1, u * 1.15 + 0.05));   // 깃 결 (비스듬히 뒤로)
           line(ctx, [[cx, y], [cx + w * 0.95, y + 3.2]], 'rgba(184,200,232,.75)', 0.35); line(ctx, [[cx, y], [cx - w * 0.6, y + 2.6]], 'rgba(184,200,232,.75)', 0.35); }
-        if (!dag) for (const [u, sd] of [[0.38, 1], [0.62, -1], [0.74, 1]]) { const y = 4 + u * (L - 2), cx = bend * u * u, w = FW * (sd > 0 ? 1 : 0.62); ctx.strokeStyle = 'rgba(232,240,255,1)'; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(cx + sd * w * 0.45, y); ctx.lineTo(cx + sd * w * 1.05, y + 3); ctx.stroke(); }   // 갈라진 틈
-        ctx.strokeStyle = '#9ab0d8'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(0, 2); for (let i = 0; i <= 10; i++) { const u = i / 10; ctx.lineTo(bend * u * u, 4 + u * (L - 1)); } ctx.stroke();   // 깃대
-        for (let i = 0; i < 3; i++) line(ctx, [[-1, 3.2 + i * 0.6], [-3.2 - i, 5.5 + i * 1.2]], 'rgba(255,255,255,.9)', 0.5);   // 밑동 솜털
+        if (!dag) for (const [u, sd] of [[0.38, 1], [0.62, -1], [0.74, 1]]) { const y = 4 + u * (L - 2), cx = bend * u * u, w = FW * (sd > 0 ? 1 : 0.62); ctx.strokeStyle = 'rgba(206,218,240,.9)'; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(cx + sd * w * 0.5, y); ctx.lineTo(cx + sd * w * 1.1, y + 3); ctx.stroke(); }   // 갈라진 틈 (가는 홈)
+        ctx.restore();
+        ctx.strokeStyle = '#9ab0d8'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(0, 2); for (let i = 0; i <= 10; i++) { const u = i / 10; ctx.lineTo(bend * u * u, 4 + u * (L - 1)); } ctx.stroke();   // 깃대 (끝은 깃 안에서 멈춤)
         for (const s of [-1, 1]) ell(ctx, s * 3.6, 2.4, 2.8, 1.2, '#ffffff', '#b8c8e8', 0.4); grip(ctx, '#6a8ad0', '#ffffff', 6);
         glowOn(ctx, '#e8f0ff', 5); ell(ctx, 0, -7, 1.8, 1.8, '#ffffff'); glowOff(ctx); return;
       }
