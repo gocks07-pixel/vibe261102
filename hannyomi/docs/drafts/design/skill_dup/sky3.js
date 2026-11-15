@@ -27,3 +27,23 @@ G.__simple = 1; window.__noElite = 1; G.FX.beam = () => {};
     if (o === 'eye') { ctx.save(); ctx.translate(f.x, f.y + 20); ctx.scale(1, 0.32); ctx.globalAlpha = a; for (let i = 0; i < 5; i++) { const r = 60 + i * 50, ph = t * (1.2 - i * 0.15); ctx.strokeStyle = `rgba(240,248,255,${0.55 - i * 0.08})`; ctx.lineWidth = 7 - i; ctx.beginPath(); ctx.arc(0, 0, r, ph, ph + 3.6); ctx.stroke(); }   // 마: 구름 가운데 소용돌이 눈
       const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 70); g.addColorStop(0, 'rgba(220,240,255,.8)'); g.addColorStop(1, 'rgba(220,240,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 70, 0, PI * 2); ctx.fill(); ctx.restore(); } };
 }
+{ const PI = Math.PI, sin = Math.sin, cos = Math.cos, prev = G.SkyFX.storm, M = G.SageMock, fade = (k, a) => k < a ? k / a : (1 - k) / (1 - a);
+  const rnd = (s) => { const x = Math.sin(s * 127.1 + 3.7) * 43758.5453; return x - Math.floor(x); };
+  G.SkyFX.storm = (ctx, f, k) => { const lv = window.__lv; if (!lv) return prev(ctx, f, k); const a = fade(k, 0.15), t = 1.3 + k * 3, top = f.y + 70, bot = f.y + 400, x0 = f.x + 40, R0 = lv === 3 ? 150 : 120;
+    const W = (u) => R0 * Math.pow(1 - u, 1.4) + 16;
+    // 깔때기: 두께 있는 바람 띠 여러 겹 (진하게)
+    ctx.save(); ctx.globalAlpha = a;
+    if (lv >= 1) { const g = ctx.createLinearGradient(0, top, 0, bot); g.addColorStop(0, 'rgba(200,215,230,.35)'); g.addColorStop(1, 'rgba(220,230,240,.15)'); ctx.fillStyle = g; ctx.beginPath();
+      for (let i = 0; i <= 30; i++) { const u = i / 30, y = top + (bot - top) * u; ctx.lineTo(x0 + sin(t * 2 + u * 4) * 24 * u - W(u), y); } for (let i = 30; i >= 0; i--) { const u = i / 30, y = top + (bot - top) * u; ctx.lineTo(x0 + sin(t * 2 + u * 4) * 24 * u + W(u), y); } ctx.fill(); }
+    for (let i = 0; i < 46; i++) { const u = i / 45, y = top + (bot - top) * u, w = W(u), sw = sin(t * 2 + u * 4) * 24 * u, ph = t * 8 + u * 10;
+      ctx.save(); ctx.translate(x0 + sw, y); ctx.scale(1, 0.24); ctx.strokeStyle = `rgba(245,250,255,${0.45 + 0.4 * (1 - u)})`; ctx.lineWidth = 7 + (1 - u) * 5; ctx.beginPath(); ctx.arc(0, 0, w, ph, ph + 2.4); ctx.stroke(); ctx.strokeStyle = 'rgba(150,170,195,.45)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, w * 0.92, ph + 2.6, ph + 3.6); ctx.stroke(); ctx.restore(); }
+    // 바닥 흙먼지 · 눈보라 고리
+    for (let i = 0; i < 26; i++) { const u = (t * 0.5 + rnd(i)) % 1, an = t * 5 + i * 0.7, r = 30 + u * (lv === 3 ? 220 : 150); ctx.save(); ctx.globalAlpha = a * (1 - u) * 0.6; ctx.fillStyle = '#e8eef6'; ctx.beginPath(); ctx.arc(x0 + cos(an) * r, bot - 6 + sin(an) * r * 0.18 - u * 20, 10 + u * 18, 0, PI * 2); ctx.fill(); ctx.restore(); }
+    // 휘감겨 오르는 잎 · 파편
+    const nl = lv === 3 ? 30 : 16; for (let i = 0; i < nl; i++) { const u = (t * 0.6 + i / nl) % 1, an = t * 7 + i * 2, y = bot - u * (bot - top), w = W((y - top) / (bot - top)) + 10; ctx.fillStyle = i % 3 ? '#8ad06a' : '#f4f8ff'; ctx.save(); ctx.translate(x0 + cos(an) * w, y + sin(an) * w * 0.24); ctx.rotate(an); ctx.beginPath(); ctx.ellipse(0, 0, 7, 2.6, 0, 0, PI * 2); ctx.fill(); ctx.restore(); }
+    // 2 · 3: 바깥으로 휘몰아치는 바람 줄기
+    if (lv >= 2) { ctx.strokeStyle = 'rgba(240,248,255,.8)'; ctx.lineCap = 'round'; for (let i = 0; i < 14; i++) { const u = (t * 0.8 + i / 14) % 1, an = t * 3 + i * 0.45, r = 90 + u * 330, y = bot - 40 - (i % 5) * 60; ctx.save(); ctx.globalAlpha = a * (1 - u) * 0.85; ctx.lineWidth = 3 + (i % 3); ctx.beginPath(); ctx.arc(x0, y, r, an, an + 0.7); ctx.stroke(); ctx.restore(); } }
+    ctx.restore();
+    M.cloudSoft(ctx, f.x, f.y + 59, 620, 209, 11, a * 0.7, 0, true);
+    if (lv === 3) { ctx.save(); ctx.translate(f.x + 40, f.y + 40); ctx.scale(1, 0.3); ctx.globalAlpha = a; for (let i = 0; i < 3; i++) { const ph = t * 2 + i * 2; ctx.strokeStyle = 'rgba(240,248,255,.6)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, 90 + i * 40, ph, ph + 2.8); ctx.stroke(); } ctx.restore(); } };   // 3: 구름 아랫면도 회오리에 빨려 도는 띠
+}
