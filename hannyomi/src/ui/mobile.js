@@ -67,7 +67,12 @@ G.Mobile = {
     G.Input.endFrame = function () { if (M.skipNow) { M.skipNow = false; return; } endFrame.apply(this, arguments); };
     // 2차-1 창 키우기: 창을 열고 닫고 다시 그릴 때마다 배율 · 자리 맞추기
     const ow = G.UI.openWin, cw = G.UI.closeWin, rw = G.UI.renderWin;
-    G.UI.openWin = function () { const r = ow.apply(this, arguments); M.layoutWins(); return r; };
+    const PAIR = { inv: 1, shop: 1, storage: 1 };   // 빌드 11 (사용자 요청 1): 상점 · 창고는 인벤과 나란히, 그 밖에는 새 창을 열면 앞 창을 닫음
+    G.UI.openWin = function (name) {
+      if (G.Touch.active() && !(this.wins && this.wins[name])) for (const n of Object.keys(this.wins || {})) if (n !== name && !(PAIR[n] && PAIR[name])) cw.call(this, n);
+      const r = ow.apply(this, arguments); M.layoutWins(); return r; };
+    // 빌드 11 (사용자 요청 2): 게임 화면 빈 곳을 누르면 열린 창을 모두 닫음 (대화 · 영상 중에는 그대로)
+    G.Game.canvas && G.Game.canvas.addEventListener('pointerdown', () => { if (!G.Touch.active() || G.Dialog.isOpen() || (G.Cutscene && G.Cutscene.playing && G.Cutscene.playing())) return; const ns = Object.keys(G.UI.wins || {}); if (!ns.length) return; if (G.UI.target) G.UI.clearTarget(); for (const n of ns) G.UI.closeWin(n); G.UI.hideTip && G.UI.hideTip(); }, true);
     G.UI.closeWin = function () { const r = cw.apply(this, arguments); M.layoutWins(); return r; };
     G.UI.renderWin = function (name) {
       const r = rw.apply(this, arguments);

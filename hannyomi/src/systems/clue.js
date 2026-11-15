@@ -29,11 +29,16 @@ G.Clue = {
     const q = Object.values(G.QUESTS).find(x => G.Quest.isActive(x.id) && x.obj.some(o => o.t === 'item' && o.id === tid));
     this.show(tid, c, q);
   },
-  show(tid, c, q) {
+  // 빌드 11 (사용자 요청 3): 쉘로크가 쓰러진 자리에 검은 천이 떨어질 때 설명 (캐릭터마다 한 번)
+  shellCloth() {
+    const p = G.Game.player; if (!p || p.d.flags['clue:shell_cloth']) return; p.d.flags['clue:shell_cloth'] = 1;
+    this.show('q_cloth', ['쉘로크가 쓰러진 자리에 떨어진 검은 천. 눈 모양 문양이 수놓여 있다.', '누군가 일부러 쉘로크를 <b>오염시킨</b> 걸까? 엘마에게 알려 주자.'], null, '📜 수상한 것을 발견했다!');
+  },
+  show(tid, c, q, head) {
     const t = G.ITEMS[tid], esc = G.U.esc;
     const to = q ? `<div class="clue-to">▶ ${q.type === 'main' ? '[메인]' : '[서브]'} ${esc(q.name)} — <b>${esc(G.NPCS[q.end].name)}</b>에게 가져가자</div>` : '';
     G.UI.holdWorld = true;
-    G.UI.panel(`<div class="clue-h"><img src="${G.Icons.item(t)}"><div><div class="clue-k">📜 단서를 얻었다!</div><div class="clue-n">${esc(t.name)}</div><div class="clue-d">${esc(c[0] || t.desc)}</div></div></div>
+    G.UI.panel(`<div class="clue-h"><img src="${G.Icons.item(t)}"><div><div class="clue-k">${head || '📜 단서를 얻었다!'}</div><div class="clue-n">${esc(t.name)}</div><div class="clue-d">${esc(c[0] || t.desc)}</div></div></div>
       <div class="clue-s">${c[1]}</div>${to}
       <div class="end"><button class="btn gold" data-act="ask" data-arg="c0">확인</button></div>`, [() => {}], 'clue');
     G.Audio.play('quest');

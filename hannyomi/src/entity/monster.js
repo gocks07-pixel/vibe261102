@@ -102,7 +102,10 @@ G.Monster = class {
     }
   }
 
+  // 빌드 11 (사용자 요청 5): 각성 Ⅰ 시험 중에는 들쥐 · 허수아비 골렘이 약해짐 (체력 절반 = 받는 피해 2배 · 주는 피해 절반)
+  get trialWeak() { if (this.id !== 'fieldrat' && this.id !== 'scarecrow') return false; const t = Math.floor(((G.Game.world && G.Game.world.time) || 0) * 2); if (this.__twT !== t) { this.__twT = t; this.__tw = ['job_warrior', 'job_archer', 'job_mage', 'job_thief'].some(q => G.Quest.isActive(q)); } return this.__tw; }
   takeDamage(dmg, p) {
+    if (this.trialWeak) dmg = Math.round(dmg * 2);
     if (this.buff && this.buff.def < 1) dmg = Math.round(dmg * this.buff.def);
     this.hp -= dmg; this.hurtT = 0.12; this.aggro = 6;
     if (!this.isBoss && !this.flying && !this.d.noKb) this.kb = Math.sign(this.x - p.x || 1) * 170;
