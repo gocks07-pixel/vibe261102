@@ -90,3 +90,37 @@
     F.puff(c, x, y - 18, 16, 1, f); c.save(); c.globalAlpha = f; c.fillStyle = '#5a1a08'; c.beginPath(); c.arc(x - 5, y - 20, 2.4, 0, PI * 2); c.arc(x + 6, y - 20, 2.4, 0, PI * 2); c.fill(); c.restore();
     if (k > 0.25) { const b = min(1, (k - 0.25) / 0.2); for (let i = 0; i < 60; i++) { const v = (t * 2.2 + rnd(i)) % 1 * b, bx = x + 20 + v * 380, by = y - 14 + (rnd(i * 5) - 0.5) * 60 * v; F.puff(c, bx, by, 8 + v * 22, 1 - v * 0.95, f * 0.85); } } };
 })();
+// ===== 새 스킬 후보 2차: 마 불꽃 폭죽 · 바 화염 수레바퀴 · 사 불의 용 · 아 화염 감옥 =====
+(function () { const M = G.SageMock, F = M._fx, PI = Math.PI, sin = Math.sin, cos = Math.cos, min = Math.min, max = Math.max, rnd = F.rnd;
+  const T0 = (k) => 1.3 + k * 2.2;
+  // 마: 불꽃 폭죽 — 지팡이에서 불꽃 구슬이 높이 솟아 공중에서 '팡' 터지고, 불씨가 적들 위로 쏟아짐
+  M.n_firework = (c, p, k, gy, T) => { const t = T0(k), sx = p.x + 30, sy = gy - 50, cx = (T[0] + T[3]) / 2, cy = gy - 330;
+    if (k < 0.3) { const u = k / 0.3, x = sx + (cx - sx) * u, y = sy + (cy - sy) * (1 - (1 - u) * (1 - u)); for (let i = 0; i < 10; i++) F.puff(c, x - (cx - sx) * 0.03 * i, y + i * 12 * (1 - u), 8 - i * 0.6, 0.95 - i * 0.08, 1); F.glow(c, x, y, 30, 'rgba(255,200,90,.8)', 1); return; }
+    const u = (k - 0.3) / 0.7; if (u < 0.35) F.burst(c, cx, cy, 120, u / 0.35, 30, 5);
+    for (let i = 0; i < 40; i++) { const an = rnd(i) * PI * 2, sp = 140 + rnd(i * 3) * 160, x = cx + cos(an) * sp * u, y = cy + sin(an) * sp * u * 0.7 + u * u * 520; if (y > gy) continue;
+      for (let j = 0; j < 4; j++) F.puff(c, x - cos(an) * j * 8, y - j * 10, 4 - j * 0.6, 0.95 - j * 0.2 - u * 0.3, 1 - u * 0.5); }
+    for (let i = 0; i < 4; i++) { const x = T[i]; if (u > 0.55) { const v = (u - 0.55) / 0.45; F.scorch(c, x, gy, 50, 1 - v); F.flame(c, x, gy, 50 * (1 - v), 30, 8, t, 1 - v, i * 7); } } };
+  // 바: 화염 수레바퀴 — 불타는 바퀴가 땅을 굴러가며 적을 차례로 치고 지나가고, 바퀴 자국에 불길
+  M.n_wheel = (c, p, k, gy) => { const t = T0(k), u = min(1, k / 0.8), x = p.x + 60 + u * 600, R = 42, y = gy - R, rot = u * 16, f = k < 0.85 ? 1 : (1 - k) / 0.15;
+    for (let xx = p.x + 70; xx < x - 30; xx += 30) { const age = (x - xx) / 500; F.flame(c, xx, gy, 40 * max(0, 1 - age), 26, 5, t, f * max(0, 1 - age), xx | 0); }
+    c.save(); c.translate(x, y); c.rotate(rot); c.globalAlpha = f; for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2; c.strokeStyle = '#ffb040'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.lineTo(cos(a) * R, sin(a) * R); c.stroke(); } c.restore();
+    for (let i = 0; i < 28; i++) { const a = i / 28 * PI * 2 + rot; F.puff(c, x + cos(a) * R, y + sin(a) * R, 13, 0.95, f); F.puff(c, x + cos(a) * (R + 10) - 6, y + sin(a) * (R + 10) - 10, 8, 0.5, f * 0.7); }
+    F.puff(c, x, y, 14, 1, f); F.glow(c, x, y, 90, 'rgba(255,150,50,.5)', f); };
+  // 사: 불의 용 — 지팡이에서 불의 용이 뻗어 나와 적 사이를 물결치며 지나가고 끝에서 '콰' 하고 입을 벌림
+  M.n_dragon = (c, p, k, gy, T) => { const t = T0(k), u = min(1, k / 0.6), f = k < 0.8 ? 1 : (1 - k) / 0.2, sx = p.x + 30, L = 600 * u, hx = sx + L, n = 40;
+    const at = (v) => [sx + L * v, gy - 70 + sin(v * 10 - t * 6) * 40 * v];
+    for (let i = n; i >= 0; i--) { const v = i / n, [x, y] = at(v); F.puff(c, x, y, 10 + v * 16, 0.6 + v * 0.35, f); if (i % 4 === 0) F.puff(c, x - 6, y - 20 - v * 6, 7, 0.95, f); }
+    const [x, y] = at(1); c.save(); c.globalAlpha = f; c.translate(x, y); const open = 0.3 + 0.3 * Math.abs(sin(t * 8));
+    for (const sg of [-1, 1]) { c.beginPath(); c.moveTo(-10, 0); c.quadraticCurveTo(20, sg * 26 * open * 2, 48, sg * 18 * open * 2); c.lineTo(10, sg * 6); c.closePath(); c.fillStyle = '#ff7a20'; c.fill(); }
+    for (const sg of [-1, 1]) { c.beginPath(); c.moveTo(-6, -14); c.quadraticCurveTo(-24 + sg * 4, -40, -40 + sg * 6, -46); c.strokeStyle = '#ffd060'; c.lineWidth = 3; c.stroke(); }
+    c.fillStyle = '#fff2b0'; c.beginPath(); c.arc(8, -10, 4, 0, PI * 2); c.fill(); c.fillStyle = '#5a1a08'; c.beginPath(); c.arc(9, -10, 2, 0, PI * 2); c.fill(); c.restore();
+    F.glow(c, x, y, 80, 'rgba(255,150,50,.5)', f); if (u >= 1) for (let i = 0; i < 4; i++) { const v = (k - 0.6) / 0.4; F.burst(c, T[i], gy - 50, 40, min(1, v * 1.4), 10, i * 9); } };
+  // 아: 화염 감옥 — 적 무리 둘레에 불기둥이 빙 둘러 솟아 가두고, 안쪽이 달아오르다 한꺼번에 터짐
+  M.n_cage = (c, p, k, gy, T) => { const t = T0(k), cx = (T[0] + T[3]) / 2, R = 190, rise = min(1, k / 0.25), f = k < 0.85 ? 1 : (1 - k) / 0.15;
+    const posts = 12, draw = (front) => { for (let i = 0; i < posts; i++) { const a = i / posts * PI * 2, z = sin(a); if ((z > 0) !== front) continue; const x = cx + cos(a) * R, y = gy - 4 + z * 26;
+      F.flame(c, x, y, 150 * rise * (0.85 + 0.15 * sin(t * 4 + i)), 30, 12, t, f * (front ? 1 : 0.75), i * 13, 2); } };
+    draw(false); c.save(); c.translate(cx, gy - 4); c.scale(1, 0.14); c.globalAlpha = f * 0.6; c.strokeStyle = '#ff6a20'; c.lineWidth = 16; c.beginPath(); c.arc(0, 0, R, 0, PI * 2); c.stroke(); c.restore();
+    if (k > 0.25 && k < 0.6) F.glow(c, cx, gy - 60, R, 'rgba(255,120,40,.35)', (k - 0.25) / 0.35);
+    if (k >= 0.6) F.burst(c, cx, gy - 60, 160, min(1, (k - 0.6) / 0.35), 34, 41);
+    draw(true); };
+})();
