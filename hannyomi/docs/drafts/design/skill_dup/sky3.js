@@ -59,16 +59,16 @@ G.__simple = 1; window.__noElite = 1; G.FX.beam = () => {};
   const rnd = (s) => { const x = Math.sin(s * 127.1 + 3.7) * 43758.5453; return x - Math.floor(x); };
   const soft = (ctx, x, y, rx, ry, rgb, al) => { if (al <= 0.004) return; ctx.save(); ctx.translate(x, y); ctx.scale(1, ry / rx); const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, `rgba(${rgb},${al})`); g.addColorStop(0.6, `rgba(${rgb},${al * 0.45})`); g.addColorStop(1, `rgba(${rgb},0)`); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, PI * 2); ctx.fill(); ctx.restore(); };
   G.SkyFX.storm = (ctx, f, k) => { if (window.__lv !== 4) return prev(ctx, f, k);
-    const a = fade(k, 0.15), t = 1.3 + k * 3, top = f.y + 60, bot = f.y + 400, x0 = f.x + 40, H = bot - top;
+    const a = fade(k, 0.15), t = 1.3 + k * 3, top = f.y + (window.__gap ? 190 : 60), bot = f.y + 400, x0 = f.x + 40, H = bot - top;
     const cx = (u) => x0 + sin(t * 1.6 + u * 3.2) * 18 * u + u * u * 14;   // 아래로 갈수록 살짝 휘고 흔들림
-    const W = (u) => 105 * Math.pow(1 - u, 1.7) + 12;
+    const W = (u) => (window.__gap ? 80 : 105) * Math.pow(1 - u, 1.7) + 12;
     ctx.save();
     // 1) 깔때기 몸: 뒤쪽(어둡게) → 앞쪽(밝게) 덩어리가 나선으로 돎. 전체 투명도 낮게
     for (const front of [false, true]) for (let i = 0; i < 160; i++) { const u = (i % 80) / 80 + rnd(i) * 0.012, an = t * 5.2 + rnd(i * 3) * PI * 2 - u * 7, z = sin(an); if ((z > 0) !== front) continue;
       const w = W(u), x = cx(u) + cos(an) * w * 0.85, y = top + u * H + z * w * 0.12, r = (8 + w * 0.42) * (0.8 + rnd(i * 5) * 0.4);
-      soft(ctx, x, y, r * 1.4, r, front ? '226,232,240' : '150,162,182', a * (front ? 0.16 : 0.14) * (0.6 + 0.4 * (1 - u))); }
+      soft(ctx, x, y, r * 1.4, r, front ? '226,232,240' : '150,162,182', a * (front ? 0.16 : 0.14) * (0.6 + 0.4 * (1 - u)) * (window.__gap ? Math.min(1, u / 0.18) : 1)); }
     // 2) 가운데 얇은 응결 기둥 (위는 구름과 이어지고 아래로 가늘어짐)
-    for (let i = 0; i < 30; i++) { const u = i / 30, w = W(u) * 0.38; soft(ctx, cx(u), top + u * H, w * 1.2, 14, '200,210,225', a * 0.1); }
+    for (let i = 0; i < 30; i++) { const u = i / 30, w = W(u) * 0.38; soft(ctx, cx(u), top + u * H, w * 1.2, 14, '200,210,225', a * 0.1 * (window.__gap ? Math.min(1, u / 0.18) : 1)); }
     // 3) 바람결: 아주 옅은 가는 줄이 나선을 따라 스침 (선 대신 짧은 호 · 낮은 투명도)
     ctx.lineCap = 'round'; for (let i = 0; i < 24; i++) { const u = (t * 0.25 + rnd(i * 7)) % 1, w = W(u), an = t * 5.2 + i * 1.7 - u * 7, y = top + u * H; if (sin(an) < 0) continue;
       ctx.globalAlpha = a * 0.32 * (1 - u * 0.5); ctx.strokeStyle = '#f4f8ff'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.ellipse(cx(u), y, w * 0.9, w * 0.12, 0, an, an + 0.9); ctx.stroke(); }
