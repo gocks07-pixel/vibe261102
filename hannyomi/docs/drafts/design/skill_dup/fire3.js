@@ -41,7 +41,7 @@
     if (u < 1) fireball(c, bx, y, 17, 1, t, 2); else burst(c, ex, y, 60, min(1, (k - 0.6) / 0.4), 16, 9); };
   M.f_pillar = (c, p, k, gy, T) => { const t = T0(k); [T[0], T[2], T[4]].forEach((x, i) => { const u = k - i * 0.1; if (u < 0) return; const rise = min(1, u / 0.2), f = u > 0.6 ? max(0, 1 - (u - 0.6) / 0.3) : 1;
       scorch(c, x, gy, 60, f); c.save(); c.strokeStyle = `rgba(255,170,60,${f})`; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x - 40, gy - 1); c.lineTo(x - 12, gy - 3); c.lineTo(x + 6, gy); c.lineTo(x + 38, gy - 2); c.stroke(); c.restore();
-      flame(c, x, gy, 280 * rise, 60, 70, t, f, i * 50, 1.9); embers(c, x, gy, 320 * rise, 70, 10, t, f, i); }); };
+      flame(c, x, gy, 160 * rise, 60, 70, t, f, i * 50, 1.9); embers(c, x, gy, 200 * rise, 70, 10, t, f, i); }); };
   M.f_ring = (c, p, k, gy) => { const t = T0(k), x = p.x, R = 40 + min(1, k / 0.6) * 260, f = k < 0.6 ? 1 : max(0, 1 - (k - 0.6) / 0.35); c.save(); c.translate(x, gy - 3); c.scale(1, 0.24); c.strokeStyle = `rgba(220,70,20,${0.5 * f})`; c.lineWidth = 30; c.beginPath(); c.arc(0, 0, R, 0, PI * 2); c.stroke(); c.restore();
     const n = 30; for (let i = 0; i < n; i++) { const an = i / n * PI * 2, fx = x + cos(an) * R, fy = gy - 3 + sin(an) * R * 0.24; flame(c, fx, fy, 46 * (sin(an) > 0 ? 1 : 0.8), 30, 8, t, f, i * 7, 2.2); } };
   M.f_storm = (c, p, k, gy, T) => { const t = T0(k) * 1.4, x = p.x + 130 + min(1, k / 0.5) * 150, f = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1, H = 230;
