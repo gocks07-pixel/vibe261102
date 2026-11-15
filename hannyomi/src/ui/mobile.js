@@ -338,6 +338,7 @@ G.Mobile = {
         if (!b) { b = document.createElement('button'); b.className = 'btn sm atkk'; b.dataset.mact = 'atk'; b.dataset.arg = id; b.textContent = '공격'; g.appendChild(b); }
         else if (!force) continue;
         b.classList.toggle('on', cur === id); b.classList.toggle('off', !this.atkOk(id));
+        const hw = hb.offsetWidth, hh = hb.offsetHeight; if (hw) { b.style.width = hw + 'px'; b.style.height = hh + 'px'; b.style.padding = '0'; }   // 스킬1~6 버튼과 같은 크기
       }
     } finally { this.atkBusy = false; }
   },
