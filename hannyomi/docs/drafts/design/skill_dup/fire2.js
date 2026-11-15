@@ -124,3 +124,54 @@
     if (k >= 0.6) F.burst(c, cx, gy - 60, 160, min(1, (k - 0.6) / 0.35), 34, 41);
     draw(true); };
 })();
+// ===== 바 · 사 다듬기 (그린 몸통 + 불 입자) =====
+(function () { const M = G.SageMock, F = M._fx, PI = Math.PI, sin = Math.sin, cos = Math.cos, min = Math.min, max = Math.max, rnd = F.rnd;
+  const T0 = (k) => 1.3 + k * 2.2;
+  // 바2: 화염 수레바퀴 — 쇠 테두리 · 바퀴살이 달아오른 바퀴, 회전 방향 뒤로 쓸려 나가는 불길 · 땅에 튀는 불똥 · 그을린 바퀴 자국
+  M.n_wheel2 = (c, p, k, gy) => { const t = T0(k), u = min(1, k / 0.8), x = p.x + 70 + u * 600, R = 52, y = gy - R, rot = u * 18, f = k < 0.85 ? 1 : (1 - k) / 0.15;
+    // 바퀴 자국: 그을린 줄 + 남은 낮은 불길
+    c.save(); c.globalAlpha = f * 0.8; const tg = c.createLinearGradient(p.x + 70, 0, x, 0); tg.addColorStop(0, 'rgba(60,30,20,0)'); tg.addColorStop(1, 'rgba(90,40,20,.7)'); c.fillStyle = tg; c.fillRect(p.x + 70, gy - 4, x - p.x - 70, 6); c.restore();
+    for (let xx = p.x + 90; xx < x - 40; xx += 26) { const age = (x - xx) / 420; if (age < 1) F.flame(c, xx, gy, 46 * (1 - age), 24, 6, t, f * (1 - age), xx | 0, 2); }
+    // 뒤로 쓸려 나가는 불길 (회전 반대쪽 위)
+    for (let i = 0; i < 40; i++) { const a = PI + 0.3 + (i / 40) * 2.2 + rot * 0.02, v = (t * 2 + rnd(i)) % 1, d = R + 6 + v * 46; F.puff(c, x + cos(a) * d - v * 40, y + sin(a) * d - v * 22, 14 - v * 8, 0.95 - v * 0.9, f); }
+    F.glow(c, x, y, R * 2.4, 'rgba(255,140,40,.55)', f);
+    c.save(); c.globalAlpha = f; c.translate(x, y);
+    const rg = c.createRadialGradient(0, 0, R * 0.2, 0, 0, R); rg.addColorStop(0, 'rgba(255,240,180,.95)'); rg.addColorStop(0.55, 'rgba(255,150,40,.55)'); rg.addColorStop(1, 'rgba(200,60,10,.25)'); c.fillStyle = rg; c.beginPath(); c.arc(0, 0, R, 0, PI * 2); c.fill();
+    c.rotate(rot); for (let i = 0; i < 8; i++) { c.save(); c.rotate(i * PI / 4); const sg = c.createLinearGradient(0, 0, R, 0); sg.addColorStop(0, '#fff4c8'); sg.addColorStop(1, '#ff7a20'); c.fillStyle = sg; c.beginPath(); c.moveTo(0, -3); c.lineTo(R - 6, -4.5); c.lineTo(R - 6, 4.5); c.lineTo(0, 3); c.fill(); c.restore(); }
+    c.lineWidth = 9; c.strokeStyle = '#4a2a18'; c.beginPath(); c.arc(0, 0, R - 3, 0, PI * 2); c.stroke(); c.lineWidth = 5; const rimg = c.createLinearGradient(-R, -R, R, R); rimg.addColorStop(0, '#ffd070'); rimg.addColorStop(1, '#e85a14'); c.strokeStyle = rimg; c.stroke();
+    for (let i = 0; i < 12; i++) { c.save(); c.rotate(i * PI / 6); c.fillStyle = '#ffb040'; c.fillRect(R - 4, -3, 7, 6); c.restore(); }   // 테두리 돌기
+    c.fillStyle = '#4a2a18'; c.beginPath(); c.arc(0, 0, 10, 0, PI * 2); c.fill(); c.fillStyle = '#ffd070'; c.beginPath(); c.arc(0, 0, 6, 0, PI * 2); c.fill(); c.restore();
+    for (let i = 0; i < 10; i++) { const v = (t * 2.5 + rnd(i * 3)) % 1, sx = x - 10 - v * 90, sy = gy - 4 - sin(v * PI) * (30 + rnd(i) * 40); c.save(); c.globalAlpha = f * (1 - v); c.fillStyle = '#ffe080'; c.beginPath(); c.arc(sx, sy, 2.2, 0, PI * 2); c.fill(); c.restore(); } };   // 땅에 튀는 불똥
+  // 사2: 불의 용 — 비늘 그라데이션 몸통(점점 가늘어짐) · 등의 불 갈기 · 뿔 · 수염 · 벌린 입 · 꼬리 불꽃
+  M.n_dragon2 = (c, p, k, gy, T) => { const t = T0(k), u = min(1, k / 0.6), f = k < 0.82 ? 1 : (1 - k) / 0.18, sx = p.x + 30, L = 620 * u, n = 60;
+    const at = (v) => [sx + L * v, gy - 80 + sin(v * 9 - t * 5) * 36 * min(1, v * 3) - v * 10];
+    const pts = []; for (let i = 0; i <= n; i++) pts.push(at(i / n));
+    const width = (v) => 4 + 20 * Math.pow(v, 0.8);
+    // 바깥 불빛 + 몸통 (위 · 아래 가장자리를 이어 채움)
+    c.save(); c.globalAlpha = f; const up = [], dn = [];
+    for (let i = 0; i <= n; i++) { const [x, y] = pts[i], [x2, y2] = pts[min(n, i + 1)], [x0, y0] = pts[max(0, i - 1)], dx = x2 - x0, dy = y2 - y0, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l, w = width(i / n); up.push([x - nx * w, y - ny * w]); dn.push([x + nx * w, y + ny * w]); }
+    for (let i = 0; i <= n; i += 2) F.glow(c, pts[i][0], pts[i][1], width(i / n) * 2.2, 'rgba(255,130,40,.45)', 0.5);
+    c.beginPath(); up.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); for (let i = n; i >= 0; i--) c.lineTo(dn[i][0], dn[i][1]); c.closePath();
+    const bg = c.createLinearGradient(sx, 0, sx + L, 0); bg.addColorStop(0, '#ff9a30'); bg.addColorStop(0.6, '#ff6a18'); bg.addColorStop(1, '#e8400c'); c.fillStyle = bg; c.fill();
+    c.strokeStyle = 'rgba(120,20,5,.6)'; c.lineWidth = 1.5; c.stroke();
+    c.beginPath(); dn.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); for (let i = n; i >= 0; i--) c.lineTo(pts[i][0] * 0.4 + dn[i][0] * 0.6, pts[i][1] * 0.4 + dn[i][1] * 0.6); c.closePath(); c.fillStyle = 'rgba(255,230,140,.85)'; c.fill();   // 밝은 배
+    for (let i = 4; i < n - 2; i += 3) { const [x, y] = pts[i], w = width(i / n); c.fillStyle = 'rgba(160,30,8,.45)'; c.beginPath(); c.ellipse(x, y - w * 0.25, w * 0.35, w * 0.25, 0, 0, PI * 2); c.fill(); }   // 비늘 무늬
+    c.restore();
+    c.save(); c.globalAlpha = f; for (let i = 5; i < n - 4; i += 3) { const [x, y] = up[i], [bx, by] = pts[i], v = i / n, nx = x - bx, ny = y - by, l = Math.hypot(nx, ny) || 1, ux = nx / l, uy = ny / l, Lm = 14 + v * 22 + sin(t * 9 + i) * 4, tx = -uy, ty = ux;   // 등 불 갈기 (불꽃 지느러미)
+      const ex = x + ux * Lm - tx * Lm * 0.5, ey = y + uy * Lm - ty * Lm * 0.5; c.beginPath(); c.moveTo(x + tx * 7, y + ty * 7); c.quadraticCurveTo(x + ux * Lm * 0.6, y + uy * Lm * 0.6, ex, ey); c.quadraticCurveTo(x + ux * Lm * 0.3 - tx * 4, y + uy * Lm * 0.3 - ty * 4, x - tx * 7, y - ty * 7); c.closePath();
+      const g = c.createLinearGradient(x, y, ex, ey); g.addColorStop(0, '#ff5a14'); g.addColorStop(0.6, '#ffb040'); g.addColorStop(1, '#fff2b0'); c.fillStyle = g; c.fill(); } c.restore();
+    F.flame(c, pts[0][0], pts[0][1], 26, 14, 8, t, f, 3, 2.2);   // 꼬리 불꽃
+    // 머리
+    const [hx, hy] = pts[n], [px2, py2] = pts[n - 3], ang = Math.atan2(hy - py2, hx - px2), open = 0.35 + 0.35 * Math.abs(sin(t * 7));
+    c.save(); c.globalAlpha = f; c.translate(hx, hy); c.rotate(ang); c.scale(1.5, 1.5);
+    c.beginPath(); c.moveTo(-10, -18); c.quadraticCurveTo(26, -26, 48, -10 - open * 8); c.lineTo(44, -2); c.quadraticCurveTo(14, -4, -10, 6); c.closePath(); const hg = c.createLinearGradient(0, -26, 0, 6); hg.addColorStop(0, '#ffb040'); hg.addColorStop(1, '#e8400c'); c.fillStyle = hg; c.fill(); c.strokeStyle = 'rgba(120,20,5,.6)'; c.lineWidth = 1.5; c.stroke();   // 윗턱
+    c.beginPath(); c.moveTo(-8, 8); c.quadraticCurveTo(18, 10 + open * 10, 40, 8 + open * 22); c.lineTo(38, 2 + open * 14); c.quadraticCurveTo(14, 2, -8, 2); c.closePath(); c.fillStyle = '#ff7a20'; c.fill(); c.stroke();   // 아래턱
+    for (let j = 0; j < 4; j++) { c.fillStyle = '#fffbe0'; c.beginPath(); c.moveTo(14 + j * 8, -4); c.lineTo(17 + j * 8, 2); c.lineTo(20 + j * 8, -4); c.fill(); }   // 이빨
+    for (const sg of [0, 1]) { c.beginPath(); c.moveTo(-4 - sg * 8, -18); c.quadraticCurveTo(-20 - sg * 10, -40, -44 - sg * 8, -44 + sg * 8); c.strokeStyle = '#ffd070'; c.lineWidth = 4 - sg; c.lineCap = 'round'; c.stroke(); }   // 뿔
+    c.beginPath(); c.moveTo(30, -2); c.quadraticCurveTo(10, 20 + sin(t * 6) * 6, -30, 24); c.strokeStyle = '#ffe080'; c.lineWidth = 2; c.stroke();   // 수염
+    c.fillStyle = '#fff6c8'; c.beginPath(); c.ellipse(16, -14, 5, 3.5, -0.2, 0, PI * 2); c.fill(); c.fillStyle = '#5a1006'; c.beginPath(); c.ellipse(17, -14, 2, 3, 0, 0, PI * 2); c.fill();   // 눈
+    c.restore();
+    F.glow(c, hx + cos(ang) * 30, hy + sin(ang) * 30, 60, 'rgba(255,200,90,.6)', f * open);
+    for (let i = 0; i < 18; i++) { const v = (t * 2.6 + rnd(i)) % 1; F.puff(c, hx + cos(ang) * (44 + v * 110), hy + sin(ang) * (44 + v * 110) + (rnd(i * 3) - 0.5) * 50 * v, 6 + v * 16, 1 - v, f * open); }   // 입김 불
+    if (u >= 1) for (let i = 0; i < 4; i++) F.burst(c, T[i], gy - 50, 40, min(1, (k - 0.6) / 0.3), 12, i * 9); };
+})();
