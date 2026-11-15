@@ -85,9 +85,9 @@
   const SK = G.SkyFX = {
     // 1 천궁 폭풍우: 거대한 적란운 + 비 + 갈라지는 노란 번개 (번개 칠 때 구름 속 번쩍)
     storm(ctx, f, k) { const a = fadeIn(k, 0.15), t = f.t, fl = Math.floor(k * 12) % 3 === 0;
-      rain(ctx, f.x, f.y + 20, 520, 380, t, 'rgba(225,235,250,.75)', a);
+      if (!G.__simple) rain(ctx, f.x, f.y + 20, 520, 380, t, 'rgba(225,235,250,.75)', a);
       drawCloud(ctx, 'storm', SPEC.storm, f.x, f.y + 40, a * 0.97, fl ? 1 : 0);
-      if (fl) bolt(ctx, f.x + 60, f.y + 30, f.x + 30, f.y + 400, 7 + Math.floor(k * 12), 'rgba(255,240,170,.8)', '#fff6c0', a); },
+      if (fl && !G.__simple) bolt(ctx, f.x + 60, f.y + 30, f.x + 30, f.y + 400, 7 + Math.floor(k * 12), 'rgba(255,240,170,.8)', '#fff6c0', a); },
     // 2 썬더 스톰 · 천둥 신의 분노: 크고 진한 먹구름 띠 + 속 · 둘레 푸른 번쩍 + 양옆 가지 번개
     thunder(ctx, f, k) { const a = fadeIn(k, 0.15), t = f.t, fl = 0.55 + 0.45 * Math.max(0, sin(t * 9)), fx2 = f.x + 40;
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; glowRG(ctx, fx2, f.y + 10, 360, `rgba(90,150,255,${0.45 * fl * a})`, 'rgba(90,150,255,0)'); ctx.restore();
