@@ -322,9 +322,11 @@ G.Play = {
     if (holding) this.userT = performance.now();
     return holding || performance.now() - this.userT < 2000;
   },
+  // 빌드 13 (사용자 요청): 창을 열어도 자동 사냥은 계속 — 물건이 오가거나 고르는 창 · 키 설정만 멈춤 (대화 · 확인 질문 · 장비 고르기 · 세로 화면 · 컷신도 멈춤)
+  PAUSE_WIN: { shop: 1, storage: 1, bulk: 1, heroset: 1, teleport: 1, saveas: 1, keys: 1, cube: 1 },
   paused() {
     const U = G.UI, M = G.Mobile;
-    return G.UI.blocking() || Object.keys(U.wins).length > 0 || !!U.target || (M && (M.portrait || M.modalEl.classList.contains('on'))) ||
+    return G.UI.blocking() || Object.keys(U.wins).some(n => this.PAUSE_WIN[n]) || !!U.shopNpc || !!U.storageOpen || !!U.target || (M && (M.portrait || M.modalEl.classList.contains('on'))) ||
       (G.Cutscene.playing && G.Cutscene.playing()) || (G.Bug && G.Bug.isOpen && G.Bug.isOpen());
   },
   // 게임 한 프레임 직전에 (입력이 같은 프레임에 들어가도록)
