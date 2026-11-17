@@ -142,7 +142,9 @@ G.Win = {};
         const g = r.it.grade || 0;
         h += `<div class="bulk-row ${on ? 'on' : ''}" data-act="bulkt" data-arg="${r.it.uid}"><span class="bk">${on ? '☑' : '☐'}</span><img src="${G.Icons.item(r.t)}"><span class="bn" style="color:${G.GRADES[g].color}">${esc(G.Items.displayName(r.it))}</span><span class="bw">${esc(r.why)}</span><span class="bp">${fmt(G.Items.sellPrice(r.it))} G</span></div>`;
       }
-      h += `</div><div class="row" style="margin-top:8px"><span>${n}개 · <b style="color:#ffd54a">${fmt(gold)} G</b></span><span style="margin-left:auto"></span><button class="btn" data-act="close" data-arg="bulk">취소</button> <button class="btn gold" data-act="bulksell" ${n ? '' : 'disabled'}>팔기</button></div>`;
+      const all = rows.length && rows.every(r => ck.has(r.it)), kept = rows.filter(r => !r.on && ck.has(r.it)).length;   // 빌드 13: 전체 선택 · 해제 (처음에 빠진 장비도 들어감 → 몇 개인지 알림)
+      h += '</div>'; if (kept) h += `<div style="color:#ffb86a;font-size:12px;margin-top:6px">⚠ 처음에 빠진 장비(세트 · 각인 등) ${kept}개도 들어 있어요</div>`;
+      h += `<div class="row" style="margin-top:8px">${rows.length ? `<button class="btn" data-act="bulkall">${all ? '☐ 전체 해제' : '☑ 전체 선택'}</button> ` : ''}<span>${n}개 · <b style="color:#ffd54a">${fmt(gold)} G</b></span><span style="margin-left:auto"></span><button class="btn" data-act="close" data-arg="bulk">취소</button> <button class="btn gold" data-act="bulksell" ${n ? '' : 'disabled'}>팔기</button></div>`;
       return h;
     },
   };

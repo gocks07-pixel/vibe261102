@@ -129,6 +129,7 @@ G.UI = {
       case 'msel': this.mselAct(arg); break;
       case 'bulk': if (this.shopNpc) this.openWin('bulk'); break;
       case 'bulkt': { const B = G.Win.bulk, it = p.d.inv.equip.find(x => x && x.uid === arg); if (B.checked && it) { if (B.checked.has(it)) B.checked.delete(it); else B.checked.add(it); this.renderWin('bulk'); } break; }
+      case 'bulkall': { const B = G.Win.bulk; if (!B.checked) break; const rows = B.list(); if (rows.length && rows.every(r => B.checked.has(r.it))) B.checked.clear(); else for (const r of rows) B.checked.add(r.it); this.renderWin('bulk'); break; }   // 빌드 13: 전체 선택 · 해제
       case 'bulksell': { const B = G.Win.bulk; if (!B.checked) break; const list = [...B.checked]; this.sellMany(list.map(it => ['equip', p.d.inv.equip.indexOf(it)]).filter(x => x[1] >= 0)); this.closeWin('bulk'); break; }
       case 'tgtcancel': this.clearTarget(); this.log('대상 고르기를 취소했어요.', '#9aa6c8'); break;
       case 'toggle': this.toggle(arg); break;
