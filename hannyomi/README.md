@@ -1,4 +1,4 @@
-# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.10
+# 과금없이 즐기는 연희의 RPG 대모험 (한요미의 대모험) — v2.1.11
 
 세계관 "아르셀리아 연대기"의 튜토리얼 ~ 엔딩 (Lv.1~100) 플레이 가능 버전입니다. 배경음악과 효과음이 함께 나옵니다.
 
@@ -8,8 +8,8 @@
   ```
   npm install            # 처음 한 번
   npm start              # EXE 창으로 실행 (테스트용)
-  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.10.exe
-  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.10.exe
+  npm run build:player   # 플레이어용 EXE (테스트 모드 없음) → dist/RPG Adventure 2.1.11.exe
+  npm run build:dev      # 테스트용 EXE (테스트 모드 있음) → dist/RPG Adventure DEV 2.1.11.exe
   ```
   자세한 순서: `docs/EXE_빌드_안내.md`
   EXE 세이브 위치: `문서\RPG Adventure\Save Data\save_A·B·C.json` (테스트용은 `Save Data (DEV)`)
@@ -34,6 +34,9 @@
 | F11 | 전체화면 (EXE) |
 
 오른쪽 위 퀘스트를 더블클릭하면 길 안내가 켜집니다.
+
+## v2.1.11에서 바뀐 점
+- 2.1.11 — 별빛 각인서 연속 사용([한 번 더] · [칸이 찰 때까지 계속] · [멈추기], 창을 닫으면 멈춤), 아우렐리온 천공의 숨결 소용돌이, 각성 Ⅱ~Ⅳ 시험 마릿수 줄임(경험치 그대로)
 
 ## v2.1.10에서 바뀐 점
 - 2.1.10 — 미니맵 퀘스트 표시(! ? 동그라미 · 할 일 줄 · 다른 맵 방향)를 처음 크기(100%)로 되돌림
