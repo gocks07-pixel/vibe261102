@@ -182,33 +182,57 @@ G.Play = {
       ${sets.length ? `<div class="dim">세트: ${sets.join(' · ')}</div>` : ''}</div>`;
   },
   // 부위마다 예상 피해가 가장 높아지는 장비 (세트 효과 때문에 더 좋아지지 않을 때까지 반복)
+  //  빌드 13: 한 조각씩 바꾸면 손해라서 놓치던 세트도 봄 — 가진 세트마다 "그 세트 조각을 다 입고 나머지 부위는 가장 좋은 것" 조합을 만들어 비교
   bestSet() {
     const p = G.Game.player, d = p.d;
     const pool = [...d.inv.equip.filter(Boolean), ...Object.values(d.eq).filter(Boolean)].filter(it => !G.Items.canEquip(p, G.ITEMS[it.tid]));
-    const cur = Object.assign({}, d.eq);
-    for (let pass = 0; pass < 4; pass++) {
-      let changed = false;
-      for (const slot of G.EQUIP_SLOTS) {
-        const used = new Set(Object.entries(cur).filter(([k, v]) => k !== slot && v).map(([, v]) => v));
-        let best = cur[slot], bestS = this.statsWith(cur);
-        for (const it of pool) {
-          if (it === cur[slot] || used.has(it) || !this.fits(G.ITEMS[it.tid], slot)) continue;
-          const s = this.statsWith(Object.assign({}, cur, { [slot]: it }));
-          if (this.better(s, bestS)) { best = it; bestS = s; }
+    const greedy = (start, lock) => {
+      const cur = Object.assign({}, start);
+      for (let pass = 0; pass < 4; pass++) {
+        let changed = false;
+        for (const slot of G.EQUIP_SLOTS) {
+          if (lock && lock.has(slot)) continue;
+          const used = new Set(Object.entries(cur).filter(([k, v]) => k !== slot && v).map(([, v]) => v));
+          let best = cur[slot], bestS = this.statsWith(cur);
+          for (const it of pool) {
+            if (it === cur[slot] || used.has(it) || !this.fits(G.ITEMS[it.tid], slot)) continue;
+            const s = this.statsWith(Object.assign({}, cur, { [slot]: it }));
+            if (this.better(s, bestS)) { best = it; bestS = s; }
+          }
+          if (best !== cur[slot]) { cur[slot] = best; changed = true; }
         }
-        if (best !== cur[slot]) { cur[slot] = best; changed = true; }
+        if (!changed) break;
       }
-      if (!changed) break;
+      return cur;
+    };
+    let top = greedy(d.eq), topS = this.statsWith(top);
+    const sets = new Set(pool.map(it => G.ITEMS[it.tid].set).filter(Boolean));
+    for (const sid of sets) {
+      const start = Object.assign({}, top), lock = new Set(), taken = new Set();
+      for (const slot of G.EQUIP_SLOTS) {   // 부위마다 그 세트 조각 중 가장 좋은 것
+        let best = null, bestS = null;
+        for (const it of pool) {
+          const t = G.ITEMS[it.tid]; if (t.set !== sid || taken.has(it) || !this.fits(t, slot)) continue;
+          const s = this.statsWith(Object.assign({}, start, { [slot]: it }));
+          if (!best || this.better(s, bestS)) { best = it; bestS = s; }
+        }
+        if (best) { for (const k of G.EQUIP_SLOTS) if (k !== slot && start[k] === best) start[k] = null; start[slot] = best; lock.add(slot); taken.add(best); }
+      }
+      if (!lock.size) continue;
+      const cand = greedy(start, lock), cs = this.statsWith(cand);
+      if (this.better(cs, topS)) { top = cand; topS = cs; }
     }
-    return cur;
+    return top;
   },
   bestEquip() {
     const p = G.Game.player, d = p.d, cur = this.bestSet();
     const ch = G.EQUIP_SLOTS.filter(s => cur[s] !== d.eq[s]);
     if (!ch.length) { G.UI.log('지금 입은 장비가 가장 좋아요.', '#9fd8ff'); return; }
     const a = this.statsWith(d.eq), b = this.statsWith(cur), pct = (this.score(b) / this.score(a) - 1) * 100;
-    const list = ch.map(s => `${G.SLOT_NAMES[s]}: ${d.eq[s] ? G.U.esc(G.Items.displayName(d.eq[s])) : '(빈 칸)'} → <b>${G.U.esc(G.Items.displayName(cur[s]))}</b>`).join('<br>');
-    G.UI.ask(`<b>⭐ 최고 장비로 바꿀까요?</b><br><span style="font-size:13px">${list}</span><br>예상 피해 <b style="color:#7dff9a">+${pct.toFixed(1)}%</b> · 최대 HP ${b.maxHP - a.maxHP >= 0 ? '+' : '−'}${Math.abs(b.maxHP - a.maxHP)}`, '입기', () => this.applyEquip(cur));
+    const list = ch.map(s => `${G.SLOT_NAMES[s]}: ${d.eq[s] ? G.U.esc(G.Items.displayName(d.eq[s])) : '(빈 칸)'} → <b>${cur[s] ? G.U.esc(G.Items.displayName(cur[s])) : '(빈 칸)'}</b>`).join('<br>');
+    const c0 = this.setCounts(d.eq), c1 = this.setCounts(cur), on = [];   // 빌드 13: 세트 효과 바뀜 알림
+    for (const sid of new Set([...Object.keys(c0), ...Object.keys(c1)])) { const S = G.SETS[sid], n0 = c0[sid] || 0, n1 = c1[sid] || 0; if (n0 === n1) continue; const k0 = Object.keys(S.bonus).filter(n => n0 >= +n).length, k1 = Object.keys(S.bonus).filter(n => n1 >= +n).length; on.push(`${G.U.esc(S.name)} ${n0} → ${n1}개${k1 > k0 ? ` <b style="color:#7dff9a">(세트 효과 ${k1 - k0}단계 켜짐)</b>` : k1 < k0 ? ` <b style="color:#ff9a9a">(세트 효과 ${k0 - k1}단계 꺼짐)</b>` : ''}`); }
+    G.UI.ask(`<b>⭐ 최고 장비로 바꿀까요?</b><br><span style="font-size:13px">${list}</span><br>예상 피해 <b style="color:#7dff9a">+${pct.toFixed(1)}%</b> · 최대 HP ${b.maxHP - a.maxHP >= 0 ? '+' : '−'}${Math.abs(b.maxHP - a.maxHP)}${on.length ? `<br><span style="font-size:12.5px">세트: ${on.join(' · ')}</span>` : ''}`, '입기', () => this.applyEquip(cur));
   },
   applyEquip(cur) {
     const p = G.Game.player, d = p.d;
