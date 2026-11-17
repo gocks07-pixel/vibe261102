@@ -28,7 +28,7 @@
             <button class="btn sm ${d.djump === 'fwd' ? 'on' : ''}" data-act="djump" data-arg="fwd">앞으로</button>
             <button class="btn sm ${d.djump === 'up' ? 'on' : ''}" data-act="djump" data-arg="up">위로</button></div>`;
         } else if (sk.type !== 'passive' && lv > 0) {
-          h += '<div class="keys">' + [0, 1, 2, 3, 4, 5].map(i => `<button class="btn sm ${d.hot[i] === sk.id ? 'on' : ''}" data-act="hot" data-arg="${sk.id}:${i}">${G.Keys.label('skill' + (i + 1))}</button>`).join('') + '</div>';
+          h += '<div class="keys">' + [0, 1, 2, 3, 4, 5].map(i => `<button class="btn sm ${d.hot[i] === sk.id ? 'on' : ''}" data-act="hot" data-arg="${sk.id}:${i}">${G.Keys.label('skill' + (i + 1))}</button>`).join('') + (this.keyExtra ? this.keyExtra(sk) : '') + '</div>';   // 빌드 13: keyExtra = 휴대폰 [공격] 칸 버튼 (mobile.js 가 채움, PC 는 없음)
         }
         if (!sk.fixed) h += `<button class="btn" data-act="sp" data-arg="${sk.id}" ${canUp ? '' : 'disabled'}>+</button>`;
         h += '</div>';
