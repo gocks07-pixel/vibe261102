@@ -130,14 +130,16 @@ G.Player = class {
           this.dropT = 0.3; this.dropFrom = this.plat; this.onGround = false; this.y += 3;
           G.Tutorial.ev('drop');
         } else {
-          this.vy = -780 * (1 + this.st.mspd / 200); this.onGround = false; G.Audio.play('jump');
+          this.vy = -780 * (1 + this.st.mspd / 200); this.onGround = false; G.Audio.play('jump'); this.jumpY = this.y;   // 빌드 13: 2단 점프 높이 맞춤용
           G.Tutorial.ev('jump');
         }
       } else if (!this.airDashed && this.adash <= 0 && this.d.skills.b_djump) {
         // 2단 점프: ↑ 를 누르고 있거나 [위로] 모드면 위로, 아니면 앞으로 살짝
         this.airDashed = true;
         if (I.isDown('ArrowUp') || this.d.djump === 'up') {
-          this.vy = Math.min(this.vy, -720);   // 2.1.6: 사냥터 가운데 발판(바닥에서 230~260px)에 2단 점프로 여유 있게 (최대 271 → 296px)
+          // 빌드 13: 언제 눌러도 땅에서 약 290px 까지 (예전엔 첫 점프 꼭대기에서 눌러야 296px, 일찍 누르면 200~250px 라 휴대폰에서 260px 발판에 잘 안 닿았음)
+          const h1 = this.jumpY != null ? Math.max(0, this.jumpY - this.y) : 160, want = Math.max(0, 300 - h1);
+          this.vy = Math.min(this.vy, -720, -Math.sqrt(2 * 1900 * want));   // 2.1.6 기본 720 · 꼭대기에서 누르면 그대로 296px
           G.Audio.play('jump'); G.FX.ring(this.x, this.y + 4, 40, '#bfe6ff', 0.35); G.FX.burst(this.x, this.y, '#e8f4ff', 8, 120);
           G.Tutorial.ev('djup');
         } else {
@@ -219,7 +221,7 @@ G.Player = class {
         if (this.x < p.x - 4 || this.x > p.x + p.w + 4) continue;
         if (prevY <= p.y + 1 && this.y >= p.y && (!best || p.y < best.y)) best = p;
       }
-      if (best) { this.y = best.y; this.vy = 0; this.onGround = true; this.plat = best; }
+      if (best) { this.y = best.y; this.vy = 0; this.onGround = true; this.plat = best; this.jumpY = null; }
     }
   }
 
