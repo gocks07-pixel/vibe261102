@@ -118,6 +118,9 @@ G.UI = {
     const act = el.dataset.act, arg = el.dataset.arg, p = G.Game.player;
     switch (act) {
       case 'close': this.closeWin(arg); break;
+      case 'scrmore': this.scrollUse(); break;   // 빌드 12: 별빛 각인서 한 번 더
+      case 'scrrun': this.scrollRun(); break;
+      case 'scrstop': this.scrollStop(); break;
       case 'rec': G.Play.recPreview(arg); break;
       case 'msel': this.mselAct(arg); break;
       case 'bulk': if (this.shopNpc) this.openWin('bulk'); break;
@@ -183,6 +186,51 @@ G.UI = {
   clearTarget() { this.target = null; document.body.style.cursor = ''; this.tgtBar(); this.dirty(); },
   // 빌드 3 (11): 고르는 중 띠 + [취소] 는 인벤 창 맨 위 (windows.js). 인벤을 닫으면 고르기도 끝 (closeWin)
   tgtBar() {},
+  // ---------- 빌드 12: 별빛 각인서 한 장 · 연속 (G.Win.scroll.sess = 이번에 쓴 기록) ----------
+  scrollUse() {
+    const S = G.Win.scroll.sess, p = G.Game.player; if (!S || !p) return false;
+    const { it, tid } = S, name = G.ITEMS[it.tid].name, auto = !!S.run;
+    if (G.Items.slotsLeft(it) <= 0) { if (!auto) { this.log('각인 칸이 모두 찼습니다.', '#ff7a7a'); G.Audio.play('error'); } S.end = 'full'; this.scrollStop(); return false; }
+    if (G.Inv.count(p, tid) <= 0) { if (!auto) this.log('각인서가 없습니다.', '#ff7a7a'); S.end = 'empty'; this.scrollStop(); return false; }
+    G.Inv.remove(p, tid, 1);
+    const r = G.Items.useScroll(it);
+    S.n++; if (r.ok) S.ok++; else S.fail++; if (r.fx) S.fx.push(r.fx);
+    G.Win.scroll.result = Object.assign(r, { it, tid });
+    if (!this.isOpen('scroll')) this.openWin('scroll'); else this.renderWin('scroll');
+    const left = G.Items.slotsLeft(it);
+    if (r.ok) {
+      if (!auto || r.fx) this.banner('각인 성공!', `${G.Items.displayName(it)}${r.fx ? ` · [${G.SFX[r.fx.id].name}] 효과 부여!` : ''}`);
+      this.log(`${name} 각인 성공! (+1) 남은 각인 칸 ${left}`, '#7dff9a');
+      if (r.fx) this.log(`특수 효과 부여: ${G.Items.sfxText(r.fx)}`, '#ffe08a');
+      G.Audio.play('levelup');
+    } else {
+      this.log(`${name} 각인 실패... (${r.stage}칸째 · 성공률 ${Math.round(r.rate * 100)}%) 칸은 그대로 남았습니다.`, '#ff8a8a');
+      G.Audio.play('error');
+    }
+    p.recalc();
+    if (G.Inv.count(p, tid) <= 0 && this.target) this.clearTarget();
+    if (left <= 0 && S.run) { S.end = 'full'; this.scrollStop(); }
+    else if (G.Inv.count(p, tid) <= 0 && S.run) { S.end = 'empty'; this.scrollStop(); }
+    if (!S.run) G.Game.save(true);
+    this.dirty();
+    return true;
+  },
+  scrollRun() {
+    const S = G.Win.scroll.sess; if (!S || S.run) return;
+    S.end = ''; S.map = G.Game.world && G.Game.world.mapId;
+    S.run = setInterval(() => {
+      const w = G.Game.world;   // 창을 닫거나 · 맵을 옮기거나 · 대화가 열리면 멈춤
+      if (!this.isOpen('scroll') || !w || w.mapId !== S.map || (G.Dialog && G.Dialog.isOpen())) { S.end = S.end || 'stop'; this.scrollStop(); return; }
+      this.scrollUse();
+    }, 400);
+    this.scrollUse();
+  },
+  scrollStop(quiet) {
+    const S = G.Win.scroll.sess; if (!S || !S.run) return;
+    clearInterval(S.run); S.run = null; if (!S.end) S.end = 'stop';
+    if (!quiet) { G.Game.save(true); if (this.isOpen('scroll')) this.renderWin('scroll'); }
+    const it = S.it; if (!quiet && S.n > 1) this.log(`연속 각인 끝: ${S.n}장 · 성공 ${S.ok} · 실패 ${S.fail}${S.fx.length ? ` · 특수 효과 ${S.fx.length}번` : ''} (${G.Items.displayName(it)})`, '#ffe08a');
+  },
   applyTarget(ref) {
     const p = G.Game.player, [where, key] = ref.split(':');
     const it = where === 'eq' ? p.d.eq[key] : p.d.inv.equip[+key];
@@ -202,25 +250,9 @@ G.UI = {
       return;
     }
     if (G.Inv.count(p, tid) <= 0) { this.clearTarget(); return; }
-    if (kind === 'scroll') {
-      if (G.Items.slotsLeft(it) <= 0) { this.log('각인 칸이 모두 찼습니다.', '#ff7a7a'); G.Audio.play('error'); return; }
-      G.Inv.remove(p, tid, 1);
-      const r = G.Items.useScroll(it);
-      G.Win.scroll.result = Object.assign(r, { it, tid });
-      this.openWin('scroll');
-      const left = G.Items.slotsLeft(it);
-      if (r.ok) {
-        this.banner('각인 성공!', `${G.Items.displayName(it)}${r.fx ? ` · [${G.SFX[r.fx.id].name}] 효과 부여!` : ''}`);
-        this.log(`${name} 각인 성공! (+1) 남은 각인 칸 ${left}`, '#7dff9a');
-        if (r.fx) this.log(`특수 효과 부여: ${G.Items.sfxText(r.fx)}`, '#ffe08a');
-        G.Audio.play('levelup');
-      } else {
-        this.log(`${name} 각인 실패... (${r.stage}칸째 · 성공률 ${Math.round(r.rate * 100)}%) 칸은 그대로 남았습니다.`, '#ff8a8a');
-        G.Audio.play('error');
-      }
-      p.recalc();
-      if (G.Inv.count(p, tid) <= 0) this.clearTarget();
-      this.dirty();
+    if (kind === 'scroll') {   // 빌드 12: 한 장 쓰기는 scrollUse (결과 창의 [한 번 더] · [칸이 찰 때까지 계속] 도 같은 함수)
+      this.scrollStop(true); G.Win.scroll.sess = { it, tid, n: 0, ok: 0, fail: 0, fx: [], up0: it.up || 0, run: null, end: '' };
+      this.scrollUse();
       return;
     }
     if (kind === 'cube') {   // 공명석: 각인이 없으면 깨우고, 있으면 줄 고르기 창
