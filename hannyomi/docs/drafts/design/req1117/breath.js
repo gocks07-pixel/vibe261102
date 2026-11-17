@@ -35,5 +35,31 @@ window.BreathMock = (function () {
     for (let k = 0; k < 3; k++) { const u = (t * 1.6 + k / 3) % 1; c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.5 * (1 - u); c.strokeStyle = '#d8c4ff'; c.lineWidth = 3 * (1 - u) + 0.6; c.beginPath(); c.ellipse(hx, gy - 4, 20 + u * 130, (20 + u * 130) * 0.18, 0, 0, Math.PI * 2); c.stroke(); c.restore(); }
     soft(c, hx, gy - 8, 60, '250,240,255', 0.7, true, 0.6); soft(c, mx, my, 28, '245,235,255', 0.75, true);
   }
-  return { ga, na, da };
+
+  function ra(c, mx, my, hx, gy, t) {   // 라 별가루 소용돌이: 별가루가 두 가닥 나선을 따라 꼬이며 흐름 + 옅은 띠
+    const dx = hx - mx, dy = gy - my, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+    for (let i = 0; i < 12; i++) { const u = i / 12; soft(c, mx + dx * u, my + dy * u, 14 + u * 36, '190,160,255', 0.12, true); }
+    for (let i = 0; i < 240; i++) { const u = (t * 1.3 + rnd(i)) % 1, ph = (i % 2) * Math.PI, a = u * 14 - t * 14 + ph, r = (5 + u * 30) * (0.8 + rnd(i * 3) * 0.4), front = Math.cos(a) > 0, j = (rnd(i * 7) - 0.5) * 6;
+      soft(c, mx + dx * u + nx * (Math.sin(a) * r + j), my + dy * u + ny * (Math.sin(a) * r + j), 1.4 + rnd(i * 5) * 2.4, front ? (rnd(i * 9) < 0.25 ? '255,240,200' : '250,245,255') : '180,150,255', (front ? 0.95 : 0.45) * (0.6 + 0.4 * Math.sin(t * 28 + i)), true); }
+    soft(c, mx, my, 26, '245,235,255', 0.7, true);
+    for (let i = 0; i < 60; i++) { const u = (t * 0.9 + rnd(i * 19)) % 1, x = hx + (rnd(i * 23) - 0.5) * 200 * (0.3 + u), y = gy - 4 - u * (25 + rnd(i) * 60); soft(c, x, y, 1.8, '240,230,255', (1 - u) * 0.9, true); }
+    soft(c, hx, gy - 6, 90, '200,170,255', 0.4, true, 0.4);
+  }
+  function ma(c, mx, my, hx, gy, t) {   // 마 오로라 숨결: 반투명 빛 커튼(물결치는 띠 3겹) + 가장자리 별가루
+    const dx = hx - mx, dy = gy - my, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+    for (const [k, col, al] of [[0, '170,140,255', 0.16], [1, '150,210,255', 0.12], [2, '255,200,240', 0.1]]) for (let i = 0; i < 70; i++) { const u = i / 70, w = 6 + u * 34, wave = Math.sin(u * 9 - t * 10 + k * 2) * (4 + u * 16);
+      soft(c, mx + dx * u + nx * wave, my + dy * u + ny * wave, w, col, al, true, 0.7); }
+    for (let i = 0; i < 16; i++) { const u = i / 16; soft(c, mx + dx * u, my + dy * u, 4 + u * 8, '255,255,255', 0.35, true); }
+    for (let i = 0; i < 90; i++) { const u = (t * 1.5 + rnd(i)) % 1, side = rnd(i * 3) < 0.5 ? -1 : 1, off = side * (8 + u * 34) + Math.sin(t * 8 + i) * 4; soft(c, mx + dx * u + nx * off, my + dy * u + ny * off, 1.6, '240,235,255', 0.8 * (1 - u * 0.5), true); }
+    soft(c, mx, my, 28, '240,235,255', 0.7, true); soft(c, hx, gy - 6, 110, '180,170,255', 0.45, true, 0.4); soft(c, hx, gy - 10, 40, '255,250,255', 0.6, true, 0.6);
+  }
+  function ba(c, mx, my, hx, gy, t) {   // 바 성운 숨결: 보라 · 분홍 · 푸른 빛 구름이 흘러가고 속에서 별이 반짝 + 땅에 수정 빛 꽃
+    const dx = hx - mx, dy = gy - my, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L, C = ['170,120,255', '255,150,220', '120,180,255'];
+    for (let i = 0; i < 60; i++) { const u = (t * 0.9 + rnd(i)) % 1, off = (rnd(i * 3) - 0.5) * (10 + u * 60) + Math.sin(t * 3 + i) * 6; soft(c, mx + dx * u + nx * off, my + dy * u + ny * off, 10 + u * 30 * (0.6 + rnd(i * 5) * 0.8), C[i % 3], 0.13 + 0.06 * (1 - u), true); }
+    for (let i = 0; i < 70; i++) { const u = (t * 1.2 + rnd(i * 11)) % 1, off = (rnd(i * 13) - 0.5) * (6 + u * 50), tw = Math.max(0, Math.sin(t * 22 + i * 1.7)); soft(c, mx + dx * u + nx * off, my + dy * u + ny * off, 1.6 + tw * 2.2, '255,250,255', 0.4 + tw * 0.6, true); }
+    soft(c, mx, my, 30, '235,220,255', 0.7, true);
+    for (let k = 0; k < 7; k++) { const a = -Math.PI * (0.1 + k * 0.8 / 6), h = 18 + rnd(k * 31) * 26; c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.5 + 0.2 * Math.sin(t * 6 + k); c.fillStyle = 'rgba(220,200,255,.8)'; c.translate(hx + Math.cos(a) * 24, gy - 2); c.rotate(a + Math.PI / 2); c.beginPath(); c.moveTo(0, 0); c.lineTo(-4, -h * 0.5); c.lineTo(0, -h); c.lineTo(4, -h * 0.5); c.closePath(); c.fill(); c.restore(); }   // 수정 빛 꽃
+    soft(c, hx, gy - 6, 110, '200,160,255', 0.45, true, 0.4);
+  }
+  return { ga, na, da, ra, ma, ba };
 })();
