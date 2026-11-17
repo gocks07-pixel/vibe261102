@@ -438,10 +438,11 @@ G.Play = {
     }
     this.qmT = this.gt; return (this.qm = out);
   },
-  ELITE_WAIT: 180, ELITE_GIVEUP: 20,
+  ELITE_WAIT: 0, ELITE_GIVEUP: 20, ELITE_RETRY: 60,   // 빌드 13: 정예가 3분마다 나와서 기다리지 않고 바로 잡으러 감 (포기하면 1분 쉼)
   // 2차-1.5: 보스 피하기 패턴의 안전한 곳 { lo, hi, ground } (보스 방 자동 전투 중에만)
   //  종말의 별 · 태양의 심판 = 가장 가까운 안전지대 (땅에 서 있어야 함), 공허 잠식 · 별빛 감옥 = 가운데, 장판 절반(유사 지옥 · 밀물 · 포자) = 반대편
   safeArea(p, w) {
+    const es = G.Elite && G.Elite.safeArea(p, w); if (es) return es;   // 빌드 13: 정예 패턴 표시 밖으로
     const W = w.map.width, cx = W / 2;
     if (w.doom && w.doom.zones && w.doom.zones.length) {
       const z = w.doom.zones.reduce((a, b) => Math.abs(b - p.x) < Math.abs(a - p.x) ? b : a), r = (w.doom.r || 90) - 25;
@@ -455,7 +456,7 @@ G.Play = {
   },
   drive(dt, p, w) {
     this.noJump = false;
-    if (this.bossMode) {
+    if (this.bossMode || (G.Elite && G.Elite.safeArea(p, w))) {   // 빌드 13: 사냥터 정예 패턴도 피함
       const sa = this.safeArea(p, w);
       if (sa) {
         const onFloor = p.onGround && p.plat && p.plat.ground, inX = p.x >= sa.lo && p.x <= sa.hi;
@@ -512,7 +513,7 @@ G.Play = {
       const near = Math.abs(tgt.x - p.x) <= reach + 30 && Math.abs(py - (tgt.plat ? tgt.plat.y : py)) < 12;
       if (near) this.eliteNear = true;
       const giveUp = (!this.eliteNear && this.gt - this.eliteT0 > this.ELITE_GIVEUP) || (this.eliteNear && p.hp < p.st.maxHP * 0.4 && p.potionIdx('hp') < 0);
-      if (giveUp) { this.eliteCd = this.gt + this.ELITE_WAIT; this.eliteTgt = null; }
+      if (giveUp) { this.eliteCd = this.gt + this.ELITE_RETRY; this.eliteTgt = null; }
     } else if (this.eliteTgt) this.eliteTgt = null;
     const moveTo = x => { if (Math.abs(x - p.x) > 14) want.add(x > p.x ? 'ArrowRight' : 'ArrowLeft'); };
     // ① 원거리: 구석에서 몬스터에 붙잡히면 몬스터 쪽으로 점프해 넘어감 (2초에 한 번)
