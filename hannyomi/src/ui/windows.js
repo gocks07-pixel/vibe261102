@@ -260,8 +260,20 @@ G.Win = {};
         h += `<div class="sep"></div><div style="color:#ffe08a;font-weight:800">✨ 특수 효과 부여!</div><div style="color:#ffe8a0">${G.Items.sfxText(r.fx)}</div>`;
         if (r.replaced) h += `<div class="dim" style="font-size:11px">기존 효과 교체됨: ${G.Items.sfxText(r.replaced)}</div>`;
       }
+      // 빌드 12: 연속 사용 — [한 번 더] · [칸이 찰 때까지 계속] · 계속 중 [멈추기] · 이번에 쓴 기록
+      const S = this.sess, P = G.Game.player, n = S && P ? G.Inv.count(P, S.tid) : 0;
+      if (S && S.n > 1) h += `<div class="sep"></div><div style="text-align:center">이번에 <b>${S.n}장</b> 사용 · <span style="color:#7dff9a">성공 ${S.ok}${S.ok ? ` (+${S.ok})` : ''}</span> · <span style="color:#ff8a8a">실패 ${S.fail}</span>${S.ok ? ` <span class="dim">· +${S.up0} → +${it.up || 0}</span>` : ''}</div>`
+        + (S.fx.length > 1 ? S.fx.map(f => `<div style="color:#ffe8a0;font-size:12px;text-align:center">✨ ${G.Items.sfxText(f)}</div>`).join('') : '');
+      if (S && S.run) h += `<div style="display:flex;justify-content:center;margin-top:6px"><button class="btn" data-act="scrstop">■ 멈추기</button></div><div class="dim" style="font-size:11px;text-align:center;margin-top:2px">연속 각인 중… 남은 각인서 ${n}장</div>`;
+      else if (S) {
+        if (S.end === 'full') h += `<div style="text-align:center;color:#ffe08a;font-weight:800;margin-top:6px">모든 칸을 채웠어요</div>`;
+        else if (S.end === 'empty') h += `<div style="text-align:center;color:#ffb0b0;margin-top:6px">각인서를 모두 썼어요</div>`;
+        if (left > 0 && n > 0) h += `<div class="sep"></div><div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap"><button class="btn gold" data-act="scrmore">한 번 더 (남은 각인서 ${n}장)</button><button class="btn" data-act="scrrun">칸이 찰 때까지 계속</button></div><div class="dim" style="font-size:11px;text-align:center;margin-top:4px">계속: 0.4초마다 한 장 · 칸이 다 차거나 각인서가 떨어지면 멈춤</div>`;
+        else if (n > 0 || left <= 0) h += `<div class="dim" style="font-size:11px;text-align:center;margin-top:4px">남은 각인서 ${n}장</div>`;
+      }
       return h;
     },
+    onClose() { if (G.UI.scrollStop) G.UI.scrollStop(); },
   };
 
   // ---------------- 대장장이 단련 결과 (1.6.1) ----------------

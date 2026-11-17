@@ -210,9 +210,9 @@
   // ======================= 2~각성 Ⅳ 퀘스트 =======================
   // 1.5: 각성 시험 마릿수 상향, 3·4차는 사냥터 2곳
   const ADV = {
-    2: { npc: 'seren', lv: 30, pre: 'c2_05', obj: [['firefly_spirit', 50]], where: '반딧불 늪' },
-    3: { npc: 'artel', lv: 60, pre: 'c5_01', obj: [['snow_wolf', 35], ['ice_crab', 35]], where: '눈보라 고개와 빙결 호수' },
-    4: { npc: 'oriel', lv: 85, pre: 'c6_05', obj: [['thunder_bird', 40], ['star_knight', 40]], where: '폭풍의 탑과 별의 회랑' },
+    2: { npc: 'seren', lv: 30, pre: 'c2_05', obj: [['firefly_spirit', 10], ['swamp_toad', 20]], where: '반딧불 늪', exp: 1.0 },   // 빌드 12: 반딧불 정령 50 → 정령 10 + 늪 두꺼비 20 (나는 몬스터라 잡기 어려움), 경험치 그대로
+    3: { npc: 'artel', lv: 60, pre: 'c5_01', obj: [['snow_wolf', 25], ['ice_crab', 25]], where: '눈보라 고개와 빙결 호수', exp: 1.3 },   // 빌드 12: 35 · 35 → 25 · 25
+    4: { npc: 'oriel', lv: 85, pre: 'c6_05', obj: [['thunder_bird', 20], ['star_knight', 35]], where: '폭풍의 탑과 별의 회랑', exp: 1.3 },   // 빌드 12: 40 · 40 → 20 · 35
   };
   for (const id of Object.keys(G.JOBS)) {
     const J = G.JOBS[id];
@@ -221,7 +221,7 @@
     const what = a.obj.map(([m, n]) => `${G.MONSTERS[m].name} ${n}마리`).join('와 ');
     add(`adv_${id}`, {
       type: 'main', ch: G.tierName(J.tier), name: `${G.tierName(J.tier)}: ${J.name}`, lv: a.lv, start: a.npc, end: a.npc, pre: [a.pre],
-      cond: p => p.d.job === prev, job: true, obj: a.obj.map(([m, n]) => K(m, n)), exp: 1.0 + 0.3 * (a.obj.length - 1), gold: a.lv * 100, items: [['scroll_70', 2]], act: { job: id },
+      cond: p => p.d.job === prev, job: true, obj: a.obj.map(([m, n]) => K(m, n)), exp: a.exp /* 빌드 12: 각성별 경험치 고정 (마릿수 · 종류가 바뀌어도 그대로) */, gold: a.lv * 100, items: [['scroll_70', 2]], act: { job: id },
       desc: `${G.JOBS[prev].name}에서 ${J.name}(으)로. ${a.where}에서 ${what}를 처치하자.`,
       dlg: {
         start: [`${G.JOBS[prev].name}의 길을 걸어온 자여. 이제 ${J.name}의 길을 걸을 준비가 되었는가?`, `${a.where}에서 ${what}를 쓰러뜨려 증명하라.`],

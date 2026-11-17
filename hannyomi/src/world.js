@@ -378,6 +378,21 @@ G.World = class {
     }
   }
 
+  // 빌드 12: 천공의 숨결 — 꼬이며 나아가는 빛 띠 두 가닥(앞 흰빛 · 뒤 보랏빛) + 옅은 빛 줄기 + 바람 줄기 + 땅에서 퍼지는 충격 고리 (스프라이트, shadowBlur 없음)
+  drawSkyBreath(c, mx, my, hx, gy, t) {
+    const soft = G.SpellFX.soft, dx = hx - mx, dy = gy - my, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+    const rnd = i => { const x = Math.sin(i * 127.1 + 3.7) * 43758.5453; return x - Math.floor(x); };
+    for (let i = 0; i < 12; i++) { const u = i / 12; soft(c, mx + dx * u, my + dy * u, 14 + u * 40, '200,170,255', 0.18, true); }
+    for (const ph of [0, Math.PI]) for (let i = 0; i < 60; i++) { const u = i / 60, a = u * 14 - t * 16 + ph, r = 6 + u * 30, sn = Math.sin(a), front = Math.cos(a) > 0;
+      soft(c, mx + dx * u + nx * sn * r, my + dy * u + ny * sn * r, 6 + u * 9, front ? '250,245,255' : '170,130,255', front ? 0.42 : 0.2, true); }
+    c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = '#e8dcff'; c.lineWidth = 1.4;
+    for (let i = 0; i < 16; i++) { const u = (t * 2.4 + rnd(i)) % 1, off = (rnd(i * 3) - 0.5) * 60 * u, x0 = mx + dx * u + nx * off, y0 = my + dy * u + ny * off; c.globalAlpha = 0.25 * (1 - u); c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 + dx * 0.12, y0 + dy * 0.12); c.stroke(); }
+    c.strokeStyle = '#d8c4ff';
+    for (let k = 0; k < 3; k++) { const u = (t * 1.6 + k / 3) % 1, R = 20 + u * 130; c.globalAlpha = 0.5 * (1 - u); c.lineWidth = 3 * (1 - u) + 0.6; c.beginPath(); c.ellipse(hx, gy - 4, R, R * 0.18, 0, 0, Math.PI * 2); c.stroke(); }
+    c.restore();
+    soft(c, hx, gy - 8, 60, '250,240,255', 0.7, true, 0.6); soft(c, mx, my, 28, '245,235,255', 0.75, true);
+  }
+
   // 2.1: 새 패턴 · 기믹 표시 (화면 좌표)
   drawBoss21(ctx) {
     const cam = this.cam, T = this.time, GY = G.GROUND_Y;
@@ -385,9 +400,8 @@ G.World = class {
     const sw = this.sweep;
     if (sw && sw.hx != null && !sw.src.dead) {   // 천공의 숨결: 입 → 바닥을 쓸고 가는 보랏빛 흰 브레스
       const m = sw.src, mx = m.x + sw.dir * m.w * 0.32 - cam, my = m.y - m.h * 0.72, hx = sw.hx - cam;
-      ctx.save(); ctx.lineCap = 'round';   // 빌드 11: shadowBlur 빼고 바깥 옅은 선 한 겹 더
-      for (const [lw, col] of [[70, 'rgba(200,160,255,.14)'], [42, 'rgba(170,110,255,.35)'], [26, 'rgba(235,220,255,.85)'], [9, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(hx, GY - 6); ctx.stroke(); }
-      ctx.restore(); glow(hx, GY - 10, 70, 'rgba(220,190,255,1)', 0.8);
+      if (G.SpellFX && G.SpellFX.soft) this.drawSkyBreath(ctx, mx, my, hx, GY, T);   // 빌드 12: 다 소용돌이 숨결 (시안 docs/drafts/design/req1117/breath2.png)
+      else { ctx.save(); ctx.lineCap = 'round'; for (const [lw, col] of [[70, 'rgba(200,160,255,.14)'], [42, 'rgba(170,110,255,.35)'], [26, 'rgba(235,220,255,.85)'], [9, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(hx, GY - 6); ctx.stroke(); } ctx.restore(); glow(hx, GY - 10, 70, 'rgba(220,190,255,1)', 0.8); }
     } else if (sw && !sw.src.dead) {   // 예고: 안전한 곳(용 발밑 · 등 뒤) 초록 표시
       const m = sw.src, x0 = m.x - sw.dir * 220 - cam, x1 = m.x + sw.dir * 60 - cam;
       ctx.save(); ctx.fillStyle = 'rgba(140,255,170,.2)'; ctx.fillRect(Math.min(x0, x1), GY - 90, Math.abs(x1 - x0), 90);
