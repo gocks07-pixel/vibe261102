@@ -66,7 +66,20 @@ G.Play = {
       else if (a.kind === 'rain') { n = 1; mult = (a.count || 1) * 0.6; }
       else n = Math.min(5, a.targets || 1);
     }
-    return a.pct(lv) / 100 * (a.hits || 1) * n * mult;
+    const base = a.pct(lv) / 100 * (a.hits || 1) * n * mult;
+    return base + this.recExtra(sk, lv, boss, n, base);
+  },
+  // 빌드 13: 스킬 부가 효과도 피해로 셈 (G.SKILL_X) — 공격력 배수 단위 (화상 · 독은 최대 공격력 기준이라 그대로 더함)
+  recExtra(sk, lv, boss, n, base) {
+    const X = G.SKILL_X && G.SKILL_X[sk.id], a = sk.atk; if (!X) return 0;
+    let v = 0;
+    if (X.burn) v += X.burn[0] * X.burn[1] * n;   // 화상: 초 × 초당 배수 × 맞은 수
+    if (X.poisonStack) { const P = X.poisonStack; v += P.dps * P.dur * (boss ? P.max * 0.6 : 1) * n; }   // 독: 보스는 여러 겹 쌓임
+    if (X.zone) v += a.pct(lv) / 100 * X.zone.mul * (X.zone.dur / 0.5) * (boss ? 1 : Math.min(4, n + 1)) * 0.7;   // 바닥 피해: 0.5초마다 (적이 다 머물지는 않아 0.7)
+    if (X.chain && !boss) v += a.pct(lv) / 100 * X.chain.mul * X.chain.n * 0.8;   // 튕김: 사냥에서만 다른 적에게
+    if (X.ret) v += base * 0.7;   // 돌아오는 표창: 한 번 더 (돌아올 때 다 맞지는 않음)
+    if (X.mark && boss) v += X.mark.mul * X.mark.dur * 1.2;   // 표식: 보스가 받는 피해 +% 동안 (초당 공격력 1.2배쯤 넣는다고 보고)
+    return v;
   },
   //  1) 재사용 1초 안 기술 중 한 번 피해가 가장 센 것 = 기본으로 계속 쓰는 기술
   //  2) 나머지는 "기본 기술 대신 썼을 때 더 들어가는 피해 ÷ 재사용" 순 (궁극기처럼 재사용이 길어도 세면 들어감)
@@ -99,9 +112,21 @@ G.Play = {
       <div class="rec-h">지금</div>${row([0, 1, 2, 3, 4, 5].map(i => d.hot[i] || null))}
       <div class="rec-h">바뀐 뒤</div>${row(hot)}
       <div class="dim" style="font-size:11.5px;line-height:1.5">${hot[5] && G.SKILLS[hot[5]].type === 'buff' ? '· 6번 칸은 각성 버프 (재사용이 짧아 칸에 둠)<br>' : ''}${buffs.length ? (this.on && this.on() ? `· 칸에 없는 버프(${buffs.join(' · ')})는 <b>자동 사냥 · 자동 보스 중에 꺼지면 저절로 켜요</b>. 직접 할 때는 스킬 창에서 눌러 켜요` : `· 칸에 없는 버프(${buffs.join(' · ')})는 스킬 창에서 눌러 켜요`) : ''}</div>
-      <div class="end">${same ? '<span class="dim" style="margin-right:8px">지금 배치와 같아요</span>' : ''}<button class="btn" data-act="ask" data-arg="no">취소</button> <button class="btn gold" data-act="ask" data-arg="c0" ${same ? 'disabled' : ''}>이대로 바꾸기</button></div>`,
-      [() => { d.hot = hot.slice(); G.UI.log(`${boss ? '👑 보스' : '⚔ 사냥'} 추천 배치로 스킬 칸을 바꿨어요.`, '#ffe08a'); G.UI.dirty(); if (G.UI.isOpen('skill')) G.UI.renderWin('skill'); }], 'jobp');
+      ${this.recAtkHtml ? this.recAtkHtml(boss, hot) : ''}
+      <div class="end">${same ? '<span class="dim" style="margin-right:8px">지금 배치와 같아요</span>' : ''}<button class="btn" data-act="ask" data-arg="no">취소</button> <button class="btn gold" data-act="ask" data-arg="c0" ${same ? 'disabled' : ''}>이대로 바꾸기</button>${this.recAtkHtml && this.recAtk ? ' <button class="btn gold" data-act="ask" data-arg="c1">공격 칸까지 바꾸기</button>' : ''}</div>`,
+      [() => { d.hot = hot.slice(); G.UI.log(`${boss ? '👑 보스' : '⚔ 사냥'} 추천 배치로 스킬 칸을 바꿨어요.`, '#ffe08a'); G.UI.dirty(); if (G.UI.isOpen('skill')) G.UI.renderWin('skill'); },
+        () => { d.hot = hot.slice(); G.UI.dirty(); if (this.recAtkSet) this.recAtkSet(); if (G.UI.isOpen('skill')) G.UI.renderWin('skill'); }], 'jobp');
   },
+  // 빌드 13: 휴대폰 공격 칸 추천 — 추천 배치 중 공격 칸에 넣을 수 있는 기술(재사용 2초 이하) 가운데 초당 피해가 가장 센 것
+  recAtkHtml(boss, hot) {
+    const M = G.Mobile, p = G.Game.player; this.recAtk = null;
+    if (!M || !M.atkOk || !G.Touch.active() || !p) return '';
+    const d = p.d, c = hot.filter(id => id && M.atkOk(id)).map(id => ({ id, s: this.recValue(G.SKILLS[id], d.skills[id], boss) / Math.max(0.8, G.SKILLS[id].cd || 0) })).sort((a, b) => b.s - a.s)[0];
+    if (!c) return '';
+    this.recAtk = c.id; const cur = M.atkId(), sk = G.SKILLS[c.id];
+    return `<div class="row" style="gap:6px;align-items:center;margin-top:4px;font-size:13px"><b>공격 칸 추천</b><img src="${G.Icons.skill(sk)}" style="width:22px;height:22px;border-radius:5px"><b>${G.U.esc(sk.name)}</b><span class="dim" style="font-size:11.5px">지금: ${cur ? G.U.esc(G.SKILLS[cur].name) : '기본 공격'}${cur === c.id ? ' (같아요)' : ''} · 준비되면 이 기술, 아니면 기본 공격</span></div>`;
+  },
+  recAtkSet() { const M = G.Mobile; if (!this.recAtk || !M) return; const o = G.Touch.opt.atkSk = Object.assign({}, G.Touch.opt.atkSk); o[G.Save.slot] = this.recAtk; G.Touch.save(); M.refreshButtons(); G.UI.log(`추천 배치 + 공격 칸: ${G.SKILLS[this.recAtk].name}`, '#ffe08a'); },
   // 자동 사냥 · 자동 보스 중: 칸에 없는 버프도 꺼지면 켬 (빌드 4 · 13)
   autoBuff(p, ready) {
     if (!ready) return false;
