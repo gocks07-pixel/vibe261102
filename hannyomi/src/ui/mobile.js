@@ -34,6 +34,7 @@ G.Mobile = {
     this.build();
     this.apply();
     this.hookTaps();
+    if (G.Win.skill) G.Win.skill.keyExtra = sk => this.atkKey(sk);   // 빌드 13: 스킬 창 [공격] 버튼
     document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-mact="atk"]'); if (b) { e.preventDefault(); e.stopPropagation(); this.atkSet(b.dataset.arg); } }, true);   // 빌드 11: 스킬 창 [공격] 버튼
     window.addEventListener('resize', () => { this.layout(); this.checkPortrait(); });
     window.addEventListener('orientationchange', () => setTimeout(() => { this.layout(); this.checkPortrait(); }, 300));
@@ -150,7 +151,7 @@ G.Mobile = {
       if (!G.Touch.active()) return;
       for (const m of ms) {
         if (m.type === 'characterData') M.fixNode(m.target);
-        else if (m.addedNodes.length && !M.atkBusy) M.atkInject();
+
         else for (const n of m.addedNodes) M.fixNode(n);
       }
     });
@@ -323,24 +324,13 @@ G.Mobile = {
     const o = G.Touch.opt.atkSk = Object.assign({}, G.Touch.opt.atkSk), slot = G.Save.slot;
     if (o[slot] === id) { delete o[slot]; G.UI.log('공격 칸을 비웠어요 (공격 버튼 = 기본 공격)', '#ffe08a'); }
     else { o[slot] = id; G.UI.log(`${G.SKILLS[id].name} → 공격 칸에 넣었어요 (준비되면 스킬, 아니면 기본 공격)`, '#ffe08a'); }
-    G.Touch.save(); this.refreshButtons(); this.atkInject(true);
+    G.Touch.save(); this.refreshButtons(); if (G.UI.isOpen('skill')) G.UI.renderWin('skill');
   },
-  atkInject(force) {
-    if (!G.Touch.active()) return;
-    const groups = document.querySelectorAll('#ui .keys'); if (!groups.length) return;
-    this.atkBusy = true;
-    try {
-      const cur = this.atkId();
-      for (const g of groups) {
-        const hb = g.querySelector('[data-act="hot"]'); if (!hb) continue;
-        const id = hb.dataset.arg.split(':')[0];
-        let b = g.querySelector('[data-mact="atk"]');
-        if (!b) { b = document.createElement('button'); b.className = 'btn sm atkk'; b.dataset.mact = 'atk'; b.dataset.arg = id; b.textContent = '공격'; g.appendChild(b); }
-        else if (!force) continue;
-        b.classList.toggle('on', cur === id); b.classList.toggle('off', !this.atkOk(id));
-        const hw = hb.offsetWidth, hh = hb.offsetHeight; if (hw) { b.style.width = hw + 'px'; b.style.height = hh + 'px'; b.style.padding = '0'; }   // 스킬1~6 버튼과 같은 크기
-      }
-    } finally { this.atkBusy = false; }
+  // 빌드 13: 스킬 창이 그릴 때 같이 그림 (나중에 끼워 넣으면 그 높이만큼 스크롤이 밀려 화면이 움직였음)
+  atkKey(sk) {
+    if (!G.Touch.active() || sk.type !== 'attack' && sk.type !== 'buff') return '';
+    const cur = this.atkId();
+    return `<button class="btn sm atkk ${cur === sk.id ? 'on' : ''} ${this.atkOk(sk.id) ? '' : 'off'}" data-mact="atk" data-arg="${sk.id}">공격</button>`;
   },
   atkCast() {
     const p = G.Game.player, w = G.Game.world, id = this.held.attack ? this.atkId() : null, code = this.held.attack;

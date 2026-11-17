@@ -186,3 +186,5 @@ body.touch-on .bulk-list { max-height: 200px; }
 body.touch-on .keys .btn.atkk { border-color: #c86060; color: #ffd0c8; }
 body.touch-on .keys .btn.atkk.on { background: #b84040; color: #fff; border-color: #ffe08a; }
 body.touch-on .keys .btn.atkk.off { opacity: .4; }
+/* 빌드 13: [공격] 버튼 = 스킬1~6 버튼과 같은 크기 (그릴 때 같이 그려서 CSS 로 맞춤) */
+body.touch-on .sk .keys .btn.atkk { min-width: 4.74em; text-align: center; }
