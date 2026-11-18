@@ -1,11 +1,11 @@
 'use strict';
-// 빌드 14: 갈림길의 증표 — 바람결 마을 가렌(모험가 길드장)에게서 1장 받아 각성 Ⅰ 직업을 한 번 바꿈 (각성 Ⅱ 전까지)
+// 빌드 14: 갈림길의 증표 — 바람결 마을 세라(마을 대표, 사용자 요청으로 가렌 → 세라)에게서 1장 받아 각성 Ⅰ 직업을 한 번 바꿈 (각성 Ⅱ 전까지)
 //  계획 docs/drafts/plan_build14.md · 세이브: 증표 아이템 + 플래그 'jobReset:given' / 'jobReset:used' 만 (형식 그대로)
 //  dialog.js 가 G.JobReset.opts(npc) 로 선택지를 받음. PC · EXE 와 같이 쓰는 파일
 G.JobReset = (function () {
-  const NPC = 'garen', TID = 'job_ticket';
+  const NPC = 'sera', TID = 'job_ticket';
   G.ITEMS[TID] = { id: TID, name: '갈림길의 증표', cat: 'etc', icon: 'scroll', color: '#c8a8ff', stack: 1, price: 0, quest: true, noSell: true, noStore: true,
-    desc: '바람결 마을의 가렌에게 가져가면 각성 Ⅰ 직업을 한 번 바꿀 수 있다. (각성 Ⅱ 전까지)' };
+    desc: '바람결 마을의 세라에게 가져가면 각성 Ⅰ 직업을 한 번 바꿀 수 있다. (각성 Ⅱ 전까지)' };
   const FAM = [['warrior', '전사', 'sword_iron'], ['archer', '궁수', 'bow_hunter'], ['mage', '마법사', 'wand_novice'], ['thief', '도적', 'dagger_twin']];
   const tierOf = job => (G.JOBS[job] && G.JOBS[job].tier) || 0;
   const can = p => p && tierOf(p.d.job) === 1;   // 각성 Ⅰ 직업 (각성 Ⅱ 전)
@@ -13,20 +13,20 @@ G.JobReset = (function () {
   function opts(npcId, D) {
     const p = G.Game.player; if (npcId !== NPC || !p) return [];
     const f = p.d.flags;
-    if (has(p)) return can(p) ? [{ label: '✦ 갈림길의 증표로 다른 길 걷기', fn: () => choose(D) }] : [{ label: '✦ 갈림길의 증표', fn: () => D.show({ text: '이미 길이 깊어졌네. 각성 Ⅱ 를 마친 뒤에는 바꿀 수 없어.', opts: [{ label: '확인', fn: () => D.close() }] }) }];
+    if (has(p)) return can(p) ? [{ label: '✦ 갈림길의 증표로 다른 길 걷기', fn: () => choose(D) }] : [{ label: '✦ 갈림길의 증표', fn: () => D.show({ text: '이미 길이 깊어졌어요. 각성 Ⅱ 를 마친 뒤에는 바꿀 수 없어요.', opts: [{ label: '확인', fn: () => D.close() }] }) }];
     if (f['jobReset:given']) return [];
     if (p.d.job === 'beginner') return [];
     return [{ label: '✦ 다른 길을 걷고 싶어요', fn: () => {
-      if (!can(p)) { D.show({ text: '이미 길이 깊어졌네. 각성 Ⅱ 를 마친 뒤에는 바꿀 수 없어.', opts: [{ label: '확인', fn: () => D.close() }] }); return; }
-      f['jobReset:given'] = 1; G.Inv.add(p, TID, 1); G.UI.log('갈림길의 증표를 받았어요. (가렌에게 가져가면 각성 Ⅰ 직업을 한 번 바꿀 수 있어요)', '#c8b8ff'); G.Audio.play('quest'); G.UI.dirty(); G.Game.save(true);
-      D.show({ text: '처음 고른 길이 맞지 않을 때도 있지. 이 증표를 주겠네.\n각성 Ⅱ 를 하기 전이라면 언제든 내게 가져오게. 한 번은 다른 길을 걷게 해 주지.', opts: [{ label: '지금 바꾸기', fn: () => choose(D) }, { label: '나중에', fn: () => D.close() }] });
+      if (!can(p)) { D.show({ text: '이미 길이 깊어졌어요. 각성 Ⅱ 를 마친 뒤에는 바꿀 수 없어요.', opts: [{ label: '확인', fn: () => D.close() }] }); return; }
+      f['jobReset:given'] = 1; G.Inv.add(p, TID, 1); G.UI.log('갈림길의 증표를 받았어요. (세라에게 가져가면 각성 Ⅰ 직업을 한 번 바꿀 수 있어요)', '#c8b8ff'); G.Audio.play('quest'); G.UI.dirty(); G.Game.save(true);
+      D.show({ text: '처음 고른 길이 맞지 않을 때도 있죠. 이 증표를 드릴게요.\n각성 Ⅱ 를 하기 전이라면 언제든 저에게 가져오세요. 한 번은 다른 길을 걸을 수 있게 길드 교관님들께 말씀드려 둘게요.', opts: [{ label: '지금 바꾸기', fn: () => choose(D) }, { label: '나중에', fn: () => D.close() }] });
     } }];
   }
   function choose(D) {
     const p = G.Game.player, cur = G.familyOf(p.d.job);
     const list = FAM.filter(([id]) => id !== cur).map(([id, nm]) => ({ label: `${nm}의 길`, fn: () => confirm(D, id, nm) }));
     list.push({ label: '취소', fn: () => D.close() });
-    D.show({ text: `어느 길로 갈 텐가? 지금은 ${G.JOBS[p.d.job].name}일세.\n(능력 · 기술 포인트는 모두 돌려받고, 새 길의 초보 무기를 주겠네)`, opts: list, list: true });
+    D.show({ text: `어느 길로 가고 싶으세요? 지금은 ${G.JOBS[p.d.job].name}이에요.\n(능력 · 기술 포인트는 모두 돌려받고, 새 길의 초보 무기도 챙겨 드릴게요)`, opts: list, list: true });
   }
   function confirm(D, id, nm) {
     D.close();
