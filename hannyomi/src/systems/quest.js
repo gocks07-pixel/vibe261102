@@ -35,7 +35,18 @@ G.Quest = {
     if (o.t === 'map') return `${G.MAPS[o.map].name} 방문`;
     return '';
   },
-  ready(q) { return this.isActive(q.id) && q.obj.every(o => { const [c, n] = this.progress(q, o); return c >= n; }); },
+  ready(q) { return this.isActive(q.id) && !(q.job && q.cond && !q.cond(this.p)) && q.obj.every(o => { const [c, n] = this.progress(q, o); return c >= n; }); },   // 빌드 14: 각성 시험은 출발 직업일 때만 완료
+  // 빌드 14: 각성 시험 하나를 끝내면 같은 단계(각성 Ⅰ~Ⅳ)의 다른 시험은 포기 처리 — 남아 있으면 조건을 채워 직업이 다시 바뀌던 것
+  closeOtherPaths(done, quiet) {
+    const p = this.p, tier = q => (q.act && q.act.job && G.JOBS[q.act.job] ? G.JOBS[q.act.job].tier || 1 : 0), t = done ? tier(done) : 0;
+    let n = 0;
+    for (const id of Object.keys(p.d.quests)) {
+      const q = G.QUESTS[id]; if (!q || q === done || !q.job || !this.isActive(id)) continue;
+      if (done ? tier(q) === t : (q.cond && !q.cond(p))) { delete p.d.quests[id]; if (G.Nav.qid === id) G.Nav.clear(); n++; }
+    }
+    if (n && !quiet) G.UI.log('다른 길의 각성 시험은 닫혔어요.', '#c8b8ff');
+    return n;
+  },
 
   accept(id) {
     const q = G.QUESTS[id];
@@ -79,6 +90,7 @@ G.Quest = {
     if (q.act && q.act.flag) p.d.flags[q.act.flag] = true;
     if (q.heroPick) { p.d.flags.heroPick = (p.d.flags.heroPick || 0) + q.heroPick; setTimeout(() => G.UI.openWin('heroset'), 500); }   // 1.7.12 세트 2개 고르기
     if (q.act && q.act.job) p.changeJob(q.act.job);
+    if (q.act && q.act.job) this.closeOtherPaths(q);   // 빌드 14: 같은 단계의 다른 각성 시험은 닫음
     G.UI.log(`[퀘스트 완료] ${q.name} — ${this.rewardText(q)}`, '#7dff9a');
     G.UI.banner('퀘스트 완료', q.name);
     G.Audio.play('quest');
