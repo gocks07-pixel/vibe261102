@@ -1799,3 +1799,5 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - 배포 번호 20261119-001506 · 모바일 0e5871c 기준 (빌드 14 각성 시험 정리 · 갈림길의 증표 · 현자 오르웬) → rpg-adventure main 1f15b56, Pages 배포 성공 (beta/ 그대로)
 - 올리기 전 확인: 배포판 파일로 휴대폰 화면 — 테스트 모드 없음 · 버전 2.1.13 · G.JobReset · 오르웬(바람결 마을) · G.NPCArt.sage · closeOtherPaths · 오류 0 (questgo_move 276번 · 완주 4명은 804da57 때 통과)
 - EXE 전달 남음: 9d823d1 (빌드 14) · 758fcdb (세라, 804da57 이 덮음) · 804da57 (현자 오르웬) · 이 기록. 시안 커밋(4491be6 · 2a287e2 · 1309bd9 · 0e5871c)은 문서 · 그림만
+- EXE 전달 확인 (2026-11-19): 9d823d1 · 758fcdb · 804da57 · 7407782 → hannyomi-backup c7ad694 · aa936d7 · 579ced9 · 9d00b34 (충돌 없음) · 2.1.14 (11dc7b7: package.json · version.js · README · EXE_빌드_안내). PC 확인: 각성 Ⅱ 시험 정리 · 오르웬 증표 → 궁수(AP 72 · SP 30 돌려받음) · 한 번만 · 각성 Ⅱ 뒤 막힘 · 예전 세이브 정리 · 오르웬 그림 · 초상 · 오류 0 · EXE 시험 37 · 회귀 9 통과. 모바일에 합침 (버전 2.1.14)
+- 나중에 jobreset.js 를 뺄 때 (EXE 쪽 메모): 불러올 때 `G.Quest.closeOtherPaths(null, true)` 를 부르는 부분(jobreset.js 의 wrapBegin)은 quest.js 등 다른 파일로 옮기기

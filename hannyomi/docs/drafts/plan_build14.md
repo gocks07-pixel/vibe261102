@@ -2,6 +2,7 @@
 
 사용자 결정: **가 안 (각성 Ⅱ 전까지만) · NPC 가렌 → 세라 → 새 NPC "갈림길의 현자 오르웬" (2026-11-19, 별빛 현자 시안 `design/jobreset/sage_ga2.png`, 바람결 마을 빈스와 그렌 사이 x 1530)**
 - 이번 증표는 각성 오류 대응용 1회성 → 나중 빌드에서 jobreset.js · sage_npc.js 를 빼고 증표 정리 (아래 글의 "가렌"은 오르웬으로 읽기)
+- 지울 때 주의 (EXE 쪽 메모 2026-11-19): 불러올 때 남은 각성 시험을 정리하는 `closeOtherPaths(null, true)` 호출이 jobreset.js 의 wrapBegin 안에 있음 → 그 부분은 quest.js 등으로 옮기고 지우기 · 불러올 때 job_ticket 정리
 그대로: 각성 시험 내용 · 보상, 직업 · 스킬 수치, 세이브 형식(v4, 새 아이템 · 플래그만 더함), 버전 번호(모바일 브랜치)
 모두 PC · EXE 와 같이 쓰는 파일 (G.Mobile · G.Touch 안 씀) → EXE 에도 전달
 
