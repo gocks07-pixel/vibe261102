@@ -540,17 +540,19 @@ G.World = class {
       ctx.strokeStyle = 'rgba(255,60,60,.9)'; ctx.lineWidth = 2; ctx.strokeRect(t.x, t.y, t.w, t.h);
     }
     for (const n of this.npcs) {
-      G.Draw.humanoid(ctx, { x: n.x, y: n.y, dir: n.dir, t: n.t, look: Object.assign({ skin: '#ffe0c2' }, n.def.look), atk: -1 });
+      const art = n.def.art && G.NPCArt && G.NPCArt[n.def.art];   // 빌드 14: 따로 그리는 NPC (갈림길의 현자)
+      if (art) art(ctx, n.x, n.y, 1, n.dir, this.time); else G.Draw.humanoid(ctx, { x: n.x, y: n.y, dir: n.dir, t: n.t, look: Object.assign({ skin: '#ffe0c2' }, n.def.look), atk: -1 });
       if (n.def.pin) {   // 1.7.12 연희의 별 머리핀
         const px = n.x - (n.dir || 1) * 7, py = n.y - 76; ctx.fillStyle = n.def.pin; ctx.strokeStyle = '#a07a10'; ctx.lineWidth = 1; ctx.beginPath();
         for (let i = 0; i < 10; i++) { const r = i % 2 ? 2.4 : 5.6, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(px + Math.cos(a) * r, py + Math.sin(a) * r); }
         ctx.closePath(); ctx.fill(); ctx.stroke();
       }
       this.nameTag(ctx, n.x, n.y + 6, n.def.name, '#ffe08a');
-      if (n.def.title) this.titleTag(ctx, n.x, n.y - 100, n.def.title);   // 빌드 11 (사용자 요청 4): 직함은 머리 위 (아래는 상태창에 가려짐)
+      const hy = art ? 14 : 0;   // 키가 큰 그림(지팡이 수정구)은 직함 · 표시를 조금 위로
+      if (n.def.title) this.titleTag(ctx, n.x, n.y - 100 - hy, n.def.title);   // 빌드 11 (사용자 요청 4): 직함은 머리 위 (아래는 상태창에 가려짐)
       const mk = G.Quest.marker(n.id);
       if (mk) {
-        const by = n.y - (n.def.title ? 112 : 92) + Math.sin(this.time * 5) * 4;   // 빌드 11: 직함이 머리 위에 있으면 표시는 그 위로
+        const by = n.y - (n.def.title ? 112 : 92) - hy + Math.sin(this.time * 5) * 4;   // 빌드 11: 직함이 머리 위에 있으면 표시는 그 위로
         ctx.font = '900 30px "Malgun Gothic"'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#2a1a00';
         ctx.strokeText(mk.ch, n.x, by); ctx.fillStyle = mk.ch === '?' ? '#7dff9a' : (mk.main ? '#ffcf3a' : '#5ab8ff'); ctx.fillText(mk.ch, n.x, by);
       }
