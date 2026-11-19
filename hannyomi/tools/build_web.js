@@ -14,7 +14,7 @@ const OUT = path.resolve(process.argv[2] || path.join(ROOT, '..', 'web_dist'));
 const p2 = n => String(n).padStart(2, '0');
 const now = new Date();
 const STAMP = process.argv[3] || `${now.getFullYear()}${p2(now.getMonth() + 1)}${p2(now.getDate())}-${p2(now.getHours())}${p2(now.getMinutes())}${p2(now.getSeconds())}`;
-const COPY = '과금없이 즐기는 연희의 RPG 대모험 © 2026 HC. All rights reserved. 무단 복제·배포 금지';
+const COPY = '과금없이 즐기는 RPG 대모험 © 2026 HC. All rights reserved. 무단 복제·배포 금지';
 
 if (OUT === ROOT || OUT.startsWith(ROOT + path.sep)) { console.error('출력 폴더는 hannyomi 밖이어야 합니다:', OUT); process.exit(1); }
 

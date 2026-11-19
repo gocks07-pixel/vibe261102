@@ -318,7 +318,7 @@ G.Title = {
     const any = this.used().length > 0, S = G.Settings;
     // 2.0: 새 제목 (주아 글씨체) + 이야기 배경 (src/ui/titlebg.js)
     G.UI.overlay(`<div class="overlay title-ov" style="${this.BG}"><canvas class="title-bg" width="1280" height="720"></canvas>
-      <div class="ttl"><div class="t1">과금없이 즐기는</div><div class="t2">연희의 RPG 대모험!<span class="st">✦</span></div></div>
+      <div class="ttl"><div class="t1">과금없이 즐기는</div><div class="t2">RPG 대모험!<span class="st">✦</span></div></div>
       ${any ? '<button class="btn gold" data-act="title" data-arg="continue">이어하기</button>' : ''}
       <button class="btn ${any ? '' : 'gold'}" data-act="title" data-arg="new">새로 시작</button>
       <button class="btn" data-act="title" data-arg="help">${G.Touch.active() ? '조작 안내' : '조작법 (F1)'}</button>

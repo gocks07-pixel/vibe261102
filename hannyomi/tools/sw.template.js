@@ -1,4 +1,4 @@
-/*! 과금없이 즐기는 연희의 RPG 대모험 © 2026 HC. All rights reserved. 무단 복제·배포 금지 */
+/*! 과금없이 즐기는 RPG 대모험 © 2026 HC. All rights reserved. 무단 복제·배포 금지 */
 // 인터넷 없이 실행 (서비스 워커). tools/build_web.js 가 배포 번호와 파일 목록을 채운다
 //  세이브(localStorage)는 건드리지 않는다. 게임 파일만 휴대폰에 저장한다
 const CACHE = 'rpg-adventure-__STAMP__';

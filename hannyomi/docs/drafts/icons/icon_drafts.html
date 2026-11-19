@@ -117,13 +117,13 @@ function iconC() {
      <path d="M0 950 Q128 920 256 950 T512 950 T768 950 T1024 950 V1024 H0Z" fill="#0a1230"/>
      <path d="M120 760 q40 -18 80 0 M300 800 q40 -18 80 0 M820 780 q40 -18 80 0" stroke="#c0c8ff" stroke-opacity=".5" stroke-width="8" fill="none" stroke-linecap="round"/>`);
 }
-// ---------- D. 연희의 별 (글자) ----------
+// ---------- D. 별 (글자) ----------
 function iconD() {
   seed = 41;
   return svg(`<linearGradient id="bD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a2f8a"/><stop offset="1" stop-color="#1a1440"/></linearGradient>` + GOLD('gD') + GLOW,
     `<rect width="1024" height="1024" fill="url(#bD)"/>${dots(30)}
      <polygon points="${star(512, 560, 420, 210)}" fill="url(#gD)" stroke="#5a2a7a" stroke-width="26" stroke-linejoin="round" filter="url(#glow)"/>
-     <text x="512" y="640" text-anchor="middle" font-family="Jua" font-size="240" fill="#5a2a7a">연희</text>
+     <text x="512" y="640" text-anchor="middle" font-family="Jua" font-size="240" fill="#5a2a7a">RPG</text>
      ${spark(820, 210, 70, '#fff2a8')}${spark(210, 260, 36, '#fff', .8)}`);
 }
 
@@ -131,7 +131,7 @@ const ICONS = [
   ['A', '여덟 번째 별', iconA, true, '이야기의 한가운데: 주인공 = 여덟 번째 별조각. 가운데 금빛 별(주인공)을 일곱 별조각(바람·생명·대지·태양·얼음·하늘·공허, 게임 속 색 그대로)이 둘러싼다. 처음부터 엔딩까지 모으는 것이 이 별조각들이라, 플레이한 사람이면 바로 알아본다.'],
   ['B', '손등의 별 문양', iconB, false, '주인공 손등에 새겨진 별 문양. 엘마가 알아보고, 장이 바뀔 때마다 빛나는 그 표식을 문장(紋章)처럼. 여덟 갈래 별 = 여덟 번째 별, 둘레 일곱 점 = 일곱 별조각. 깔끔하고 작은 크기에서도 또렷하다.'],
   ['C', '등대와 별', iconC, false, '시작은 엘마의 꺼져 가던 등대를 되살리는 일, 끝(히든 엔딩)은 등대 불빛과 녹스의 등불이 나란히 켜지는 장면. 이야기의 처음과 끝을 잇는 상징. 분위기는 가장 좋지만 작은 크기에서는 그림이 복잡해 보일 수 있다.'],
-  ['D', '연희의 별', iconD, false, '게임 이름 "과금없이 즐기는 연희의 RPG 대모험"과 타이틀 글씨(주아체 · 금빛→분홍)를 그대로 옮긴 글자 아이콘. 홈 화면에서 이름처럼 바로 읽힌다. 대신 게임 속 이야기와의 연결은 가장 약하다.'],
+  ['D', 'RPG 별', iconD, false, '게임 이름 "과금없이 즐기는 RPG 대모험"과 타이틀 글씨(주아체 · 금빛→분홍)를 그대로 옮긴 글자 아이콘. 홈 화면에서 이름처럼 바로 읽힌다. 대신 게임 속 이야기와의 연결은 가장 약하다.'],
 ];
 let h = '';
 for (const [k, nm, f, rec, why] of ICONS) {

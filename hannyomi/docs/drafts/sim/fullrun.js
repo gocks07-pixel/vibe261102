@@ -369,7 +369,7 @@ const BOT = function (R) {
   // 새 캐릭터 (실제 타이틀 · 캐릭터 만들기 흐름)
   await pg.evaluate(() => { G.Mobile.closeModal(); G.Title.act('new'); }); await pg.waitForTimeout(200);
   await pg.evaluate(() => G.Title.act('pick:A')); await pg.waitForTimeout(200);
-  await pg.fill('#nameInput', '연희'); await pg.evaluate(() => G.Creator.act('start')); await pg.waitForTimeout(1200);
+  await pg.fill('#nameInput', '조카님'); await pg.evaluate(() => G.Creator.act('start')); await pg.waitForTimeout(1200);
   if (await pg.evaluate(() => G.Cutscene.playing())) { await pg.evaluate(() => G.Cutscene.finish()); await pg.waitForTimeout(800); }
   for (let k = 0; k < 10 && !(await pg.evaluate(() => !!G.Game.player)); k++) await pg.waitForTimeout(300);
   await pg.evaluate(() => { G.Tutorial.skip(); }); await pg.waitForTimeout(200); await pg.evaluate(() => G.UI.answer(true)); await pg.waitForTimeout(800);

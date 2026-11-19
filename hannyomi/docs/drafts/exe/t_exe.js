@@ -136,7 +136,7 @@ async function boot(b, opts = {}) {
     // 엔딩 크레딧
     await ev(() => G.Ending.credits('seal')); await pg.waitForTimeout(3500);
     const cr = await ev(() => document.querySelector('.credits')?.innerText || '');
-    ok(/과금없이 즐기는 연희의 RPG 대모험\n기획 · 개발 : HC\n플레이해 주셔서 감사합니다!/.test(cr) && !/아르셀리아|Claude/.test(cr), '엔딩 크레딧');
+    ok(/과금없이 즐기는 RPG 대모험\n기획 · 개발 : HC\n플레이해 주셔서 감사합니다!/.test(cr) && !/아르셀리아|Claude/.test(cr), '엔딩 크레딧');
     await pg.screenshot({ path: D + '/7_credits.png' });
     ok(errs.filter(e => !/테스트 오류/.test(e)).length === 0, '브라우저 오류 없음 ' + JSON.stringify(errs.slice(0, 3)));
     await pg.close();
@@ -151,7 +151,7 @@ async function boot(b, opts = {}) {
     await pg.screenshot({ path: D + '/8_player_title.png' });
     // 새 캐릭터 만들지 않고 저장 데이터로 시작: 세이브 주입 (f_06 완료, f_07 미완료 → 정수 3개)
     const r = await ev(async () => {
-      const d = G.Player.newData('연희', G.LOOKS.random()); d.tut = null; d.map = 'nox_camp' in G.MAPS ? 'nox_camp' : d.map;
+      const d = G.Player.newData('조카님', G.LOOKS.random()); d.tut = null; d.map = 'nox_camp' in G.MAPS ? 'nox_camp' : d.map;
       d.quests = { f_06: { s: 'done' } };
       G.Save.slot = 'A'; G.Game.begin(d);
       await new Promise(r => setTimeout(r, 300));
@@ -166,7 +166,7 @@ async function boot(b, opts = {}) {
     await pg.keyboard.press('F9'); await pg.waitForTimeout(300);
     await pg.click('[data-bug=make]'); await pg.waitForTimeout(800);
     const bug = await ev(() => window.__bug[0]);
-    ok(bug && bug.slot === 'A' && /"name":"연희"/.test(bug.save || '') && /버전: v2\.1\.14\n/.test(bug.info), 'EXE 버그 신고 데이터 (세이브 · 정보)');
+    ok(bug && bug.slot === 'A' && /"name":"조카님"/.test(bug.save || '') && /버전: v2\.1\.14\n/.test(bug.info), 'EXE 버그 신고 데이터 (세이브 · 정보)');
     ok(!/DEV/.test(bug.info), '플레이어용 신고에 DEV 없음');
     await pg.screenshot({ path: D + '/9_exe_bug_done.png' });
     ok(errs.length === 0, '플레이어용 오류 없음 ' + JSON.stringify(errs.slice(0, 3)));

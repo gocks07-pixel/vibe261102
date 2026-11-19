@@ -1,4 +1,4 @@
-<title>연희의 타이틀 화면 시안</title>
+<title>타이틀 화면 시안</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&family=Gamja+Flower&family=Cute+Font&family=Noto+Sans+KR:wght@400;600;800&display=swap">
 <style>
@@ -51,7 +51,7 @@ ul.parts li { margin: 3px 0; }
 </style>
 <div class="wrap">
   <h1>타이틀 화면 시안</h1>
-  <p class="sub">게임 제목을 "과금없이 즐기는 연희의 RPG 대모험!"으로 바꾸고, 배경을 이야기에 맞게 꾸민 시안이에요. 글씨체를 눌러서 바꿔 볼 수 있어요. 버튼은 모양만 보여 주는 그림이에요.</p>
+  <p class="sub">게임 제목을 "과금없이 즐기는 RPG 대모험!"으로 바꾸고, 배경을 이야기에 맞게 꾸민 시안이에요. 글씨체를 눌러서 바꿔 볼 수 있어요. 버튼은 모양만 보여 주는 그림이에요.</p>
   <div class="bar" role="toolbar" aria-label="글씨체 선택"><span>글씨체</span>
     <button type="button" data-f="Jua" class="on">주아</button><button type="button" data-f="Gaegu">개구</button>
     <button type="button" data-f="Gamja Flower">감자꽃</button><button type="button" data-f="Cute Font">큐트폰트</button>
@@ -60,7 +60,7 @@ ul.parts li { margin: 3px 0; }
     <canvas id="bg" width="1280" height="720" aria-label="타이틀 배경: 별이 뜬 밤하늘, 일곱 별자리, 먼 등불, 새싹항 등대와 바다, 별을 올려다보는 연희"></canvas>
     <div class="ov">
       <div class="t1">과금없이 즐기는</div>
-      <div class="t2">연희의 RPG 대모험!<span class="st">✦</span></div>
+      <div class="t2">RPG 대모험!<span class="st">✦</span></div>
       <div class="t3">아르셀리아 연대기</div>
       <div class="btns"><div class="main">이어하기</div><div>새로 시작</div><div class="test">🛠 테스트 모드 (Lv.100 4차 직업)</div><div>조작법 (F1)</div><div>♪ 음악 감상</div><div>✦ 이야기 다시 보기</div></div>
     </div>
@@ -115,7 +115,7 @@ ul.parts li { margin: 3px 0; }
   for (const [f, ko, desc] of FONTS) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'fc'; b.dataset.f = f;
     const s = document.createElement('span'); s.className = 's'; s.textContent = '과금없이 즐기는'; s.style.fontFamily = `'${f}', sans-serif`;
-    const big = document.createElement('span'); big.className = 'b'; big.textContent = '연희의 RPG 대모험!'; big.style.fontFamily = `'${f}', sans-serif`;
+    const big = document.createElement('span'); big.className = 'b'; big.textContent = 'RPG 대모험!'; big.style.fontFamily = `'${f}', sans-serif`;
     const n = document.createElement('b'); n.textContent = ko;
     const sm = document.createElement('small'); sm.textContent = desc;
     b.append(s, big, n, sm); grid.append(b);
