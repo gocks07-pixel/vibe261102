@@ -136,7 +136,7 @@ async function boot(b, opts = {}) {
     // 엔딩 크레딧
     await ev(() => G.Ending.credits('seal')); await pg.waitForTimeout(3500);
     const cr = await ev(() => document.querySelector('.credits')?.innerText || '');
-    ok(/과금없이 즐기는 RPG 대모험\n기획 · 개발 : HC\n플레이해 주셔서 감사합니다!/.test(cr) && !/아르셀리아|Claude/.test(cr), '엔딩 크레딧');
+    ok(/과금없이 즐기는 연희의 RPG 대모험\n기획 · 개발 : HC\n플레이해 주셔서 감사합니다!/.test(cr) && !/아르셀리아|Claude/.test(cr), '엔딩 크레딧');
     await pg.screenshot({ path: D + '/7_credits.png' });
     ok(errs.filter(e => !/테스트 오류/.test(e)).length === 0, '브라우저 오류 없음 ' + JSON.stringify(errs.slice(0, 3)));
     await pg.close();
