@@ -1807,3 +1807,4 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - 바뀐 것: 문서에서 게임 제목 "과금없이 즐기는 RPG 대모험" (README · LICENSE · 배포판 저작권 주석) · docs 의 조카님 표기 (CLAUDE.md 규칙). 게임 안(타이틀 · 크레딧 · 버그 신고 · NPC · 퀘스트 · 아이템)과 package.json 은 그대로
 - 올리기 전 확인: 배포판 휴대폰 화면 — 테스트 모드 없음 · 버전 2.1.14 · 오류 0
 - EXE 전달: d8cebb6 · c4ef64e (둘을 같이, 게임 파일 변화 없음) · 이 기록
+- EXE 전달 확인 (2026-11-19): d8cebb6 · c4ef64e · a18f0b3 → hannyomi-backup a7923df · b6a1d95 · ea9c5af. bugreport.js · ending.js 는 EXE 쪽 그대로 (모바일 쪽 기기 정보 · © 줄 차이), src · package.json · index.html 은 2.1.14 와 같음 · 버전 그대로. tools/ 4개 · icon_drafts.html · fullrun.js 는 EXE 쪽에 없는 파일이라 안 가져감. 확인: 타이틀 · 크레딧 예전과 같음 · EXE 시험 37 · 회귀 9 통과. 모바일에 합침 (바뀐 파일 없음). 남은 전달 없음
