@@ -7,7 +7,7 @@ const { chromium } = require('playwright'); const fs = require('fs');
     const P = (lookIn, key, wtype) => { const eq = key ? eqOf(key) : {}; const it = s => eq[s] ? G.ITEMS[eq[s].tid] : null; const L = G.LOOKS.toDraw(Object.assign(G.LOOKS.def(lookIn.gender || 'm'), lookIn), it('top') && it('top').color, it('bottom') && it('bottom').color);
       return { dir: 1, t: 0.6, atk: -1, look: L, gear: G.Outfit.gearOf(eq), hatColor: it('hat') ? it('hat').color : null, cape: it('cape') ? it('cape').color : null, weapon: wtype || null, wcolor: '#d8d8e0' }; };
     const N = id => { const n = G.NPCS[id]; return { dir: 1, t: 0.6, atk: -1, look: Object.assign({ skin: '#ffe0c2' }, n.look) }; };
-    const cols = [['연희 (모험가)', P({ hairStyle: 'short', hairColor: '#684932' }, 0, 'sword')], ['여자 · 긴 머리', P({ gender: 'f', hairStyle: 'long', hairColor: '#DDBC85', eye: 'big' }, 0, null)], ['은빛 기사', P({ hairStyle: 'spiky', hairColor: '#282936' }, 40, 'sword')],
+    const cols = [['모험가', P({ hairStyle: 'short', hairColor: '#684932' }, 0, 'sword')], ['여자 · 긴 머리', P({ gender: 'f', hairStyle: 'long', hairColor: '#DDBC85', eye: 'big' }, 0, null)], ['은빛 기사', P({ hairStyle: 'spiky', hairColor: '#282936' }, 40, 'sword')],
       ['루미 (NPC)', N('lumi')], ['하르몬 (NPC)', N('harmon')], ['루루 (NPC)', N('lulu')]];
     const rows = [['지금', 0, false], ['장비 나 (적용됨)', 0, true], ['가 피부 음영', 1, true], ['나 + 머리 윤기', 2, true], ['다 + 주변 빛', 3, true]];
     ctx.font = 'bold 14px sans-serif'; ctx.fillStyle = '#1a2040';

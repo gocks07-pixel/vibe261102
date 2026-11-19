@@ -35,6 +35,7 @@
 
 ## 원칙
 - **스킬 · 효과 시안 원칙 (사용자, 2026-11-15)**: 모든 직업 · 모든 스킬은 "현실적으로 = 더 실제적으로" 만든다. 선 · 도형을 겹친 느낌 대신 부드러운 입자 · 빛 · 그림자 · 반투명으로 실제 현상(불 · 바람 · 번개 · 먼지 · 구름)처럼, 화면을 덮지 않고 다른 효과와 스며들게. 진행 중 정리: `docs/drafts/design/skill_dup/README.md`
+- **조카님 표기 (사용자, 2026-11-19)**: 실제 이름은 문서 · 웹 · 커밋 글 · 코드 설명에 쓰지 않고 "조카님"이라 쓴다. 게임 제목은 **"과금없이 즐기는 RPG 대모험"** (타이틀 · 크레딧 · 저작권 문구 · LICENSE · README). 게임 속 NPC · 퀘스트 · 아이템 이름은 그대로
 - 다른 게임의 고유 명칭·캐릭터·그래픽·시스템 이름은 쓰지 않는다 (`docs/IP_REVIEW.md`). 화폐는 "골드". 공개 문서·스토어 문구에 다른 게임 이름을 쓰지 않는다.
 - 1.6.1 용어: 별빛 각인서(각인 칸) · 공명석(별자리 각인, 공명 게이지) · 장비 단련(단련 효과) · 능력/기술 포인트 · 표류자 · 각성 Ⅰ~Ⅳ · 등급 평범/반짝임/빛남/찬란/별의 축복. 내부 id(scroll_100, cube, pot_red, beginner, STR 등)는 세이브 호환을 위해 옛 이름 그대로
 - 이미지·음원 파일 없이 전부 코드로 그린다/만든다 (저작권 문제 없음).
@@ -62,10 +63,10 @@
 - 빌드 1.7.9: `docs/BUILD_1.7.9_PLAN.md` — 구현 완료 (2026-11-04). 스킬 아이콘 `src/render/icons2.js`(`G.SKILL_GLYPH[스킬 id]`, 새 스킬은 여기에 문양 추가), 버프 칸 `G.HUD.buffBar`
 - 빌드 1.7.10: `docs/BUILD_1.7.10_PLAN.md` — 구현 완료 (2026-11-04). 전사·궁수 스킬 동작·연출 `src/systems/skillx.js` (`G.SKILL_X[스킬 id]`, 피해 수치는 jobs2.js 그대로)
 - 빌드 1.7.11: `docs/BUILD_1.7.11_PLAN.md` — 구현 완료 (2026-11-04). 마법사·도적도 `skillx.js` (화상·빙결·튕기기·표식·독 쌓기·돌아오는 표창)
-- 빌드 1.7.12: `docs/BUILD_1.7.12_PLAN.md` — 구현 완료 (2026-11-04). 연희(사용자 조카 이름, 특별히 신경 쓸 것) NPC · 퀘스트 `c3_s5` · 고르기 창 `G.Win.heroset` · 연희의 별 부적
+- 빌드 1.7.12: `docs/BUILD_1.7.12_PLAN.md` — 구현 완료 (2026-11-04). NPC 연희(게임 속 이름, 특별히 신경 쓸 것) · 퀘스트 `c3_s5` · 고르기 창 `G.Win.heroset` · 연희의 별 부적
 - 빌드 1.8: `docs/BUILD_1.8_PLAN.md` (아래쪽 "실제 구현") — 구현 완료 (2026-11-05). 효과음 `src/core/sound.js` (`G.Sound`), 새 스킬은 `SKILL_SOUND`나 `BY_PROJ`/`BY_FX`로 소리 지정
 - 빌드 1.9: `docs/BUILD_1.9_PLAN.md` — 구현 완료 (2026-11-05). 복장·장비 모양 `src/render/outfit.js` (`G.Outfit.draw`가 사람형 캐릭터를 그림, 장비 id → 디자인 묶음 `styleOf`, 새 장비 묶음은 `S`·`WSTYLE`에 추가). 확인 페이지 `hannyomi-wardrobe.html`
-- 빌드 2.0: `docs/BUILD_2.0_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). 히든 엔딩 `src/systems/hidden.js`, 녹스전 동료 `src/systems/assist.js`, 타이틀 배경 `src/ui/titlebg.js`, 글꼴 `css/fonts/`. 게임 이름: 창 "RPG 대모험_HC" · EXE "RPG Adventure" · 크레딧 "과금없이 즐기는 연희의 RPG 대모험"
+- 빌드 2.0: `docs/BUILD_2.0_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). 히든 엔딩 `src/systems/hidden.js`, 녹스전 동료 `src/systems/assist.js`, 타이틀 배경 `src/ui/titlebg.js`, 글꼴 `css/fonts/`. 게임 이름: 창 "RPG 대모험_HC" · EXE "RPG Adventure" · 크레딧 "과금없이 즐기는 RPG 대모험"
 - 빌드 2.1: `docs/BUILD_2.1_PLAN.md` — 구현 완료 (2026-11-05). 보스 밸런스 `src/data/balance21.js`, 기믹 그림 `src/render/boss21.js`, 시뮬레이터 `docs/drafts/sim/`. 
 - EXE 빌드: `docs/BUILD_EXE_PLAN.md` (아래쪽 "구현 결과") — 구현 완료 (2026-11-05). `electron/main.js`(저장 위치 · 오류기록 · 버그신고) · `electron/build-player.json` · `build-dev.json`, `src/version.js`, `src/core/errlog.js`, `src/ui/autopot.js`, `src/ui/bugreport.js`. 2.1.1: 내 직업 스탯 우대 (`G.Items.jobW`, 쓸모없는 스탯 확률 ×0.5). 버그 신고 파일을 받으면: 오류기록.txt 로 위치 → save_X.json 으로 재현 → 수정 → 회귀 테스트 → 버전 올리기 → 백업
 - 빌드 계획서 (사용자가 "1.x 진행해 줘"라고 하면 진행): `docs/BUILD_1.8_PLAN.md`, `docs/BUILD_1.9_PLAN.md`, `docs/BUILD_2.0_PLAN.md`
