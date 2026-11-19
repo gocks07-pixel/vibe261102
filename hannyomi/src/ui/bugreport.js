@@ -59,7 +59,7 @@ G.Bug = {
   // 게임정보.txt
   info() {
     const p = G.Game.player, w = G.Game.world, L = [];
-    L.push(`게임: 과금없이 즐기는 RPG 대모험`);
+    L.push(`게임: 과금없이 즐기는 연희의 RPG 대모험`);
     L.push(`버전: v${G.VERSION}${G.IS_DEV ? ' DEV (테스트용)' : ''}${G.IS_MOBILE ? ' 모바일' : ''}`);
     L.push(`실행: ${window.electronAPI ? 'EXE' : G.IS_MOBILE ? `휴대폰 브라우저 (${G.Mobile ? G.Mobile.deviceText() : ''})` : '브라우저'}`);
     L.push(`신고 시각: ${G.ErrLog.stamp(Date.now())}`);

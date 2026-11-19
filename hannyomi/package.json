@@ -1,7 +1,7 @@
 {
   "name": "hannyomi-adventure",
   "version": "2.1.14",
-  "description": "과금없이 즐기는 RPG 대모험",
+  "description": "과금없이 즐기는 연희의 RPG 대모험",
   "author": "HC",
   "main": "electron/main.js",
   "scripts": {
