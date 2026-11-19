@@ -103,6 +103,7 @@ G.Dialog = {
     const g = c.createLinearGradient(0, 0, 0, 120); g.addColorStop(0, '#2a3456'); g.addColorStop(1, '#0e1220');
     c.fillStyle = g; c.fillRect(0, 0, 96, 120);
     if (me) G.Draw.humanoid(c, Object.assign(p.look(), { x: 46, y: 112, dir: 1, t: 0, atk: -1, scale: 1.45 }));
+    else if (n.art && G.NPCArt && G.NPCArt[n.art]) G.NPCArt[n.art](c, 44, 128, 1.3, 1, 1.2);   // 빌드 14: 갈림길의 현자 (얼굴 · 수정구가 보이게)
     else G.Draw.humanoid(c, { x: 46, y: 112, dir: 1, t: 0, atk: -1, scale: 1.45, look: Object.assign({ skin: '#ffe0c2' }, n.look) });
   },
 
