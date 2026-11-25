@@ -1808,3 +1808,8 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - 올리기 전 확인: 배포판 휴대폰 화면 — 테스트 모드 없음 · 버전 2.1.14 · 오류 0
 - EXE 전달: d8cebb6 · c4ef64e (둘을 같이, 게임 파일 변화 없음) · 이 기록
 - EXE 전달 확인 (2026-11-19): d8cebb6 · c4ef64e · a18f0b3 → hannyomi-backup a7923df · b6a1d95 · ea9c5af. bugreport.js · ending.js 는 EXE 쪽 그대로 (모바일 쪽 기기 정보 · © 줄 차이), src · package.json · index.html 은 2.1.14 와 같음 · 버전 그대로. tools/ 4개 · icon_drafts.html · fullrun.js 는 EXE 쪽에 없는 파일이라 안 가져감. 확인: 타이틀 · 크레딧 예전과 같음 · EXE 시험 37 · 회귀 9 통과. 모바일에 합침 (바뀐 파일 없음). 남은 전달 없음
+
+## 빌드 15 — 자동 사냥 화면 켜 두기 · 절전 화면 (2026-11-25, 계획 `docs/drafts/plan_build15.md`, 시안 `docs/drafts/design/sleep/sleep_mock.png`)
+- 새 `src/ui/sleep.js` (`G.Sleep`, play.js 다음 · 휴대폰 전용, PC · EXE 에 없음) · `css/mobile.css` `#slp` · `#slpsum`
+- 자동 사냥 중 화면 켜짐 유지(Wake Lock, 끄면 풀기 · 돌아오면 다시) · 메뉴 [🌙 절전 화면: 끔/3분/10분] (`hny_sleep`, 처음 3분) · [🌙 지금 절전 화면으로]
+- 절전 화면: 그리기만 쉬고 게임 계속 · 잡은 수 · 경험치 · 골드 · 아이템 · 물약 · 장비 빈칸 · 경고 · 밀어서 풀기 → "절전 중에 얻은 것" 요약 (자동 사냥이 멈추면 저절로 풀리고 까닭)
