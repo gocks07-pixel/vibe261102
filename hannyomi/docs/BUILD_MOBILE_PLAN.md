@@ -1819,3 +1819,4 @@ README 한 줄: "2.1.8 — 튜토리얼: 금색 발판에서 내려온 뒤, 2단
 - 배포 번호 20261125-061703 · 모바일 a549616 기준 (빌드 15 자동 사냥 화면 켜 두기 · 절전 화면) → rpg-adventure main 3b277ee, Pages 배포 성공 (beta/ 그대로)
 - 올리기 전 확인: 배포판 휴대폰 화면 — 테스트 모드 없음 · 버전 2.1.14 · G.Sleep · 메뉴 절전 버튼 2개 · 오류 0 (완주 4명 · questgo 276번은 빌드 15 때 통과)
 - EXE 전달: 게임 파일 없음 (sleep.js · mobile.css · index.html 의 sleep.js 줄은 휴대폰 전용 → EXE 에 넣지 않음). 문서만: 7517cf7 · a549616 · 이 기록 (CLAUDE.md · BUILD_MOBILE_PLAN.md · plan_build15.md)
+- EXE 전달 확인 (2026-11-25): 7517cf7(문서 부분만) · a549616 · 5876685 → hannyomi-backup cef70e6 · 7a05ef0 · 7e9a49c. sleep.js · mobile.css · index.html 의 sleep.js 줄은 안 넣음 · EXE 게임 파일 변화 없음 · 버전 2.1.14 그대로. EXE 시험 37 · 회귀(t161) 통과. 모바일에 합침 (바뀐 파일 없음). 남은 전달 없음
